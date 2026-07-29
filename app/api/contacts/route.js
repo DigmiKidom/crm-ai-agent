@@ -9,12 +9,17 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  await connectDB();
-  const contacts = await Contact.find({ tenantId: session.user.tenantId })
-    .sort({ createdAt: -1 })
-    .lean();
+  try {
+    await connectDB();
+    const contacts = await Contact.find({ tenantId: session.user.tenantId })
+      .sort({ createdAt: -1 })
+      .lean();
 
-  return NextResponse.json({ contacts });
+    return NextResponse.json({ contacts });
+  } catch (err) {
+    console.error("Fetching contacts failed:", err);
+    return NextResponse.json({ error: "Could not load contacts." }, { status: 503 });
+  }
 }
 
 export async function POST(request) {
@@ -28,16 +33,21 @@ export async function POST(request) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
 
-  await connectDB();
-  const contact = await Contact.create({
-    tenantId: session.user.tenantId,
-    name,
-    company: company || "",
-    email: email || "",
-    phone: phone || "",
-    notes: notes || "",
-    ownerId: session.user.id,
-  });
+  try {
+    await connectDB();
+    const contact = await Contact.create({
+      tenantId: session.user.tenantId,
+      name,
+      company: company || "",
+      email: email || "",
+      phone: phone || "",
+      notes: notes || "",
+      ownerId: session.user.id,
+    });
 
-  return NextResponse.json({ ok: true, contact });
+    return NextResponse.json({ ok: true, contact });
+  } catch (err) {
+    console.error("Creating contact failed:", err);
+    return NextResponse.json({ error: "Could not save contact." }, { status: 503 });
+  }
 }

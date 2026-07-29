@@ -24,7 +24,15 @@ export default function SignupPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ companyName, name, email, password }),
     });
-    const data = await res.json();
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      // Server crashed before returning JSON (e.g. an unhandled 500) —
+      // don't let that show up as a blank unhandled-rejection in the console.
+      data = { error: "Unexpected server error. Please try again." };
+    }
 
     if (!res.ok) {
       setError(data.error || "Something went wrong.");

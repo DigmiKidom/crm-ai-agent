@@ -12,19 +12,24 @@ export async function PATCH(request, { params }) {
   const { id } = await params;
   const { stage } = await request.json();
 
-  await connectDB();
+  try {
+    await connectDB();
 
-  // Scope the update to the caller's tenant so no one can edit another
-  // tenant's lead just by guessing an id.
-  const lead = await Lead.findOneAndUpdate(
-    { _id: id, tenantId: session.user.tenantId },
-    { stage },
-    { new: true }
-  );
+    // Scope the update to the caller's tenant so no one can edit another
+    // tenant's lead just by guessing an id.
+    const lead = await Lead.findOneAndUpdate(
+      { _id: id, tenantId: session.user.tenantId },
+      { stage },
+      { new: true }
+    );
 
-  if (!lead) {
-    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+    if (!lead) {
+      return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Updating lead stage failed:", err);
+    return NextResponse.json({ error: "Could not update lead." }, { status: 503 });
   }
-
-  return NextResponse.json({ ok: true });
 }

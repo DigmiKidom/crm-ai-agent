@@ -14,20 +14,28 @@ export async function POST(request) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
-  await connectDB();
+  try {
+    await connectDB();
 
-  const tenant = await Tenant.findOne({ slug: tenantSlug });
-  if (!tenant) {
-    return NextResponse.json({ error: "Unknown company." }, { status: 404 });
+    const tenant = await Tenant.findOne({ slug: tenantSlug });
+    if (!tenant) {
+      return NextResponse.json({ error: "Unknown company." }, { status: 404 });
+    }
+
+    const lead = await Lead.create({
+      tenantId: tenant._id,
+      name,
+      email,
+      phone: phone || "",
+      message: message || "",
+    });
+
+    return NextResponse.json({ ok: true, leadId: lead._id.toString() });
+  } catch (err) {
+    console.error("Lead submission failed:", err);
+    return NextResponse.json(
+      { error: "Could not save your submission right now. Please try again shortly." },
+      { status: 503 }
+    );
   }
-
-  const lead = await Lead.create({
-    tenantId: tenant._id,
-    name,
-    email,
-    phone: phone || "",
-    message: message || "",
-  });
-
-  return NextResponse.json({ ok: true, leadId: lead._id.toString() });
 }
