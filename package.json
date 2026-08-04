@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@auth/mongodb-adapter": "^3.11.3",
     "bcryptjs": "^3.0.3",
     "mongoose": "^9.8.1",

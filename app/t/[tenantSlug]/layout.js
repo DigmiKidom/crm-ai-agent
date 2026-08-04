@@ -20,6 +20,7 @@ export default async function TenantDashboardLayout({ children, params }) {
           <a href={`/t/${tenantSlug}`}>Leads</a>
           <a href={`/t/${tenantSlug}/pipeline`}>Pipeline</a>
           <a href={`/t/${tenantSlug}/contacts`}>Contacts</a>
+          <a href={`/t/${tenantSlug}/onboarding`}>AI Setup</a>
           <a href={`/l/${tenantSlug}`} target="_blank" rel="noreferrer">
             View landing page
           </a>

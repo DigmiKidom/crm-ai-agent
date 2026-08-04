@@ -49,7 +49,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push(`/t/${data.tenantSlug}`);
+    router.push(`/t/${data.tenantSlug}/onboarding`);
   }
 
   return (
