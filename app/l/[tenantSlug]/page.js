@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
-import LandingTemplate from "@/components/templates/default/LandingTemplate";
+import { getTemplate } from "@/lib/templates";
 
 export const revalidate = 60; // ISR: re-check the tenant config once a minute
 
@@ -13,5 +13,7 @@ export default async function TenantLandingPage({ params }) {
 
   if (!tenant) notFound();
 
-  return <LandingTemplate tenant={JSON.parse(JSON.stringify(tenant))} />;
+  const { Component } = getTemplate(tenant.templateId);
+
+  return <Component tenant={JSON.parse(JSON.stringify(tenant))} />;
 }

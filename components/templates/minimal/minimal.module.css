@@ -1,0 +1,139 @@
+.page {
+  min-height: 100vh;
+  font-family: var(--tenant-font, system-ui, sans-serif);
+  color: #111827;
+  background: white;
+}
+
+.hero {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tenant-primary, #2563eb);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.headline {
+  font-size: 2.75rem;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  color: var(--tenant-accent, #111827);
+}
+
+.subheadline {
+  font-size: 1.1rem;
+  color: #4b5563;
+  margin-bottom: 32px;
+  max-width: 480px;
+}
+
+.ctaButton {
+  display: inline-block;
+  border-bottom: 2px solid var(--tenant-primary, #2563eb);
+  color: var(--tenant-accent, #111827);
+  padding-bottom: 4px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.divider {
+  border-top: 1px solid #e5e7eb;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.features {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+
+.featureCard {
+  padding: 20px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.featureCard h3 {
+  color: var(--tenant-accent, #111827);
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.featureCard p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.formSection {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+}
+
+.formSection h2 {
+  margin-bottom: 20px;
+  color: var(--tenant-accent, #111827);
+  font-size: 1.3rem;
+}
+
+.field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.field input,
+.field textarea {
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid #d1d5db;
+  background: transparent;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--tenant-primary, #2563eb);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--tenant-accent, #111827);
+  border-radius: 0;
+  background: var(--tenant-accent, #111827);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.success {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.footer {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+  font-size: 0.8rem;
+}

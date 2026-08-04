@@ -5,6 +5,7 @@ import Tenant from "@/lib/models/Tenant";
 import Pipeline from "@/lib/models/Pipeline";
 import AgentSession from "@/lib/models/AgentSession";
 import { generateSiteConfig } from "@/lib/agent";
+import { getTemplate } from "@/lib/templates";
 
 export async function POST(request) {
   const session = await auth();
@@ -40,6 +41,7 @@ export async function POST(request) {
 
     const update = {
       industry,
+      templateId: config.templateId,
       landingPage: {
         headline: config.headline,
         subheadline: config.subheadline,
@@ -63,7 +65,12 @@ export async function POST(request) {
       output: config,
     });
 
-    return NextResponse.json({ ok: true, tenantSlug: updatedTenant.slug });
+    return NextResponse.json({
+      ok: true,
+      tenantSlug: updatedTenant.slug,
+      templateId: config.templateId,
+      templateName: getTemplate(config.templateId).name,
+    });
   } catch (err) {
     console.error("AI agent generation failed:", err);
     const message = /ANTHROPIC_API_KEY/.test(err.message || "")

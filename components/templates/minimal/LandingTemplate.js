@@ -1,5 +1,5 @@
-import styles from "./default.module.css";
-import LeadForm from "./LeadForm";
+import styles from "./minimal.module.css";
+import LeadForm from "../default/LeadForm";
 
 export default function LandingTemplate({ tenant }) {
   const { name, slug, theme, landingPage } = tenant;
@@ -13,14 +13,17 @@ export default function LandingTemplate({ tenant }) {
   return (
     <div className={styles.page} style={themeVars}>
       <section className={styles.hero}>
+        <div className={styles.eyebrow}>{name}</div>
         <h1 className={styles.headline}>{landingPage?.headline || `Grow ${name}`}</h1>
         <p className={styles.subheadline}>
           {landingPage?.subheadline || "Tell your visitors why they should reach out."}
         </p>
         <a className={styles.ctaButton} href="#lead-form">
-          {landingPage?.ctaLabel || "Get in touch"}
+          {landingPage?.ctaLabel || "Get in touch"} &rarr;
         </a>
       </section>
+
+      <div className={styles.divider} />
 
       {landingPage?.features?.length > 0 && (
         <section className={styles.features}>
@@ -34,10 +37,8 @@ export default function LandingTemplate({ tenant }) {
       )}
 
       <section className={styles.formSection} id="lead-form">
-        <div className={styles.formCard}>
-          <h2>{landingPage?.ctaLabel || "Get in touch"}</h2>
-          <LeadForm tenantSlug={slug} ctaLabel={landingPage?.ctaLabel} styles={styles} />
-        </div>
+        <h2>{landingPage?.ctaLabel || "Get in touch"}</h2>
+        <LeadForm tenantSlug={slug} ctaLabel={landingPage?.ctaLabel} styles={styles} />
       </section>
 
       <footer className={styles.footer}>

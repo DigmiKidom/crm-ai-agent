@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./default.module.css";
+import defaultStyles from "./default.module.css";
 
-export default function LeadForm({ tenantSlug, ctaLabel }) {
+// Style-agnostic: any template can hand in its own CSS module so the form
+// matches that template's look, without duplicating the submit logic.
+export default function LeadForm({ tenantSlug, ctaLabel, styles = defaultStyles }) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
 

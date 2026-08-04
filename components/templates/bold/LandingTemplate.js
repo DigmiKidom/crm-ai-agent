@@ -1,5 +1,5 @@
-import styles from "./default.module.css";
-import LeadForm from "./LeadForm";
+import styles from "./bold.module.css";
+import LeadForm from "../default/LeadForm";
 
 export default function LandingTemplate({ tenant }) {
   const { name, slug, theme, landingPage } = tenant;
@@ -26,6 +26,7 @@ export default function LandingTemplate({ tenant }) {
         <section className={styles.features}>
           {landingPage.features.map((feature, i) => (
             <div className={styles.featureCard} key={i}>
+              <div className={styles.featureIcon} />
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </div>

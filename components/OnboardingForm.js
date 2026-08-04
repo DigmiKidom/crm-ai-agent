@@ -51,7 +51,8 @@ export default function OnboardingForm({ tenantSlug }) {
     return (
       <div className={styles.detailCard}>
         <p style={{ marginBottom: 16 }}>
-          Done — your landing page copy and pipeline are ready.
+          Done — your landing page copy and pipeline are ready
+          {result.templateName ? ` using the "${result.templateName}" template` : ""}.
         </p>
         <div className={styles.actionsRow} style={{ marginTop: 0 }}>
           <a className={styles.saveButton} href={`/l/${tenantSlug}`} target="_blank" rel="noreferrer">
