@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "@/components/dashboard.module.css";
+import ContactRow from "@/components/ContactRow";
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState([]);
@@ -76,16 +77,23 @@ export default function ContactsPage() {
               <th>Company</th>
               <th>Email</th>
               <th>Phone</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {contacts.map((c) => (
-              <tr key={c._id}>
-                <td>{c.name}</td>
-                <td>{c.company || "—"}</td>
-                <td>{c.email || "—"}</td>
-                <td>{c.phone || "—"}</td>
-              </tr>
+              <ContactRow
+                key={c._id}
+                contact={c}
+                onUpdated={(updated) =>
+                  setContacts((current) =>
+                    current.map((existing) => (existing._id === updated._id ? updated : existing))
+                  )
+                }
+                onDeleted={(id) =>
+                  setContacts((current) => current.filter((existing) => existing._id !== id))
+                }
+              />
             ))}
           </tbody>
         </table>

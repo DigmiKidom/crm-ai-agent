@@ -34,6 +34,7 @@ export default async function LeadsInboxPage({ params }) {
               <th>Phone</th>
               <th>Stage</th>
               <th>Received</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -46,6 +47,11 @@ export default async function LeadsInboxPage({ params }) {
                   <StageSelect leadId={lead._id.toString()} stage={lead.stage} stages={stages} />
                 </td>
                 <td>{new Date(lead.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <a className={styles.linkButton} href={`/t/${tenantSlug}/leads/${lead._id}`}>
+                    View
+                  </a>
+                </td>
               </tr>
             ))}
           </tbody>
