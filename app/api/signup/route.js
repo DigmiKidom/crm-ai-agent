@@ -5,6 +5,8 @@ import Tenant from "@/lib/models/Tenant";
 import User from "@/lib/models/User";
 import Pipeline from "@/lib/models/Pipeline";
 import { slugify } from "@/lib/slugify";
+import { createToken } from "@/lib/tokens";
+import { sendVerificationEmail, getAppUrl } from "@/lib/email";
 
 // MVP signup: creates a brand-new tenant and makes the signing-up user its
 // owner. Joining an existing tenant via an invite link is a Phase 2 addition.
@@ -42,13 +44,22 @@ export async function POST(request) {
     await Pipeline.create({ tenantId: tenant._id });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    await User.create({
+    const user = await User.create({
       email: email.toLowerCase(),
       passwordHash,
       name,
       tenantId: tenant._id,
       role: "owner",
     });
+
+    // Best-effort: a broken email provider shouldn't block account creation.
+    try {
+      const rawToken = await createToken(user._id, "verify");
+      const verifyUrl = `${getAppUrl()}/api/auth/verify-email?token=${rawToken}`;
+      await sendVerificationEmail(user.email, verifyUrl);
+    } catch (emailErr) {
+      console.error("Sending verification email failed:", emailErr);
+    }
 
     return NextResponse.json({ ok: true, tenantSlug: tenant.slug });
   } catch (err) {

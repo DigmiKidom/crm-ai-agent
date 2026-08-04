@@ -14,7 +14,17 @@ export async function POST(request) {
   }
 
   const body = await request.json();
-  const { industry, companySize, leadDefinition, tone, brandColor } = body ?? {};
+  const {
+    industry,
+    companySize,
+    leadDefinition,
+    tone,
+    personality,
+    style,
+    targetAudience,
+    technology,
+    brandColor,
+  } = body ?? {};
 
   if (!industry || !leadDefinition) {
     return NextResponse.json(
@@ -37,6 +47,10 @@ export async function POST(request) {
       companySize: companySize || "unspecified",
       leadDefinition,
       tone: tone || "professional",
+      personality: Array.isArray(personality) ? personality : [],
+      style: style || "modern",
+      targetAudience: Array.isArray(targetAudience) ? targetAudience : [],
+      technology: technology || "balanced",
     });
 
     const update = {
@@ -61,7 +75,17 @@ export async function POST(request) {
 
     await AgentSession.create({
       tenantId: tenant._id,
-      input: { industry, companySize, leadDefinition, tone, brandColor },
+      input: {
+        industry,
+        companySize,
+        leadDefinition,
+        tone,
+        personality,
+        style,
+        targetAudience,
+        technology,
+        brandColor,
+      },
       output: config,
     });
 
@@ -73,8 +97,8 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error("AI agent generation failed:", err);
-    const message = /ANTHROPIC_API_KEY/.test(err.message || "")
-      ? "The AI agent isn't configured yet — add ANTHROPIC_API_KEY to your environment."
+    const message = /GOOGLE_API_KEY/.test(err.message || "")
+      ? "The AI agent isn't configured yet — add GOOGLE_API_KEY to your environment."
       : "Could not generate your site right now. Please try again.";
     return NextResponse.json({ error: message }, { status: 502 });
   }

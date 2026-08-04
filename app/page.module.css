@@ -11,9 +11,26 @@
   max-width: 560px;
 }
 
+.logoRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
 .title {
   font-size: 2.2rem;
   margin-bottom: 16px;
+}
+
+.footer {
+  margin-top: 40px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.footer a {
+  color: var(--muted);
+  text-decoration: underline;
 }
 
 .subtitle {

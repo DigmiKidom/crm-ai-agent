@@ -24,7 +24,7 @@ export default async function LeadDetailPage({ params }) {
 
   return (
     <div>
-      <a className={styles.backLink} href={`/t/${tenantSlug}`}>
+      <a className={styles.backLink} href={`/t/${tenantSlug}/leads`}>
         &larr; Back to leads
       </a>
       <h1 className={styles.pageTitle}>{lead.name}</h1>

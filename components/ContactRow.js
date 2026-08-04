@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from "./dashboard.module.css";
+import { IconEdit, IconTrash, IconCheck, IconClose } from "./icons";
 
 export default function ContactRow({ contact, onUpdated, onDeleted }) {
   const [editing, setEditing] = useState(false);
@@ -60,10 +61,12 @@ export default function ContactRow({ contact, onUpdated, onDeleted }) {
           <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         </td>
         <td className={styles.rowActions}>
-          <button className={styles.linkButton} onClick={handleSave} disabled={saving}>
+          <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={handleSave} disabled={saving}>
+            <IconCheck size={13} />
             {saving ? "Saving..." : "Save"}
           </button>
-          <button className={styles.linkButton} onClick={() => setEditing(false)}>
+          <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={() => setEditing(false)}>
+            <IconClose size={13} />
             Cancel
           </button>
         </td>
@@ -78,10 +81,12 @@ export default function ContactRow({ contact, onUpdated, onDeleted }) {
       <td>{contact.email || "—"}</td>
       <td>{contact.phone || "—"}</td>
       <td className={styles.rowActions}>
-        <button className={styles.linkButton} onClick={() => setEditing(true)}>
+        <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={() => setEditing(true)}>
+          <IconEdit size={13} />
           Edit
         </button>
-        <button className={styles.linkButton} onClick={handleDelete} disabled={deleting}>
+        <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={handleDelete} disabled={deleting}>
+          <IconTrash size={13} />
           {deleting ? "Deleting..." : "Delete"}
         </button>
       </td>

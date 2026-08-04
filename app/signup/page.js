@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 import styles from "./page.module.css";
 
 export default function SignupPage() {
@@ -11,6 +12,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -55,6 +57,9 @@ export default function SignupPage() {
   return (
     <div className={styles.wrap}>
       <div className={styles.card}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+          <Logo href={null} markSize={30} />
+        </div>
         <h1 className={styles.title}>Create your account</h1>
         <p className={styles.subtitle}>Set up your company&apos;s CRM and landing page.</p>
 
@@ -102,7 +107,33 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button className={styles.button} type="submit" disabled={loading}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              fontSize: "0.8rem",
+              color: "var(--muted)",
+              marginBottom: 16,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              required
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              style={{ marginTop: 2 }}
+            />
+            <span>
+              I agree to the{" "}
+              <a href="/terms" target="_blank" rel="noreferrer">
+                Terms of Use
+              </a>
+              .
+            </span>
+          </label>
+          <button className={styles.button} type="submit" disabled={loading || !agreedToTerms}>
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>

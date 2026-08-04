@@ -39,6 +39,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           tenantId: user.tenantId.toString(),
           tenantSlug: tenant?.slug ?? "",
           role: user.role,
+          emailVerified: !!user.emailVerified,
         };
       },
     }),
@@ -52,6 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.tenantId = user.tenantId;
         token.tenantSlug = user.tenantSlug;
         token.role = user.role;
+        token.emailVerified = user.emailVerified;
       }
       return token;
     },
@@ -60,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.tenantId = token.tenantId;
       session.user.tenantSlug = token.tenantSlug;
       session.user.role = token.role;
+      session.user.emailVerified = token.emailVerified;
       return session;
     },
   },

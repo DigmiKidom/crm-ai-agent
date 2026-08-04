@@ -3,6 +3,7 @@ import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
 import Pipeline from "@/lib/models/Pipeline";
 import PipelineBoard from "@/components/PipelineBoard";
+import PipelineStagesEditor from "@/components/PipelineStagesEditor";
 import styles from "@/components/dashboard.module.css";
 
 export default async function PipelinePage({ params }) {
@@ -20,6 +21,7 @@ export default async function PipelinePage({ params }) {
   return (
     <div>
       <h1 className={styles.pageTitle}>Pipeline</h1>
+      <PipelineStagesEditor tenantSlug={tenantSlug} stages={stages} />
       <PipelineBoard
         initialLeads={JSON.parse(JSON.stringify(leads))}
         stages={stages}

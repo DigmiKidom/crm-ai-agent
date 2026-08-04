@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
+import { IconCheck, IconTrash } from "./icons";
 
 export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
       setError("Could not delete lead.");
       return;
     }
-    router.push(`/t/${tenantSlug}`);
+    router.push(`/t/${tenantSlug}/leads`);
   }
 
   return (
@@ -110,15 +111,17 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
       </div>
 
       <div className={styles.actionsRow}>
-        <button type="submit" className={styles.saveButton} disabled={saving}>
+        <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`} disabled={saving}>
+          <IconCheck size={14} />
           {saving ? "Saving..." : "Save changes"}
         </button>
         <button
           type="button"
-          className={styles.deleteButton}
+          className={`${styles.deleteButton} ${styles.iconLabel}`}
           onClick={handleDelete}
           disabled={deleting}
         >
+          <IconTrash size={14} />
           {deleting ? "Deleting..." : "Delete lead"}
         </button>
         {saved && <span className={styles.savedNote}>Saved</span>}

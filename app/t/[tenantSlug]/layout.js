@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import SignOutButton from "@/components/SignOutButton";
+import VerifyEmailBanner from "@/components/VerifyEmailBanner";
+import DashboardNav from "@/components/DashboardNav";
+import Logo from "@/components/Logo";
 import styles from "@/components/dashboard.module.css";
 
 export default async function TenantDashboardLayout({ children, params }) {
@@ -15,19 +18,17 @@ export default async function TenantDashboardLayout({ children, params }) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <div className={styles.brand}>{tenantSlug}</div>
-        <nav className={styles.nav}>
-          <a href={`/t/${tenantSlug}`}>Leads</a>
-          <a href={`/t/${tenantSlug}/pipeline`}>Pipeline</a>
-          <a href={`/t/${tenantSlug}/contacts`}>Contacts</a>
-          <a href={`/t/${tenantSlug}/onboarding`}>AI Setup</a>
-          <a href={`/l/${tenantSlug}`} target="_blank" rel="noreferrer">
-            View landing page
-          </a>
-        </nav>
+        <div className={styles.brand}>
+          <Logo href={null} markSize={24} iconOnly />
+          <span className={styles.brandTenant}>{tenantSlug}</span>
+        </div>
+        <DashboardNav tenantSlug={tenantSlug} />
         <SignOutButton className={styles.signOutButton} />
       </aside>
-      <main className={styles.main}>{children}</main>
+      <main className={styles.main}>
+        {!session.user.emailVerified && <VerifyEmailBanner />}
+        {children}
+      </main>
     </div>
   );
 }

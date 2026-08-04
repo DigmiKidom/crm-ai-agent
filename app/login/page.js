@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 import styles from "./page.module.css";
+import VerifyStatus from "./VerifyStatus";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,8 +41,15 @@ export default function LoginPage() {
   return (
     <div className={styles.wrap}>
       <div className={styles.card}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+          <Logo href={null} markSize={30} />
+        </div>
         <h1 className={styles.title}>Log in</h1>
         <p className={styles.subtitle}>Welcome back.</p>
+
+        <Suspense fallback={null}>
+          <VerifyStatus />
+        </Suspense>
 
         {error && <p className={styles.error}>{error}</p>}
 
@@ -70,6 +79,9 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <p className={styles.footer}>
+          <a href="/forgot-password">Forgot your password?</a>
+        </p>
         <p className={styles.footer}>
           No account yet? <a href="/signup">Sign up</a>
         </p>
