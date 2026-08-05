@@ -11,6 +11,9 @@
   flex-direction: column;
 }
 
+/* Inline mark + name by default. With an uploaded logo the block stacks
+   instead, because a wide wordmark logo beside text would overflow the
+   220px sidebar. :has() picks that case up without a second class. */
 .brand {
   display: flex;
   align-items: center;
@@ -24,12 +27,18 @@
   transition: opacity 0.12s ease;
 }
 
+.brand:has(.brandLogo) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
 .brand:hover {
   opacity: 0.75;
 }
 
 /* Tenant logos vary wildly in aspect ratio — cap the height, let the width
-   follow, and never let a wide wordmark push the 220px sidebar around. */
+   follow, and never let a wide wordmark push the sidebar around. */
 .brandLogo {
   display: block;
   max-height: 40px;
@@ -44,6 +53,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Under a logo the name is supporting text, not the headline — the logo is
+   already carrying the branding. */
+.brand:has(.brandLogo) .brandTenant {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .navTable {

@@ -39,22 +39,21 @@ export default async function TenantDashboardLayout({ children, params }) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        {/* The tenant's own logo takes the top slot once they've uploaded one;
-            until then we fall back to the product mark plus their slug. */}
+        {/* The tenant's own logo takes the top slot once they've uploaded one,
+            with the company name underneath it; until then the product mark
+            sits inline beside the name instead. */}
         <a href={`/t/${tenantSlug}/settings`} className={styles.brand} title="Company settings">
           {tenant?.logoMediaId ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={`/api/media/${tenant.logoMediaId}`}
-              alt={tenant.name || tenantSlug}
+              alt=""
               className={styles.brandLogo}
             />
           ) : (
-            <>
-              <Logo href={null} markSize={24} iconOnly />
-              <span className={styles.brandTenant}>{tenant?.name || tenantSlug}</span>
-            </>
+            <Logo href={null} markSize={24} iconOnly />
           )}
+          <span className={styles.brandTenant}>{tenant?.name || tenantSlug}</span>
         </a>
         <DashboardNav tenantSlug={tenantSlug} unreadLeads={unreadLeads} />
         <SignOutButton className={styles.signOutButton} />
