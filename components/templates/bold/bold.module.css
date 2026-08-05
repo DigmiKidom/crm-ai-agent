@@ -136,6 +136,18 @@
   border-radius: 10px;
 }
 
+
+/* Textareas default to resize:both, which lets a visitor drag the message
+   box out past the form card. Vertical-only keeps the layout intact. */
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 84px;
+  font: inherit;
+  color: inherit;
+}
+
 .submitButton {
   width: 100%;
   padding: 14px;
