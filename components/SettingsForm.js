@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import ImageUpload from "./ImageUpload";
 import { IconCheck } from "./icons";
 import styles from "./dashboard.module.css";
@@ -44,6 +45,7 @@ export default function SettingsForm({ tenant }) {
     },
   });
 
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -95,6 +97,9 @@ export default function SettingsForm({ tenant }) {
       return;
     }
     setSaved(true);
+    // The sidebar renders the company logo and name from the layout, which
+    // won't re-run on its own — refresh so a new logo shows up immediately.
+    router.refresh();
   }
 
   return (
