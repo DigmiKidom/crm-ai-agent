@@ -11,6 +11,7 @@ import styles from "./dashboard.module.css";
 const PRESETS = {
   logo: { maxW: 512, maxH: 512, quality: 0.9 },
   background: { maxW: 1920, maxH: 1080, quality: 0.82 },
+  gallery: { maxW: 1400, maxH: 1400, quality: 0.82 },
 };
 
 function compress(file, { maxW, maxH, quality }) {

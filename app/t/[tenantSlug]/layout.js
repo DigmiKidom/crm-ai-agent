@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Lead from "@/lib/models/Lead";
 import Tenant from "@/lib/models/Tenant";
+import WorkspaceItem from "@/lib/models/WorkspaceItem";
 import SignOutButton from "@/components/SignOutButton";
 import VerifyEmailBanner from "@/components/VerifyEmailBanner";
 import DashboardNav from "@/components/DashboardNav";
@@ -23,12 +24,18 @@ export default async function TenantDashboardLayout({ children, params }) {
   // already-read, so nobody logs in to a wall of false notifications.
   let unreadLeads = 0;
   let tenant = null;
+  let workspaceItems = [];
   try {
     await connectDB();
-    [unreadLeads, tenant] = await Promise.all([
+    [unreadLeads, tenant, workspaceItems] = await Promise.all([
       Lead.countDocuments({ tenantId: session.user.tenantId, read: false }),
       // Only the two fields the sidebar actually renders.
       Tenant.findById(session.user.tenantId).select("name logoMediaId").lean(),
+      // The tenant's own pages, listed under the fixed nav rows.
+      WorkspaceItem.find({ tenantId: session.user.tenantId })
+        .select("type title order")
+        .sort({ order: 1, createdAt: 1 })
+        .lean(),
     ]);
   } catch (err) {
     // Neither the badge nor the logo is worth taking the whole dashboard down
@@ -55,7 +62,15 @@ export default async function TenantDashboardLayout({ children, params }) {
           )}
           <span className={styles.brandTenant}>{tenant?.name || tenantSlug}</span>
         </a>
-        <DashboardNav tenantSlug={tenantSlug} unreadLeads={unreadLeads} />
+        <DashboardNav
+          tenantSlug={tenantSlug}
+          unreadLeads={unreadLeads}
+          workspaceItems={workspaceItems.map((i) => ({
+            id: i._id.toString(),
+            type: i.type,
+            title: i.title,
+          }))}
+        />
         <SignOutButton className={styles.signOutButton} />
       </aside>
       <main className={styles.main}>

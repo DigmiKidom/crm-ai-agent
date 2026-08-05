@@ -8,7 +8,7 @@
   padding: 7px 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface);
   font-size: 0.85rem;
   cursor: pointer;
   color: var(--foreground);
@@ -57,5 +57,5 @@
 }
 
 .swatchSelected {
-  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--foreground);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--foreground);
 }

@@ -85,7 +85,7 @@ export default async function LeadsInboxPage({ params, searchParams }) {
         <p className={styles.empty}>
           {hasFilters
             ? "No leads match those filters."
-            : `No leads yet. Share your landing page (/l/${tenantSlug}) to start collecting them.`}
+            : `No leads yet. Share your landing page (/pages/${tenantSlug}) to start collecting them.`}
         </p>
       ) : (
         <table className={styles.table}>

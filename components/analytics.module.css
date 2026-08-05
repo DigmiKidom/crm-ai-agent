@@ -1,0 +1,298 @@
+/* Analytics screen layout. The dashboard's own panel/stat styles live in
+   dashboard.module.css and are reused where they fit; everything here is
+   specific to the reporting page. */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.headerText {
+  min-width: 200px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 6px 0 0;
+}
+
+/* ------------------------------------------------------------ range picker */
+
+.rangePicker {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.rangeOption {
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-right: 1px solid var(--border);
+  background: var(--background);
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.rangeOption:last-child {
+  border-right: none;
+}
+
+.rangeOption:hover {
+  background: var(--surface-accent);
+  color: var(--foreground);
+}
+
+.rangeOptionActive {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.rangeOptionActive:hover {
+  background: var(--primary-hover);
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------- kpi grid */
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.kpiCard {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 108px;
+}
+
+.kpiCardWarn {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+
+.kpiTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kpiLabel {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.kpiValue {
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpiHint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: auto;
+  padding-top: 4px;
+  line-height: 1.35;
+}
+
+.kpiDelta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.deltaUp {
+  background: var(--success-bg);
+  color: var(--success-strong);
+}
+
+.deltaDown {
+  background: var(--danger-bg);
+  color: var(--danger-strong);
+}
+
+.deltaFlat {
+  background: var(--border);
+  color: var(--muted);
+}
+
+.deltaNew {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+/* ------------------------------------------------------------------ panels */
+
+.panelGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panelGridWide {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  min-width: 0; /* lets grid children shrink instead of overflowing */
+}
+
+.panelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.panelTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.panelNote {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.panelFooter {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------- inline stats */
+
+.miniStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.miniStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.miniStatValue {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.miniStatLabel {
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* ---------------------------------------------------------------- insights */
+
+.insightList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.insight {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.insightIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--primary);
+}
+
+.insightIconWarn {
+  color: var(--warning);
+}
+
+.insightIconGood {
+  color: var(--success);
+}
+
+.insightStrong {
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------- empty state */
+
+.emptyState {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.emptyStateTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 6px;
+}
+
+@media (max-width: 720px) {
+  .panelGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .rangePicker {
+    width: 100%;
+  }
+
+  .rangeOption {
+    flex: 1;
+    text-align: center;
+  }
+}

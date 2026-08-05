@@ -118,6 +118,19 @@
   font-size: 0.9rem;
 }
 
+.gallerySection {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.gallerySection h2 {
+  color: var(--tenant-accent, #111827);
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 .formSection {
   max-width: 480px;
   margin: 0 auto;

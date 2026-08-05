@@ -1,6 +1,44 @@
 .shell {
   min-height: 100vh;
   display: flex;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* ── Dark mode ────────────────────────────────────────────────────────────
+   Scoped to the dashboard shell (not :root) so toggling dark mode never
+   touches the public tenant landing pages or the pre-login auth screens —
+   those are separate surfaces with their own branding/theme concerns.
+   Custom properties cascade to every descendant regardless of CSS Module
+   scoping, so this one block is enough to re-theme every card, input, and
+   chip in the dashboard, workspace, analytics, and chart components. */
+:global([data-theme="dark"]) .shell {
+  --background: #14161b;
+  --foreground: #e7e9ec;
+  --muted: #9aa1ac;
+  --border: #2b2f38;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --surface: #1c1f26;
+  --surface-sunken: #1a1c22;
+  --surface-hover: #262a33;
+  --surface-accent: #1e2a45;
+  --danger: #f87171;
+  --danger-strong: #fca5a5;
+  --danger-bg: rgba(220, 38, 38, 0.18);
+  --danger-border: rgba(248, 113, 113, 0.4);
+  --success: #4ade80;
+  --success-strong: #86efac;
+  --success-bg: rgba(34, 197, 94, 0.16);
+  --warning: #fbbf24;
+  --warning-bg: rgba(245, 158, 11, 0.14);
+  --warning-border: rgba(245, 158, 11, 0.45);
+  --info: #93c5fd;
+  --info-bg: rgba(59, 130, 246, 0.18);
+  --unread-bg: rgba(234, 179, 8, 0.16);
+  --code-bg: #0b1120;
+  --code-fg: #cbd5e1;
+  --shadow-color: rgba(0, 0, 0, 0.55);
 }
 
 .sidebar {
@@ -89,11 +127,154 @@
 }
 
 .navRow:hover {
-  background: #f3f4f6;
+  background: var(--surface-hover);
+}
+
+/* ── Workspace ("My pages") section of the sidebar ───────────────────────── */
+
+.navSectionLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.navSectionAdd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.navSectionAdd:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* A long page name shouldn't push the sidebar wider or wrap onto two lines. */
+.navRowTruncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.navEmptyHint {
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.navCreate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+
+.navCreate input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 0.82rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+}
+
+.navCreateTypes {
+  display: flex;
+  gap: 6px;
+}
+
+.navCreateType {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.navCreateTypeActive {
+  border-color: var(--primary);
+  background: var(--surface-accent);
+  color: var(--primary);
+}
+
+.navCreateActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navCreateActions button[type="submit"] {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+}
+
+.navCreateActions button[type="submit"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.navCreateActions button[type="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.navCreateError {
+  font-size: 0.74rem;
+  color: var(--danger-strong);
 }
 
 .navRowActive {
-  background: #eef2ff;
+  background: var(--surface-accent);
   color: var(--primary);
   font-weight: 600;
 }
@@ -112,7 +293,8 @@
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
+  color: inherit;
   cursor: pointer;
   font-size: 0.85rem;
   text-align: left;
@@ -169,7 +351,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px;
-  background: #f9fafb;
+  background: var(--surface-sunken);
 }
 
 .pipelineColumn h3 {
@@ -180,7 +362,7 @@
 }
 
 .pipelineCard {
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px;
@@ -198,7 +380,7 @@
 }
 
 .pipelineColumnOver {
-  background: #eef2ff;
+  background: var(--surface-accent);
   border-color: var(--primary);
 }
 
@@ -236,6 +418,8 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 0.9rem;
+  background: var(--surface);
+  color: inherit;
 }
 
 .detailField textarea {
@@ -262,17 +446,17 @@
 
 .deleteButton {
   padding: 8px 16px;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--danger-border);
   border-radius: 8px;
-  background: white;
-  color: #b91c1c;
+  background: var(--surface);
+  color: var(--danger-strong);
   font-weight: 600;
   cursor: pointer;
 }
 
 .savedNote {
   font-size: 0.8rem;
-  color: #15803d;
+  color: var(--success-strong);
   align-self: center;
 }
 
@@ -305,7 +489,7 @@
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 8px;
-  background: #f9fafb;
+  background: var(--surface-sunken);
 }
 
 .featureRow input,
@@ -314,6 +498,8 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.9rem;
+  background: var(--surface);
+  color: inherit;
 }
 
 .featureRow textarea {
@@ -335,11 +521,13 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.9rem;
+  background: var(--surface);
+  color: inherit;
 }
 
 .iconButton {
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface);
   border-radius: 6px;
   width: 28px;
   height: 28px;
@@ -405,7 +593,7 @@
 
 .statCard:hover {
   border-color: var(--primary);
-  background: #f8faff;
+  background: var(--surface-accent);
 }
 
 .statIcon {
@@ -473,7 +661,7 @@
 .stageBarTrack {
   height: 8px;
   border-radius: 4px;
-  background: #f3f4f6;
+  background: var(--surface-hover);
   overflow: hidden;
 }
 
@@ -508,7 +696,7 @@
 }
 
 .recentItem:hover {
-  background: #f8faff;
+  background: var(--surface-accent);
 }
 
 .recentName {
@@ -527,8 +715,8 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
   border-radius: 8px;
   padding: 10px 16px;
   margin-bottom: 20px;
@@ -567,7 +755,7 @@
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--muted);
-  background: #f3f4f6;
+  background: var(--surface-hover);
   border-radius: 999px;
   padding: 2px 8px;
 }
@@ -590,9 +778,9 @@
 }
 
 .formError {
-  color: #b91c1c;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  color: var(--danger-strong);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 0.85rem;
@@ -625,7 +813,7 @@
   padding: 2px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -660,7 +848,7 @@
   padding: 20px;
   border: 1.5px dashed var(--border);
   border-radius: 10px;
-  background: #f9fafb;
+  background: var(--surface-sunken);
   color: var(--muted);
   font-size: 0.85rem;
   cursor: pointer;
@@ -669,7 +857,7 @@
 
 .imageDropzone:hover:not(:disabled) {
   border-color: var(--primary);
-  background: #f5f7ff;
+  background: var(--surface-accent);
   color: var(--primary);
 }
 
@@ -691,7 +879,7 @@
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: #f9fafb;
+  background: var(--surface-sunken);
 }
 
 .imagePreview {
@@ -704,6 +892,9 @@
 .logoPreview {
   max-height: 80px;
   object-fit: contain;
+  /* Deliberately a literal white, not var(--surface) — most uploaded logos
+     are designed against a white background (transparent PNGs can invert
+     oddly), so this shouldn't flip with the dashboard's own theme. */
   background: white;
   padding: 8px;
 }
@@ -719,7 +910,7 @@
 }
 
 .imageError {
-  color: #b91c1c;
+  color: var(--danger-strong);
   font-size: 0.8rem;
 }
 
@@ -727,6 +918,49 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
+}
+
+/* ── Template picker ─────────────────────────────────────────────────────── */
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.templateCardActive {
+  border-color: var(--primary);
+  background: var(--surface-accent);
+}
+
+.templateCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.templateCardDescription {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.templateCardActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 /* ── Icon picker ─────────────────────────────────────────────────────────── */
@@ -763,7 +997,7 @@
   aspect-ratio: 1;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: white;
+  background: var(--surface);
   color: var(--muted);
   cursor: pointer;
   transition: all 0.12s ease;
@@ -776,7 +1010,7 @@
 
 .iconOptionActive {
   border-color: var(--primary);
-  background: #eef2ff;
+  background: var(--surface-accent);
   color: var(--primary);
   box-shadow: 0 0 0 1px var(--primary) inset;
 }
@@ -789,7 +1023,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #dc2626;
+  background: var(--danger);
   color: white;
   font-size: 0.7rem;
   font-weight: 700;
@@ -804,13 +1038,13 @@
   height: 7px;
   margin-right: 8px;
   border-radius: 999px;
-  background: #dc2626;
+  background: var(--danger);
   vertical-align: middle;
 }
 
 .rowUnread td {
   font-weight: 600;
-  background: #fefce8;
+  background: var(--unread-bg);
 }
 
 /* ── Feature card styling controls ───────────────────────────────────────── */
@@ -837,7 +1071,7 @@
   padding: 5px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: white;
+  background: var(--surface);
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 600;
@@ -851,7 +1085,7 @@
 
 .colorToggleOptionActive {
   border-color: var(--primary);
-  background: #eef2ff;
+  background: var(--surface-accent);
   color: var(--primary);
 }
 
@@ -860,5 +1094,93 @@
   height: 12px;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+/* ── Theme toggle ─────────────────────────────────────────────────────────── */
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.themeToggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.themeToggleIcon {
+  display: inline-flex;
+  color: var(--muted);
+}
+
+.themeToggleTrack {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.themeToggleTrack[data-on="true"] {
+  background: var(--primary);
+}
+
+.themeToggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.15s ease;
+}
+
+.themeToggleTrack[data-on="true"] .themeToggleThumb {
+  transform: translateX(14px);
+}
+
+.tutorialCard {
+  border: 1px solid var(--primary);
+  background: var(--surface-accent);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tutorialCardText h2 {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+
+.tutorialCardText p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+.tutorialCardActions {
+  display: flex;
+  gap: 8px;
   flex-shrink: 0;
 }

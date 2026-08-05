@@ -121,7 +121,7 @@ export default function OnboardingForm({ tenantSlug }) {
           {result.templateName ? ` using the "${result.templateName}" template` : ""}.
         </p>
         <div className={styles.actionsRow} style={{ marginTop: 0 }}>
-          <a className={`${styles.saveButton} ${styles.iconLabel}`} href={`/l/${tenantSlug}`} target="_blank" rel="noreferrer">
+          <a className={`${styles.saveButton} ${styles.iconLabel}`} href={`/pages/${tenantSlug}`} target="_blank" rel="noreferrer">
             <IconExternalLink size={14} />
             View landing page
           </a>

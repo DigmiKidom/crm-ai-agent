@@ -98,6 +98,20 @@
   font-size: 0.9rem;
 }
 
+.gallerySection {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px 72px;
+  text-align: center;
+}
+
+.gallerySection h2 {
+  color: var(--tenant-accent, #111827);
+  margin-bottom: 24px;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
 .formSection {
   background: #0f172a;
   padding: 72px 24px;

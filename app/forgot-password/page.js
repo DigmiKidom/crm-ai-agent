@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Logo from "@/components/Logo";
 import styles from "./page.module.css";
 
 export default function ForgotPasswordPage() {
@@ -32,6 +33,9 @@ export default function ForgotPasswordPage() {
   return (
     <div className={styles.wrap}>
       <div className={styles.card}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+          <Logo href={null} markSize={30} />
+        </div>
         <h1 className={styles.title}>Reset your password</h1>
         <p className={styles.subtitle}>
           Enter your email and we&apos;ll send you a link to set a new password.

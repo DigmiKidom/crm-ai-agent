@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/db";
 import Media, { MAX_MEDIA_BYTES } from "@/lib/models/Media";
 
 const ALLOWED_TYPES = ["image/webp", "image/jpeg", "image/png"];
-const ALLOWED_KINDS = ["logo", "background"];
+const ALLOWED_KINDS = ["logo", "background", "gallery"];
 
 // Uploads arrive already resized + compressed by the browser. This route is
 // the trust boundary: it re-checks type, size, and tenant ownership before

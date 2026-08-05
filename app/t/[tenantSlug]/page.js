@@ -3,7 +3,15 @@ import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
 import Contact from "@/lib/models/Contact";
 import Pipeline from "@/lib/models/Pipeline";
-import { IconInbox, IconUsers, IconPipeline, IconClock, IconArrowRight } from "@/components/icons";
+import {
+  IconInbox,
+  IconUsers,
+  IconPipeline,
+  IconClock,
+  IconArrowRight,
+  IconChart,
+} from "@/components/icons";
+import Sparkline from "@/components/charts/Sparkline";
 import styles from "@/components/dashboard.module.css";
 
 export default async function OverviewPage({ params }) {
@@ -25,6 +33,22 @@ export default async function OverviewPage({ params }) {
   }));
   const recentLeads = leads.slice(0, 5);
   const maxStageCount = Math.max(1, ...stageCounts.map((s) => s.count));
+
+  // A 30-day trend for the overview card. The full breakdown lives on the
+  // analytics page; this is just enough shape to make the number worth a click.
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const last30 = Array.from({ length: 30 }, (_, i) => {
+    const from = new Date(dayStart);
+    from.setDate(from.getDate() - (29 - i));
+    const to = new Date(from);
+    to.setDate(to.getDate() + 1);
+    return leads.filter((l) => {
+      const t = new Date(l.createdAt);
+      return t >= from && t < to;
+    }).length;
+  });
+  const leadsLast30 = last30.reduce((a, b) => a + b, 0);
 
   return (
     <div>
@@ -53,6 +77,16 @@ export default async function OverviewPage({ params }) {
           <div>
             <div className={styles.statValue}>{stages.length}</div>
             <div className={styles.statLabel}>Pipeline stages</div>
+          </div>
+        </a>
+        <a href={`/t/${tenantSlug}/analytics`} className={styles.statCard}>
+          <IconChart size={22} className={styles.statIcon} />
+          <div>
+            <div className={styles.statValue}>{leadsLast30}</div>
+            <div className={styles.statLabel}>Last 30 days</div>
+          </div>
+          <div style={{ marginLeft: "auto" }}>
+            <Sparkline values={last30} width={64} height={26} />
           </div>
         </a>
       </div>
@@ -87,7 +121,7 @@ export default async function OverviewPage({ params }) {
           </h2>
           {recentLeads.length === 0 ? (
             <p className={styles.empty}>
-              No leads yet. Share your landing page (/l/{tenantSlug}) to start collecting them.
+              No leads yet. Share your landing page (/pages/{tenantSlug}) to start collecting them.
             </p>
           ) : (
             <ul className={styles.recentList}>

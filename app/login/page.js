@@ -2,17 +2,18 @@
 
 import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import LoginTransition from "@/components/LoginTransition";
 import styles from "./page.module.css";
 import VerifyStatus from "./VerifyStatus";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Set once auth has succeeded; its presence is what plays the outro.
+  const [destination, setDestination] = useState(null);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,9 +26,8 @@ export default function LoginPage() {
       redirect: false,
     });
 
-    setLoading(false);
-
     if (result?.error) {
+      setLoading(false);
       setError("Invalid email or password.");
       return;
     }
@@ -35,8 +35,14 @@ export default function LoginPage() {
     // Session now holds tenantSlug; fetch it and route to that tenant's dashboard.
     const res = await fetch("/api/me");
     const me = await res.json();
-    router.push(`/t/${me.tenantSlug}`);
+
+    // Deliberately leaves `loading` true: the button stays disabled behind the
+    // overlay so a second submit can't fire mid-animation.
+    setDestination(`/t/${me.tenantSlug}`);
   }
+
+  // The overlay handles navigation itself once the clip finishes.
+  if (destination) return <LoginTransition target={destination} />;
 
   return (
     <div className={styles.wrap}>

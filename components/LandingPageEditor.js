@@ -3,18 +3,28 @@
 import { useState } from "react";
 import ImageUpload from "./ImageUpload";
 import IconPicker from "./IconPicker";
+import TemplateThumbnail from "./TemplateThumbnail";
 import styles from "./dashboard.module.css";
 import { IconCheck, IconClose, IconPlus, IconExternalLink } from "./icons";
 
 const MAX_FEATURES = 3;
 const MAX_BACKGROUNDS = 3;
+const MAX_GALLERY = 6;
+const GALLERY_COLUMNS = [2, 3, 4];
 const MAX_DESCRIPTION = 300;
 
 function blankFeature() {
   return { title: "", description: "", icon: "", topStrip: false, border: false, accentColor: "primary" };
 }
 
-export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, theme }) {
+export default function LandingPageEditor({
+  tenantSlug,
+  landingPage,
+  hasLogo,
+  theme,
+  templates = [],
+  templateId,
+}) {
   const [form, setForm] = useState({
     headline: landingPage.headline || "",
     subheadline: landingPage.subheadline || "",
@@ -23,6 +33,11 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, th
     backgroundOverlay:
       typeof landingPage.backgroundOverlay === "number" ? landingPage.backgroundOverlay : 0.55,
     backgroundMediaIds: (landingPage.backgroundMediaIds || []).slice(0, MAX_BACKGROUNDS),
+    galleryMediaIds: (landingPage.galleryMediaIds || []).slice(0, MAX_GALLERY),
+    galleryColumns: GALLERY_COLUMNS.includes(landingPage.galleryColumns)
+      ? landingPage.galleryColumns
+      : 3,
+    templateId: templateId || "default",
     features: landingPage.features?.length
       ? landingPage.features.slice(0, MAX_FEATURES).map((f) => ({
           title: f.title || "",
@@ -77,6 +92,17 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, th
     setSaved(false);
   }
 
+  // Same pattern as backgrounds, just with a longer, fixed-length slot list.
+  function setGalleryPhoto(slot, mediaId) {
+    setForm((f) => {
+      const next = [...f.galleryMediaIds];
+      if (mediaId === null) next.splice(slot, 1);
+      else next[slot] = mediaId;
+      return { ...f, galleryMediaIds: next.filter(Boolean).slice(0, MAX_GALLERY) };
+    });
+    setSaved(false);
+  }
+
   async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
@@ -105,10 +131,59 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, th
   }
 
   const backgroundSlots = Math.min(form.backgroundMediaIds.length + 1, MAX_BACKGROUNDS);
+  const gallerySlots = Math.min(form.galleryMediaIds.length + 1, MAX_GALLERY);
 
   return (
     <form className={styles.settingsForm} onSubmit={handleSave}>
       {error && <p className={styles.formError}>{error}</p>}
+
+      {templates.length > 0 && (
+        <section className={styles.detailCard} style={{ maxWidth: 760 }}>
+          <h2 className={styles.sectionTitle}>Template</h2>
+          <p className={styles.sectionHint}>
+            Preview any template with your own content before switching — nothing saves until you
+            hit Save changes below.
+          </p>
+
+          <div className={styles.templateGrid}>
+            {templates.map((t) => {
+              const active = form.templateId === t.id;
+              return (
+                <div
+                  key={t.id}
+                  className={`${styles.templateCard} ${active ? styles.templateCardActive : ""}`}
+                >
+                  <TemplateThumbnail id={t.id} />
+                  <div className={styles.templateCardHeader}>
+                    <strong>{t.name}</strong>
+                    {active && <span className={styles.countPill}>Selected</span>}
+                  </div>
+                  <p className={styles.templateCardDescription}>{t.description}</p>
+                  <div className={styles.templateCardActions}>
+                    <a
+                      className={`${styles.linkButton} ${styles.iconLabel}`}
+                      href={`/pages/${tenantSlug}?template=${t.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <IconExternalLink size={13} />
+                      Preview
+                    </a>
+                    <button
+                      type="button"
+                      className={styles.linkButton}
+                      onClick={() => update("templateId", t.id)}
+                      disabled={active}
+                    >
+                      {active ? "In use" : "Use this template"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section className={styles.detailCard}>
         <h2 className={styles.sectionTitle}>Hero copy</h2>
@@ -195,6 +270,54 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, th
             <span className={styles.sectionHint}>
               More overlay keeps your headline readable over a busy photo.
             </span>
+          </div>
+        )}
+      </section>
+
+      <section className={styles.detailCard} style={{ maxWidth: 760 }}>
+        <h2 className={styles.sectionTitle}>
+          Photo gallery{" "}
+          <span className={styles.countPill}>
+            {form.galleryMediaIds.length}/{MAX_GALLERY}
+          </span>
+        </h2>
+        <p className={styles.sectionHint}>
+          Up to {MAX_GALLERY} photos shown in a grid further down the page — good for a portfolio,
+          past work, your space, or your team.
+        </p>
+
+        <div className={styles.backgroundGrid}>
+          {Array.from({ length: gallerySlots }).map((_, slot) => (
+            <ImageUpload
+              key={slot}
+              kind="gallery"
+              value={form.galleryMediaIds[slot] || null}
+              onChange={(id) => setGalleryPhoto(slot, id)}
+              label={`Photo ${slot + 1}`}
+              previewClassName={styles.backgroundPreview}
+            />
+          ))}
+        </div>
+
+        {form.galleryMediaIds.length > 0 && (
+          <div className={styles.detailField} style={{ marginTop: 12 }}>
+            <span className={styles.iconPickerLabel}>Grid columns</span>
+            <div className={styles.colorToggle} role="radiogroup" aria-label="Gallery columns">
+              {GALLERY_COLUMNS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  role="radio"
+                  aria-checked={form.galleryColumns === n}
+                  className={`${styles.colorToggleOption} ${
+                    form.galleryColumns === n ? styles.colorToggleOptionActive : ""
+                  }`}
+                  onClick={() => update("galleryColumns", n)}
+                >
+                  {n} columns
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </section>
@@ -313,7 +436,7 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, th
         <a
           className={`${styles.deleteButton} ${styles.iconLabel}`}
           style={{ color: "inherit", borderColor: "var(--border)" }}
-          href={`/l/${tenantSlug}`}
+          href={`/pages/${tenantSlug}`}
           target="_blank"
           rel="noreferrer"
         >

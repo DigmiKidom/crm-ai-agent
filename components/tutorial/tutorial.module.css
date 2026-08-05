@@ -1,0 +1,304 @@
+/* Getting-started tutorial: both the full step-by-step guide and the fast
+   3-page version share these styles, reusing the same visual language as
+   dashboard.module.css (cards, borders, muted text) so it doesn't look like
+   a bolted-on screen. */
+
+.modeToggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  margin-bottom: 24px;
+}
+
+.modeToggleOption {
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.modeToggleOptionActive {
+  background: var(--surface-accent);
+  color: var(--primary);
+}
+
+/* ── Full guide ───────────────────────────────────────────────────────────── */
+
+.guide {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+@media (max-width: 720px) {
+  .guide {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 24px;
+}
+
+.stepNavItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.stepNavItem:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.stepNavItemActive {
+  background: var(--surface-accent);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.stepDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.stepNavItemActive .stepDot {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.stepNavItemDone .stepDot {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.step {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stepEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.stepTitle {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.stepBody {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--foreground);
+  max-width: 560px;
+}
+
+.stepBody p {
+  margin: 0 0 10px;
+}
+
+.stepList {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.stepImageWrap {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 420px;
+  background: var(--surface-sunken);
+}
+
+.stepImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.stepIconRow {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.stepIconCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 160px;
+}
+
+.stepIconCard svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.stepFooter {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stepFooterNote {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.navButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+  cursor: pointer;
+}
+
+.navButton:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.navButtonPrimary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.navButtonPrimary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: white;
+}
+
+/* ── Quick / 3-page version ───────────────────────────────────────────────── */
+
+.quickCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 36px;
+  max-width: 620px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.quickDots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.quickDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.quickDotActive {
+  background: var(--primary);
+  width: 20px;
+  border-radius: 999px;
+}
+
+.quickPage {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.quickPageNumber {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.quickPageTitle {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.quickPageBody {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--foreground);
+}
+
+.quickPageBody p {
+  margin: 0 0 10px;
+}

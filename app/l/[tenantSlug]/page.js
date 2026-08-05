@@ -1,19 +1,8 @@
-import { notFound } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import Tenant from "@/lib/models/Tenant";
-import { getTemplate } from "@/lib/templates";
+import { redirect } from "next/navigation";
 
-export const revalidate = 60; // ISR: re-check the tenant config once a minute
-
-export default async function TenantLandingPage({ params }) {
+// The public landing page lives at /pages/[tenantSlug] now. This route stays
+// in place purely so any links already shared as /l/<slug> keep working.
+export default async function LegacyLandingPageRedirect({ params }) {
   const { tenantSlug } = await params;
-
-  await connectDB();
-  const tenant = await Tenant.findOne({ slug: tenantSlug }).lean();
-
-  if (!tenant) notFound();
-
-  const { Component } = getTemplate(tenant.templateId);
-
-  return <Component tenant={JSON.parse(JSON.stringify(tenant))} />;
+  redirect(`/pages/${tenantSlug}`);
 }

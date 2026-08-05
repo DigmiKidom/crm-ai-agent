@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
-import Tenant, { MAX_FEATURES, MAX_BACKGROUNDS } from "@/lib/models/Tenant";
+import Tenant, { MAX_FEATURES, MAX_BACKGROUNDS, MAX_GALLERY, GALLERY_COLUMNS } from "@/lib/models/Tenant";
 import Media from "@/lib/models/Media";
 import { isValidIconKey } from "@/lib/landingIcons";
+import { templateIds } from "@/lib/templates";
 
 const MAX_DESCRIPTION = 300;
 const CARD_COLORS = ["primary", "accent"];
@@ -24,6 +25,9 @@ export async function PATCH(request) {
     backgroundMediaIds = [],
     backgroundOverlay = 0.55,
     showLogo = true,
+    galleryMediaIds = [],
+    galleryColumns = 3,
+    templateId,
   } = body;
 
   if (!headline?.trim() || !subheadline?.trim() || !ctaLabel?.trim()) {
@@ -98,37 +102,62 @@ export async function PATCH(request) {
     return NextResponse.json({ error: "Overlay must be between 0 and 1." }, { status: 400 });
   }
 
+  if (!Array.isArray(galleryMediaIds) || galleryMediaIds.length > MAX_GALLERY) {
+    return NextResponse.json(
+      { error: `You can have at most ${MAX_GALLERY} gallery photos.` },
+      { status: 400 }
+    );
+  }
+
+  const cleanGalleryIds = [...new Set(galleryMediaIds.filter(Boolean).map(String))];
+  if (cleanGalleryIds.some((id) => !mongoose.isValidObjectId(id))) {
+    return NextResponse.json({ error: "Invalid gallery image reference." }, { status: 400 });
+  }
+
+  const columns = Number(galleryColumns);
+  if (!GALLERY_COLUMNS.includes(columns)) {
+    return NextResponse.json({ error: "Gallery columns must be 2, 3, or 4." }, { status: 400 });
+  }
+
+  if (templateId !== undefined && !templateIds().includes(templateId)) {
+    return NextResponse.json({ error: "Unknown template selected." }, { status: 400 });
+  }
+
   try {
     await connectDB();
 
     // Every referenced image must belong to this tenant — otherwise a crafted
     // request could hotlink another tenant's uploads onto this landing page.
-    if (cleanBackgroundIds.length) {
+    const allMediaIds = [...cleanBackgroundIds, ...cleanGalleryIds];
+    if (allMediaIds.length) {
       const owned = await Media.countDocuments({
-        _id: { $in: cleanBackgroundIds },
+        _id: { $in: allMediaIds },
         tenantId: session.user.tenantId,
       });
-      if (owned !== cleanBackgroundIds.length) {
+      if (owned !== allMediaIds.length) {
         return NextResponse.json(
-          { error: "One of those background images could not be found." },
+          { error: "One of those images could not be found." },
           { status: 400 }
         );
       }
     }
 
+    const setFields = {
+      "landingPage.headline": headline.trim(),
+      "landingPage.subheadline": subheadline.trim(),
+      "landingPage.ctaLabel": ctaLabel.trim(),
+      "landingPage.features": cleanFeatures,
+      "landingPage.backgroundMediaIds": cleanBackgroundIds,
+      "landingPage.backgroundOverlay": overlay,
+      "landingPage.showLogo": Boolean(showLogo),
+      "landingPage.galleryMediaIds": cleanGalleryIds,
+      "landingPage.galleryColumns": columns,
+    };
+    if (templateId !== undefined) setFields.templateId = templateId;
+
     const tenant = await Tenant.findByIdAndUpdate(
       session.user.tenantId,
-      {
-        $set: {
-          "landingPage.headline": headline.trim(),
-          "landingPage.subheadline": subheadline.trim(),
-          "landingPage.ctaLabel": ctaLabel.trim(),
-          "landingPage.features": cleanFeatures,
-          "landingPage.backgroundMediaIds": cleanBackgroundIds,
-          "landingPage.backgroundOverlay": overlay,
-          "landingPage.showLogo": Boolean(showLogo),
-        },
-      },
+      { $set: setFields },
       { new: true }
     ).lean();
 
@@ -136,7 +165,7 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Tenant not found." }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: true, landingPage: tenant.landingPage });
+    return NextResponse.json({ ok: true, landingPage: tenant.landingPage, templateId: tenant.templateId });
   } catch (err) {
     console.error("Updating landing page failed:", err);
     return NextResponse.json({ error: "Could not save changes." }, { status: 503 });

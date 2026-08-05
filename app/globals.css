@@ -5,6 +5,32 @@
   --border: #e5e7eb;
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
+
+  /* Semantic surface/status tokens. Defaults here are the light-mode values;
+     the dashboard shell overrides all of them under [data-theme="dark"] (see
+     the .shell rule in dashboard.module.css) so every card, panel, and chip
+     across the app picks up dark colors automatically without each CSS
+     module needing its own dark-mode rules. */
+  --surface: #ffffff;
+  --surface-sunken: #f9fafb;
+  --surface-hover: #f3f4f6;
+  --surface-accent: #eef2ff;
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --success: #16a34a;
+  --success-strong: #15803d;
+  --success-bg: #dcfce7;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  --info: #1d4ed8;
+  --info-bg: #dbeafe;
+  --unread-bg: #fefce8;
+  --code-bg: #0f172a;
+  --code-fg: #e2e8f0;
+  --shadow-color: rgba(15, 23, 42, 0.14);
 }
 
 html,

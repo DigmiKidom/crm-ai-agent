@@ -1,0 +1,451 @@
+/* Shared styling for the hand-built SVG charts. There's no chart library in
+   this project on purpose — same reasoning as components/icons.js — so these
+   classes are the whole design system for data viz: one accent colour driven
+   by --primary, muted greys for structure, and a single tooltip treatment. */
+
+.chart {
+  position: relative;
+  width: 100%;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ------------------------------------------------------------ structure */
+
+.gridLine {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.axisLine {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.axisLabel {
+  fill: var(--muted);
+  font-size: 10px;
+  font-family: inherit;
+}
+
+.axisLabelY {
+  fill: var(--muted);
+  font-size: 10px;
+  font-family: inherit;
+  text-anchor: end;
+}
+
+/* -------------------------------------------------------------- series */
+
+.areaFill {
+  fill: var(--primary);
+  opacity: 0.12;
+}
+
+.line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.compareLine {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.point {
+  fill: var(--background);
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+.bar {
+  fill: var(--primary);
+  opacity: 0.85;
+  transition: opacity 0.12s ease;
+}
+
+.barMuted {
+  fill: var(--muted);
+  opacity: 0.35;
+}
+
+.barWon {
+  fill: #16a34a;
+  opacity: 0.85;
+}
+
+.barLost {
+  fill: #dc2626;
+  opacity: 0.7;
+}
+
+.barUrgent {
+  fill: #f59e0b;
+  opacity: 0.9;
+}
+
+.barTrack {
+  fill: var(--border);
+  opacity: 0.45;
+}
+
+/* Hover target sitting invisibly over each column, so the pointer doesn't
+   have to land on a 3px-tall bar to trigger a tooltip. */
+.hitArea {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.hitArea:hover + .bar,
+.barActive {
+  opacity: 1;
+}
+
+.hoverGuide {
+  stroke: var(--primary);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.5;
+}
+
+/* ------------------------------------------------------------- tooltip */
+
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: var(--foreground);
+  color: var(--background);
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tooltipLabel {
+  opacity: 0.7;
+  display: block;
+  font-size: 0.68rem;
+}
+
+.tooltipValue {
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- misc */
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendDash {
+  width: 14px;
+  height: 0;
+  border-top: 1.5px dashed var(--muted);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------- horizontal bar list */
+
+.hbarList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hbarRow {
+  display: grid;
+  grid-template-columns: minmax(70px, 30%) 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.hbarLabel {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.hbarTrack {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.hbarFill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.hbarValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: 54px;
+  text-align: right;
+}
+
+.hbarShare {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ----------------------------------------------------------------- donut */
+
+.donutWrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.donutSvg {
+  flex-shrink: 0;
+}
+
+.donutCenterValue {
+  fill: var(--foreground);
+  font-size: 20px;
+  font-weight: 700;
+  text-anchor: middle;
+  font-family: inherit;
+}
+
+.donutCenterLabel {
+  fill: var(--muted);
+  font-size: 9px;
+  text-anchor: middle;
+  font-family: inherit;
+}
+
+.donutLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8rem;
+  flex: 1;
+  min-width: 130px;
+}
+
+.donutLegendRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.donutLegendLabel {
+  text-transform: capitalize;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.donutLegendValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.donutLegendShare {
+  color: var(--muted);
+  font-size: 0.72rem;
+  min-width: 42px;
+  text-align: right;
+}
+
+.arc {
+  transition: opacity 0.12s ease;
+  cursor: pointer;
+}
+
+.arc:hover {
+  opacity: 0.8;
+}
+
+/* --------------------------------------------------------------- heatmap */
+
+.heatmap {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 4px;
+  font-size: 0.7rem;
+}
+
+.heatRow {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+}
+
+.heatCell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  min-height: 12px;
+  cursor: default;
+}
+
+.heatRowLabel {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  font-size: 0.68rem;
+}
+
+.heatHours {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+  color: var(--muted);
+  font-size: 0.6rem;
+  margin-top: 4px;
+}
+
+.heatHour {
+  text-align: center;
+  overflow: hidden;
+}
+
+.heatScale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.heatScaleSwatch {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------- sparkline */
+
+.sparkline {
+  display: block;
+  overflow: visible;
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sparkFill {
+  fill: var(--primary);
+  opacity: 0.1;
+}
+
+/* ----------------------------------------------------------------- funnel */
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.funnelRow {
+  display: grid;
+  grid-template-columns: minmax(80px, 26%) 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.funnelLabel {
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.funnelBarWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.funnelBar {
+  height: 26px;
+  border-radius: 5px;
+  background: var(--primary);
+  opacity: 0.85;
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+
+.funnelBarWon {
+  background: #16a34a;
+}
+
+.funnelBarLost {
+  background: #dc2626;
+  opacity: 0.65;
+}
+
+.funnelCount {
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.funnelShare {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.72rem;
+}

@@ -2,6 +2,7 @@ import styles from "./minimal.module.css";
 import shared from "../shared/shared.module.css";
 import LeadForm from "../default/LeadForm";
 import HeroBackground from "../shared/HeroBackground";
+import Gallery from "../shared/Gallery";
 import { TenantLogo, BrandFooter, cardAccent } from "../shared/Branding";
 import { LandingIcon } from "@/lib/landingIcons";
 
@@ -16,6 +17,7 @@ export default function LandingTemplate({ tenant }) {
 
   const backgrounds = landingPage?.backgroundMediaIds || [];
   const hasPhoto = backgrounds.length > 0;
+  const gallery = landingPage?.galleryMediaIds || [];
 
   return (
     <div className={styles.page} style={themeVars}>
@@ -61,6 +63,13 @@ export default function LandingTemplate({ tenant }) {
               </div>
             );
           })}
+        </section>
+      )}
+
+      {gallery.length > 0 && (
+        <section className={styles.gallerySection}>
+          <h2>Gallery</h2>
+          <Gallery mediaIds={gallery} columns={landingPage?.galleryColumns || 3} />
         </section>
       )}
 

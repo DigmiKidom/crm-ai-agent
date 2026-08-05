@@ -1,0 +1,346 @@
+/* Abstract mini-mockups of each landing template, drawn purely with divs so
+   they cost nothing to render (no iframe, no DB hit, no image).
+
+   Deliberately neutral and uniform: these exist to show layout structure at a
+   glance, not to preview branding. Every template uses the same grey palette
+   so the comparison is about shape only. */
+
+.thumb {
+  position: relative;
+  width: 100%;
+  max-width: 124px;
+  aspect-ratio: 1 / 1;
+  border-radius: 5px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  /* Purely decorative — nothing here should ever take a click. */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Shared primitives ──────────────────────────────────────────────────── */
+
+.bar {
+  border-radius: 2px;
+  background: #d8dde5;
+}
+
+.barOnDark {
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.barOnDarkSoft {
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  min-height: 0;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Classic: solid block hero, centred, 3-up feature grid ──────────────── */
+
+.classicHero {
+  flex: 0 0 40%;
+  background: #9ca3af;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.classicHeadline {
+  width: 56%;
+  height: 4px;
+}
+
+.classicSub {
+  width: 38%;
+  height: 2px;
+}
+
+.classicCta {
+  width: 20%;
+  height: 5px;
+  border-radius: 2px;
+  background: white;
+  margin-top: 2px;
+}
+
+.classicCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+.classicCardIcon {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: #cbd2dc;
+}
+
+.classicCardBar {
+  width: 80%;
+  height: 2px;
+}
+
+.classicCardBarShort {
+  width: 55%;
+  height: 2px;
+}
+
+.formBlock {
+  margin-top: auto;
+  height: 14px;
+  border-radius: 2px;
+  background: #f1f3f7;
+  border: 1px solid #e7eaf0;
+}
+
+/* ── Minimal: light editorial hero, left aligned, stacked list rows ─────── */
+
+.minimalHero {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 8px;
+  background: white;
+}
+
+.minimalEyebrow {
+  width: 16%;
+  height: 2px;
+  border-radius: 2px;
+  background: #9ca3af;
+}
+
+.minimalHeadline {
+  width: 66%;
+  height: 4px;
+  background: #6b7280;
+}
+
+.minimalSub {
+  width: 46%;
+  height: 2px;
+}
+
+.minimalCta {
+  width: 18%;
+  height: 2px;
+  background: #9ca3af;
+  margin-top: 2px;
+}
+
+.minimalDivider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0 8px;
+}
+
+.minimalRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.minimalRowIcon {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: 1px solid #dfe3ea;
+}
+
+.minimalRowBars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Bold: gradient hero, pill CTA, rounded cards, dark form band ───────── */
+
+.boldHero {
+  flex: 0 0 44%;
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.boldHeadline {
+  width: 62%;
+  height: 5px;
+}
+
+.boldSub {
+  width: 40%;
+  height: 2px;
+}
+
+.boldCta {
+  width: 24%;
+  height: 6px;
+  border-radius: 999px;
+  background: white;
+  margin-top: 2px;
+}
+
+.boldCard {
+  background: #f6f8fb;
+  border: 1px solid #eaeef4;
+  border-radius: 3px;
+  padding: 3px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.boldCardIcon {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: #9ca3af;
+}
+
+.boldFormBand {
+  margin-top: auto;
+  height: 15px;
+  border-radius: 2px;
+  background: #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boldFormCard {
+  width: 52%;
+  height: 8px;
+  border-radius: 2px;
+  background: white;
+}
+
+/* ── Showcase: split hero + photo grid, numbered rows, gallery ──────────── */
+
+.showcaseHero {
+  flex: 0 0 42%;
+  background: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 7px;
+}
+
+.showcaseHeroCopy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.showcaseEyebrow {
+  width: 32%;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.showcaseHeadline {
+  width: 88%;
+  height: 4px;
+}
+
+.showcaseSub {
+  width: 62%;
+  height: 2px;
+}
+
+.showcaseCta {
+  width: 42%;
+  height: 5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  margin-top: 2px;
+}
+
+/* The framed 2x2 photo block that is Showcase's signature. */
+.showcaseFrame {
+  flex: 0 0 36%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.showcaseFrameTile {
+  aspect-ratio: 1 / 1;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.showcaseRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.showcaseIndex {
+  flex: none;
+  width: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: #9ca3af;
+}
+
+.showcaseRowBars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.showcaseGallery {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.showcaseGalleryTile {
+  aspect-ratio: 4 / 3;
+  border-radius: 2px;
+  background: #e3e7ee;
+}

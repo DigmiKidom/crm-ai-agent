@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUpload from "./ImageUpload";
+import ThemeToggle from "./ThemeToggle";
 import { IconCheck } from "./icons";
 import styles from "./dashboard.module.css";
 
@@ -105,6 +106,15 @@ export default function SettingsForm({ tenant }) {
   return (
     <form className={styles.settingsForm} onSubmit={handleSave}>
       {error && <p className={styles.formError}>{error}</p>}
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>Appearance</h2>
+        <p className={styles.sectionHint}>
+          A display preference saved on this device — it doesn&apos;t affect your public landing
+          page or your other devices.
+        </p>
+        <ThemeToggle />
+      </section>
 
       <section className={styles.detailCard}>
         <h2 className={styles.sectionTitle}>Company profile</h2>
