@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Lead from "@/lib/models/Lead";
+import Tenant from "@/lib/models/Tenant";
 import SignOutButton from "@/components/SignOutButton";
 import VerifyEmailBanner from "@/components/VerifyEmailBanner";
 import DashboardNav from "@/components/DashboardNav";
@@ -21,24 +22,40 @@ export default async function TenantDashboardLayout({ children, params }) {
   // before this feature shipped have no `read` field at all and are treated as
   // already-read, so nobody logs in to a wall of false notifications.
   let unreadLeads = 0;
+  let tenant = null;
   try {
     await connectDB();
-    unreadLeads = await Lead.countDocuments({
-      tenantId: session.user.tenantId,
-      read: false,
-    });
+    [unreadLeads, tenant] = await Promise.all([
+      Lead.countDocuments({ tenantId: session.user.tenantId, read: false }),
+      // Only the two fields the sidebar actually renders.
+      Tenant.findById(session.user.tenantId).select("name logoMediaId").lean(),
+    ]);
   } catch (err) {
-    // A badge is never worth taking the whole dashboard down for.
-    console.error("Counting unread leads failed:", err);
+    // Neither the badge nor the logo is worth taking the whole dashboard down
+    // for — fall back to the plain slug header below.
+    console.error("Loading sidebar data failed:", err);
   }
 
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <div className={styles.brand}>
-          <Logo href={null} markSize={24} iconOnly />
-          <span className={styles.brandTenant}>{tenantSlug}</span>
-        </div>
+        {/* The tenant's own logo takes the top slot once they've uploaded one;
+            until then we fall back to the product mark plus their slug. */}
+        <a href={`/t/${tenantSlug}/settings`} className={styles.brand} title="Company settings">
+          {tenant?.logoMediaId ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={`/api/media/${tenant.logoMediaId}`}
+              alt={tenant.name || tenantSlug}
+              className={styles.brandLogo}
+            />
+          ) : (
+            <>
+              <Logo href={null} markSize={24} iconOnly />
+              <span className={styles.brandTenant}>{tenant?.name || tenantSlug}</span>
+            </>
+          )}
+        </a>
         <DashboardNav tenantSlug={tenantSlug} unreadLeads={unreadLeads} />
         <SignOutButton className={styles.signOutButton} />
       </aside>

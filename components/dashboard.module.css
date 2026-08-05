@@ -17,6 +17,26 @@
   gap: 8px;
   font-weight: 700;
   margin-bottom: 24px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 2px;
+  transition: opacity 0.12s ease;
+}
+
+.brand:hover {
+  opacity: 0.75;
+}
+
+/* Tenant logos vary wildly in aspect ratio — cap the height, let the width
+   follow, and never let a wide wordmark push the 220px sidebar around. */
+.brandLogo {
+  display: block;
+  max-height: 40px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .brandTenant {
