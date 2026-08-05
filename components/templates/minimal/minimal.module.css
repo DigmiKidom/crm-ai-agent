@@ -196,3 +196,28 @@
   color: #9ca3af;
   font-size: 0.8rem;
 }
+
+/* Minimal's cards are list rows separated by hairlines, so accenting turns
+   the row into a contained block. The hairline is dropped to avoid a double
+   line under an already-bordered card. */
+.cardStrip,
+.cardBordered {
+  border-bottom: none;
+  padding: 20px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.cardStrip {
+  border-top: 3px solid var(--card-accent);
+  background: #fafafa;
+}
+
+.cardBordered {
+  border: 1px solid var(--card-accent);
+}
+
+.cardStrip.cardBordered {
+  border-top-width: 3px;
+  background: transparent;
+}

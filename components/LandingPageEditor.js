@@ -10,7 +10,11 @@ const MAX_FEATURES = 3;
 const MAX_BACKGROUNDS = 3;
 const MAX_DESCRIPTION = 300;
 
-export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo }) {
+function blankFeature() {
+  return { title: "", description: "", icon: "", topStrip: false, border: false, accentColor: "primary" };
+}
+
+export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo, theme }) {
   const [form, setForm] = useState({
     headline: landingPage.headline || "",
     subheadline: landingPage.subheadline || "",
@@ -24,8 +28,11 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo }) 
           title: f.title || "",
           description: f.description || "",
           icon: f.icon || "",
+          topStrip: Boolean(f.topStrip),
+          border: Boolean(f.border),
+          accentColor: f.accentColor === "accent" ? "accent" : "primary",
         }))
-      : [{ title: "", description: "", icon: "" }],
+      : [blankFeature()],
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -48,7 +55,7 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo }) 
     setForm((f) =>
       f.features.length >= MAX_FEATURES
         ? f
-        : { ...f, features: [...f.features, { title: "", description: "", icon: "" }] }
+        : { ...f, features: [...f.features, blankFeature()] }
     );
     setSaved(false);
   }
@@ -226,6 +233,52 @@ export default function LandingPageEditor({ tenantSlug, landingPage, hasLogo }) 
               value={feature.icon}
               onChange={(key) => updateFeature(index, "icon", key)}
             />
+
+            <div className={styles.cardStyleRow}>
+              <span className={styles.iconPickerLabel}>Card styling</span>
+
+              <label className={styles.checkboxRow}>
+                <input
+                  type="checkbox"
+                  checked={feature.topStrip}
+                  onChange={(e) => updateFeature(index, "topStrip", e.target.checked)}
+                />
+                <span>Coloured top strip</span>
+              </label>
+
+              <label className={styles.checkboxRow}>
+                <input
+                  type="checkbox"
+                  checked={feature.border}
+                  onChange={(e) => updateFeature(index, "border", e.target.checked)}
+                />
+                <span>Coloured border</span>
+              </label>
+
+              {/* The colour toggle is meaningless until one of the two is on. */}
+              {(feature.topStrip || feature.border) && (
+                <div className={styles.colorToggle} role="radiogroup" aria-label="Card colour">
+                  {[
+                    ["primary", "Primary", theme?.primaryColor || "#2563eb"],
+                    ["accent", "Accent", theme?.accentColor || "#111827"],
+                  ].map(([value, label, swatch]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="radio"
+                      aria-checked={feature.accentColor === value}
+                      className={`${styles.colorToggleOption} ${
+                        feature.accentColor === value ? styles.colorToggleOptionActive : ""
+                      }`}
+                      onClick={() => updateFeature(index, "accentColor", value)}
+                    >
+                      <span className={styles.colorSwatch} style={{ background: swatch }} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button
               type="button"

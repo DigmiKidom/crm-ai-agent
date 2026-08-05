@@ -178,3 +178,17 @@
   background: #0f172a;
   font-size: 0.85rem;
 }
+
+/* Bold's cards already have a tinted surface and a soft border, so accenting
+   only needs to override the border colour and add the strip. */
+.cardStrip {
+  border-top: 5px solid var(--card-accent);
+}
+
+.cardBordered {
+  border: 1.5px solid var(--card-accent);
+}
+
+.cardStrip.cardBordered {
+  border-top-width: 5px;
+}

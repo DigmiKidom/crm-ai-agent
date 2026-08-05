@@ -22,6 +22,32 @@ export function TenantLogo({ tenant, align = "center", className }) {
   );
 }
 
+/**
+ * Per-card accenting. Returns the className and inline style a template should
+ * spread onto its feature card.
+ *
+ * The colour is resolved to the tenant's theme CSS variables rather than a
+ * stored hex, so re-branding in Settings instantly re-colours every card
+ * instead of leaving stale colours baked into the landing page document.
+ */
+export function cardAccent(feature, styles) {
+  if (!feature?.topStrip && !feature?.border) return { className: "", style: undefined };
+
+  const color =
+    feature.accentColor === "accent"
+      ? "var(--tenant-accent, #111827)"
+      : "var(--tenant-primary, #2563eb)";
+
+  const className = [
+    feature.topStrip ? styles.cardStrip : "",
+    feature.border ? styles.cardBordered : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return { className, style: { "--card-accent": color } };
+}
+
 const SOCIAL_LABELS = {
   facebook: "Facebook",
   instagram: "Instagram",

@@ -2,7 +2,7 @@ import styles from "./default.module.css";
 import shared from "../shared/shared.module.css";
 import LeadForm from "./LeadForm";
 import HeroBackground from "../shared/HeroBackground";
-import { TenantLogo, BrandFooter } from "../shared/Branding";
+import { TenantLogo, BrandFooter, cardAccent } from "../shared/Branding";
 import { LandingIcon } from "@/lib/landingIcons";
 
 export default function LandingTemplate({ tenant }) {
@@ -38,8 +38,10 @@ export default function LandingTemplate({ tenant }) {
 
       {landingPage?.features?.length > 0 && (
         <section className={styles.features}>
-          {landingPage.features.map((feature, i) => (
-            <div className={styles.featureCard} key={i}>
+          {landingPage.features.map((feature, i) => {
+            const accent = cardAccent(feature, styles);
+            return (
+            <div className={`${styles.featureCard} ${accent.className}`} style={accent.style} key={i}>
               {feature.icon && (
                 <span className={styles.featureIcon}>
                   <LandingIcon name={feature.icon} size={26} />
@@ -48,7 +50,8 @@ export default function LandingTemplate({ tenant }) {
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </div>
-          ))}
+            );
+          })}
         </section>
       )}
 

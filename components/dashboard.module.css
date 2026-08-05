@@ -812,3 +812,53 @@
   font-weight: 600;
   background: #fefce8;
 }
+
+/* ── Feature card styling controls ───────────────────────────────────────── */
+
+.cardStyleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 10px;
+  margin-top: 4px;
+  border-top: 1px dashed var(--border);
+}
+
+.colorToggle {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.colorToggleOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: white;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.colorToggleOption:hover {
+  border-color: var(--primary);
+}
+
+.colorToggleOptionActive {
+  border-color: var(--primary);
+  background: #eef2ff;
+  color: var(--primary);
+}
+
+.colorSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}

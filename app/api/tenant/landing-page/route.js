@@ -7,6 +7,7 @@ import Media from "@/lib/models/Media";
 import { isValidIconKey } from "@/lib/landingIcons";
 
 const MAX_DESCRIPTION = 300;
+const CARD_COLORS = ["primary", "accent"];
 
 export async function PATCH(request) {
   const session = await auth();
@@ -65,7 +66,19 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Unknown icon selected." }, { status: 400 });
     }
 
-    cleanFeatures.push({ title, description, icon });
+    const accentColor = feature?.accentColor || "primary";
+    if (!CARD_COLORS.includes(accentColor)) {
+      return NextResponse.json({ error: "Unknown card colour selected." }, { status: 400 });
+    }
+
+    cleanFeatures.push({
+      title,
+      description,
+      icon,
+      topStrip: Boolean(feature?.topStrip),
+      border: Boolean(feature?.border),
+      accentColor,
+    });
   }
 
   if (!Array.isArray(backgroundMediaIds) || backgroundMediaIds.length > MAX_BACKGROUNDS) {

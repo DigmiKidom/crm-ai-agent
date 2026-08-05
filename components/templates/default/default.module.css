@@ -154,3 +154,30 @@
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+/* Per-card accenting. --card-accent is set inline by cardAccent() and always
+   resolves to one of the tenant's two theme colours. Classic's cards are
+   plain by default, so both options need to supply their own surface. */
+.cardStrip,
+.cardBordered {
+  background: white;
+  border-radius: 10px;
+  padding: 24px 20px;
+  overflow: hidden;
+}
+
+.cardStrip {
+  border-top: 4px solid var(--card-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+}
+
+.cardBordered {
+  border: 1.5px solid var(--card-accent);
+}
+
+/* Strip + border together: the strip becomes the thick top edge of the box
+   rather than a separate bar floating above a second border. */
+.cardStrip.cardBordered {
+  border-top-width: 4px;
+  box-shadow: none;
+}

@@ -20,6 +20,7 @@ export default async function SiteEditorPage({ params }) {
         tenantSlug={tenantSlug}
         landingPage={JSON.parse(JSON.stringify(tenant.landingPage))}
         hasLogo={Boolean(tenant.logoMediaId)}
+        theme={JSON.parse(JSON.stringify(tenant.theme || {}))}
       />
     </div>
   );
