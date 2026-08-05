@@ -14,6 +14,10 @@ body {
 }
 
 body {
+  /* Browsers apply a default 8px body margin. Every layout here is full-bleed
+     — the landing page heroes, the dashboard shell, the auth screens — so that
+     margin only ever showed up as a white gutter around the edges. */
+  margin: 0;
   min-height: 100vh;
   color: var(--foreground);
   background: var(--background);
