@@ -1,6 +1,7 @@
 import Script from "next/script";
 import "./globals.css";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import CookieBanner from "@/components/CookieBanner";
 
 export const metadata = {
   title: "CRM AI Agent",
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
           {THEME_INIT_SCRIPT}
         </Script>
         <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        <CookieBanner />
       </body>
     </html>
   );

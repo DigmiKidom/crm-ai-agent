@@ -4,11 +4,7 @@ import { connectDB } from "@/lib/db";
 import Lead from "@/lib/models/Lead";
 import Tenant from "@/lib/models/Tenant";
 import WorkspaceItem from "@/lib/models/WorkspaceItem";
-import SignOutButton from "@/components/SignOutButton";
-import VerifyEmailBanner from "@/components/VerifyEmailBanner";
-import DashboardNav from "@/components/DashboardNav";
-import Logo from "@/components/Logo";
-import styles from "@/components/dashboard.module.css";
+import DashboardShell from "@/components/DashboardShell";
 
 export default async function TenantDashboardLayout({ children, params }) {
   const { tenantSlug } = await params;
@@ -44,39 +40,19 @@ export default async function TenantDashboardLayout({ children, params }) {
   }
 
   return (
-    <div className={styles.shell}>
-      <aside className={styles.sidebar}>
-        {/* The tenant's own logo takes the top slot once they've uploaded one,
-            with the company name underneath it; until then the product mark
-            sits inline beside the name instead. */}
-        <a href={`/t/${tenantSlug}/settings`} className={styles.brand} title="Company settings">
-          {tenant?.logoMediaId ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={`/api/media/${tenant.logoMediaId}`}
-              alt=""
-              className={styles.brandLogo}
-            />
-          ) : (
-            <Logo href={null} markSize={24} iconOnly />
-          )}
-          <span className={styles.brandTenant}>{tenant?.name || tenantSlug}</span>
-        </a>
-        <DashboardNav
-          tenantSlug={tenantSlug}
-          unreadLeads={unreadLeads}
-          workspaceItems={workspaceItems.map((i) => ({
-            id: i._id.toString(),
-            type: i.type,
-            title: i.title,
-          }))}
-        />
-        <SignOutButton className={styles.signOutButton} />
-      </aside>
-      <main className={styles.main}>
-        {!session.user.emailVerified && <VerifyEmailBanner />}
-        {children}
-      </main>
-    </div>
+    <DashboardShell
+      tenantSlug={tenantSlug}
+      tenantName={tenant?.name}
+      logoMediaId={tenant?.logoMediaId ? tenant.logoMediaId.toString() : null}
+      unreadLeads={unreadLeads}
+      workspaceItems={workspaceItems.map((i) => ({
+        id: i._id.toString(),
+        type: i.type,
+        title: i.title,
+      }))}
+      emailVerified={Boolean(session.user.emailVerified)}
+    >
+      {children}
+    </DashboardShell>
   );
 }

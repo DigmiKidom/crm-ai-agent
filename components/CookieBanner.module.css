@@ -1,0 +1,114 @@
+/* Deliberately not using the app's theme tokens (--background, --primary,
+   etc.) — this banner shows up on tenant landing pages (arbitrary brand
+   colors) and both light/dark dashboard modes, so it carries its own fixed
+   palette to stay legible everywhere it can appear. */
+
+.wrap {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2000;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #14161b;
+  color: #e7e9ec;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  animation: riseIn 0.25s ease both;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap {
+    animation: none;
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  color: #93c5fd;
+}
+
+.text {
+  flex: 1 1 260px;
+  min-width: 0;
+  color: #cbd2dc;
+}
+
+.text strong {
+  color: #ffffff;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.accept {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.accept:hover {
+  background: #60a5fa;
+}
+
+.dismiss {
+  padding: 9px 10px;
+  border: none;
+  background: none;
+  color: #9aa1ac;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.dismiss:hover {
+  color: #e7e9ec;
+}
+
+@media (max-width: 560px) {
+  .wrap {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 14px 16px;
+  }
+
+  .actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .accept {
+    flex: 1;
+  }
+}

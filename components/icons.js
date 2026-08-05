@@ -346,6 +346,25 @@ export function IconMoon(props) {
   );
 }
 
+export function IconMenu(props) {
+  return (
+    <Base {...props}>
+      <path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17" />
+    </Base>
+  );
+}
+
+export function IconCookie(props) {
+  return (
+    <Base {...props}>
+      <path d="M20.5 12.9a1.4 1.4 0 0 0-1.55-1.4 2.3 2.3 0 0 1-2.45-2.45 1.4 1.4 0 0 0-1.65-1.55A2.3 2.3 0 0 1 12.2 4.9 1.4 1.4 0 0 0 10.6 3.5 8.5 8.5 0 1 0 20.5 12.9Z" />
+      <circle cx="9" cy="10.5" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="8.25" cy="15" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="16.25" r="0.9" fill="currentColor" stroke="none" />
+    </Base>
+  );
+}
+
 export function IconFlame(props) {
   return (
     <Base {...props}>

@@ -1184,3 +1184,124 @@
   gap: 8px;
   flex-shrink: 0;
 }
+
+/* ── Mobile navigation ────────────────────────────────────────────────────
+   Below the breakpoint, the always-visible 220px sidebar (fine on desktop)
+   would eat most of a phone screen, so it becomes an off-canvas drawer:
+   hidden by default, opened by the hamburger button in a fixed top bar, and
+   dismissed via the backdrop or its own close button. Above the breakpoint
+   none of this applies — .mobileTopBar stays display:none and .sidebar keeps
+   its normal static layout, so desktop is unaffected. */
+
+.mobileTopBar {
+  display: none;
+}
+
+.mobileMenuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.mobileBrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mobileBrand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileBrandLogo {
+  display: block;
+  max-height: 26px;
+  max-width: 120px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sidebarBackdrop {
+  display: none;
+}
+
+.sidebarCloseRow {
+  display: none;
+}
+
+@media (max-width: 780px) {
+  .shell {
+    display: block;
+  }
+
+  .mobileTopBar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    padding: 0 16px;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    z-index: 60;
+  }
+
+  .sidebarBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 70;
+  }
+
+  .sidebarCloseRow {
+    display: flex;
+    justify-content: flex-end;
+    margin: -8px -4px 8px 0;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(78vw, 280px);
+    z-index: 80;
+    background: var(--background);
+    box-shadow: 4px 0 24px var(--shadow-color);
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    overflow-y: auto;
+  }
+
+  .sidebar[data-open="true"] {
+    transform: translateX(0);
+  }
+
+  .main {
+    padding: 16px;
+    padding-top: 72px;
+    max-width: 100%;
+  }
+}
