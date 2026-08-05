@@ -19,6 +19,7 @@ export default async function SiteEditorPage({ params }) {
       <LandingPageEditor
         tenantSlug={tenantSlug}
         landingPage={JSON.parse(JSON.stringify(tenant.landingPage))}
+        hasLogo={Boolean(tenant.logoMediaId)}
       />
     </div>
   );

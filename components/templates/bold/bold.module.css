@@ -4,10 +4,29 @@
 }
 
 .hero {
+  position: relative;
+  overflow: hidden;
   padding: 110px 24px;
   text-align: center;
   background: linear-gradient(135deg, var(--tenant-primary, #2563eb), var(--tenant-accent, #111827));
   color: white;
+}
+
+/* Layer the brand gradient over the photo rather than replacing it — Bold's
+   identity is the gradient, so it stays, just translucent. */
+.heroWithPhoto {
+  padding: 140px 24px;
+  background: #0f172a;
+}
+
+.heroWithPhoto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, var(--tenant-primary, #2563eb), var(--tenant-accent, #111827));
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .headline {
@@ -58,10 +77,14 @@
 }
 
 .featureIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: var(--tenant-primary, #2563eb);
+  color: white;
   margin-bottom: 16px;
 }
 

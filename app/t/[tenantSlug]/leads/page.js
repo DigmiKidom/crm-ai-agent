@@ -101,8 +101,13 @@ export default async function LeadsInboxPage({ params, searchParams }) {
           </thead>
           <tbody>
             {leads.map((lead) => (
-              <tr key={lead._id}>
-                <td>{lead.name}</td>
+              <tr key={lead._id} className={lead.read === false ? styles.rowUnread : ""}>
+                <td>
+                  {lead.read === false && (
+                    <span className={styles.unreadDot} title="Unread lead" aria-label="Unread" />
+                  )}
+                  {lead.name}
+                </td>
                 <td>{lead.email}</td>
                 <td>{lead.phone || "—"}</td>
                 <td>

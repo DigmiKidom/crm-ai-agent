@@ -200,6 +200,12 @@
   font-size: 0.9rem;
 }
 
+.detailField textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
 .actionsRow {
   display: flex;
   gap: 8px;
@@ -270,6 +276,12 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.9rem;
+}
+
+.featureRow textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
 }
 
 .stageRow {
@@ -483,4 +495,282 @@
   padding: 10px 16px;
   margin-bottom: 20px;
   font-size: 0.85rem;
+}
+
+/* ── Settings & landing-page editor ──────────────────────────────────────── */
+
+.settingsForm {
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.sectionHint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.sectionHint a {
+  color: var(--primary);
+}
+
+.countPill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.fieldRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fieldRow > .detailField {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.charCount {
+  align-self: flex-end;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.formError {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.checkboxRow input {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.colorField {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.colorField input[type="color"] {
+  width: 42px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.colorField input:not([type="color"]) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Image upload ────────────────────────────────────────────────────────── */
+
+.imageUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.imageUploadLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.imageDropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 116px;
+  padding: 20px;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  background: #f9fafb;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.imageDropzone:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: #f5f7ff;
+  color: var(--primary);
+}
+
+.imageDropzone:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.imageHint {
+  font-size: 0.75rem;
+  font-style: normal;
+  opacity: 0.75;
+}
+
+.imagePreviewWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.imagePreview {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.logoPreview {
+  max-height: 80px;
+  object-fit: contain;
+  background: white;
+  padding: 8px;
+}
+
+.backgroundPreview {
+  height: 110px;
+  object-fit: cover;
+}
+
+.imagePreviewActions {
+  display: flex;
+  gap: 14px;
+}
+
+.imageError {
+  color: #b91c1c;
+  font-size: 0.8rem;
+}
+
+.backgroundGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+/* ── Icon picker ─────────────────────────────────────────────────────────── */
+
+.iconPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.iconPickerLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.iconPickerHint {
+  font-weight: 400;
+  font-style: normal;
+  opacity: 0.85;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 6px;
+}
+
+.iconOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.iconOption:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.iconOptionActive {
+  border-color: var(--primary);
+  background: #eef2ff;
+  color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary) inset;
+}
+
+/* ── Unread lead notifications ───────────────────────────────────────────── */
+
+.navBadge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.unreadDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: #dc2626;
+  vertical-align: middle;
+}
+
+.rowUnread td {
+  font-weight: 600;
+  background: #fefce8;
 }

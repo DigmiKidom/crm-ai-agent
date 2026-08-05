@@ -4,10 +4,19 @@
 }
 
 .hero {
+  position: relative;
   padding: 96px 24px;
   text-align: center;
   background: var(--tenant-primary, #2563eb);
   color: white;
+  overflow: hidden;
+}
+
+/* When a background photo is set the solid colour would fight with it, so the
+   hero goes transparent and grows a little to give the image room to breathe. */
+.heroWithPhoto {
+  background: #111827;
+  padding: 128px 24px;
 }
 
 .headline {
@@ -44,6 +53,18 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 32px;
+}
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--tenant-primary, #2563eb) 12%, transparent);
+  color: var(--tenant-primary, #2563eb);
 }
 
 .featureCard h3 {

@@ -6,9 +6,40 @@
 }
 
 .hero {
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0 80px;
+}
+
+.heroInner {
   max-width: 720px;
   margin: 0 auto;
-  padding: 120px 24px 80px;
+  padding: 0 24px;
+}
+
+/* With a photo behind it the editorial light hero would wash out, so the
+   whole block inverts to light-on-dark for this case only. */
+.heroWithPhoto {
+  background: #111827;
+  padding: 140px 0 110px;
+}
+
+.heroWithPhoto .headline,
+.heroWithPhoto .subheadline,
+.heroWithPhoto .ctaButton {
+  color: white;
+}
+
+.heroWithPhoto .eyebrow {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.heroWithPhoto .subheadline {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.heroWithPhoto .ctaButton {
+  border-bottom-color: white;
 }
 
 .eyebrow {
@@ -56,8 +87,24 @@
 }
 
 .featureCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
   padding: 20px 0;
   border-bottom: 1px solid #f3f4f6;
+}
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin-top: 2px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  color: var(--tenant-primary, #2563eb);
 }
 
 .featureCard h3 {

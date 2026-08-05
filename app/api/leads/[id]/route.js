@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Lead from "@/lib/models/Lead";
 
-const EDITABLE_FIELDS = ["stage", "notes", "name", "email", "phone", "message"];
+const EDITABLE_FIELDS = ["stage", "notes", "name", "email", "phone", "message", "read"];
 
 export async function GET(request, { params }) {
   const session = await auth();
@@ -40,6 +40,13 @@ export async function PATCH(request, { params }) {
   const updates = {};
   for (const field of EDITABLE_FIELDS) {
     if (body[field] !== undefined) updates[field] = body[field];
+  }
+
+  // Keep the read timestamp in step with the flag rather than trusting the
+  // client to send both.
+  if (updates.read !== undefined) {
+    updates.read = Boolean(updates.read);
+    updates.readAt = updates.read ? new Date() : null;
   }
 
   try {

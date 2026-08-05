@@ -1,5 +1,9 @@
 import styles from "./default.module.css";
+import shared from "../shared/shared.module.css";
 import LeadForm from "./LeadForm";
+import HeroBackground from "../shared/HeroBackground";
+import { TenantLogo, BrandFooter } from "../shared/Branding";
+import { LandingIcon } from "@/lib/landingIcons";
 
 export default function LandingTemplate({ tenant }) {
   const { name, slug, theme, landingPage } = tenant;
@@ -10,22 +14,37 @@ export default function LandingTemplate({ tenant }) {
     "--tenant-font": theme?.fontFamily || "system-ui, sans-serif",
   };
 
+  const backgrounds = landingPage?.backgroundMediaIds || [];
+  const hasPhoto = backgrounds.length > 0;
+
   return (
     <div className={styles.page} style={themeVars}>
-      <section className={styles.hero}>
-        <h1 className={styles.headline}>{landingPage?.headline || `Grow ${name}`}</h1>
-        <p className={styles.subheadline}>
-          {landingPage?.subheadline || "Tell your visitors why they should reach out."}
-        </p>
-        <a className={styles.ctaButton} href="#lead-form">
-          {landingPage?.ctaLabel || "Get in touch"}
-        </a>
+      {/* With a photo the hero drops its solid colour block and lets the
+          image plus overlay carry the background instead. */}
+      <section className={`${styles.hero} ${hasPhoto ? styles.heroWithPhoto : ""}`}>
+        <HeroBackground mediaIds={backgrounds} overlay={landingPage?.backgroundOverlay ?? 0.55} />
+
+        <div className={shared.heroContent}>
+          <TenantLogo tenant={tenant} />
+          <h1 className={styles.headline}>{landingPage?.headline || `Grow ${name}`}</h1>
+          <p className={styles.subheadline}>
+            {landingPage?.subheadline || "Tell your visitors why they should reach out."}
+          </p>
+          <a className={styles.ctaButton} href="#lead-form">
+            {landingPage?.ctaLabel || "Get in touch"}
+          </a>
+        </div>
       </section>
 
       {landingPage?.features?.length > 0 && (
         <section className={styles.features}>
           {landingPage.features.map((feature, i) => (
             <div className={styles.featureCard} key={i}>
+              {feature.icon && (
+                <span className={styles.featureIcon}>
+                  <LandingIcon name={feature.icon} size={26} />
+                </span>
+              )}
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </div>
@@ -41,7 +60,7 @@ export default function LandingTemplate({ tenant }) {
       </section>
 
       <footer className={styles.footer}>
-        {name} — powered by CRM AI Agent
+        <BrandFooter tenant={tenant} />
       </footer>
     </div>
   );

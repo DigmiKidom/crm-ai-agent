@@ -1,0 +1,105 @@
+/* Shared landing-page building blocks: hero photo backgrounds, tenant logo,
+   and the branded footer. Every template imports these so a tenant's logo and
+   photos look consistent no matter which template they picked. */
+
+.bgWrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.bgLayerActive {
+  opacity: 1;
+}
+
+.bgOverlay {
+  position: absolute;
+  inset: 0;
+  background: var(--tenant-accent, #111827);
+}
+
+/* Templates set position:relative on .hero and lift their content above the
+   photo with this. */
+.heroContent {
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  display: block;
+  max-height: 56px;
+  max-width: 220px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 24px;
+}
+
+.logoLeft {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.footerBrand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.footerLogo {
+  max-height: 36px;
+  max-width: 160px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.75;
+}
+
+.footerContact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  font-size: 0.85rem;
+}
+
+.footerContact a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footerContact a:hover {
+  text-decoration: underline;
+}
+
+.footerSocial {
+  display: flex;
+  gap: 14px;
+  font-size: 0.85rem;
+}
+
+.footerSocial a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.footerSocial a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.footerLegal {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}

@@ -8,20 +8,22 @@ import {
   IconContacts,
   IconEdit,
   IconSparkles,
+  IconSettings,
   IconExternalLink,
 } from "@/components/icons";
 import styles from "./dashboard.module.css";
 
-export default function DashboardNav({ tenantSlug }) {
+export default function DashboardNav({ tenantSlug, unreadLeads = 0 }) {
   const pathname = usePathname();
 
   const items = [
     { href: `/t/${tenantSlug}`, label: "Overview", Icon: IconOverview, exact: true },
-    { href: `/t/${tenantSlug}/leads`, label: "Leads", Icon: IconInbox },
+    { href: `/t/${tenantSlug}/leads`, label: "Leads", Icon: IconInbox, badge: unreadLeads },
     { href: `/t/${tenantSlug}/pipeline`, label: "Pipeline", Icon: IconPipeline },
     { href: `/t/${tenantSlug}/contacts`, label: "Contacts", Icon: IconContacts },
     { href: `/t/${tenantSlug}/site`, label: "Edit landing page", Icon: IconEdit },
     { href: `/t/${tenantSlug}/onboarding`, label: "AI Setup", Icon: IconSparkles },
+    { href: `/t/${tenantSlug}/settings`, label: "Settings", Icon: IconSettings },
   ];
 
   function isActive(item) {
@@ -39,6 +41,14 @@ export default function DashboardNav({ tenantSlug }) {
         >
           <item.Icon size={18} className={styles.navRowIcon} />
           <span>{item.label}</span>
+          {item.badge > 0 && (
+            <span
+              className={styles.navBadge}
+              title={`${item.badge} unread ${item.badge === 1 ? "lead" : "leads"}`}
+            >
+              {item.badge > 99 ? "99+" : item.badge}
+            </span>
+          )}
         </a>
       ))}
       <a

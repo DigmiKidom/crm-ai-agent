@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
-import Tenant from "@/lib/models/Tenant";
+import Tenant, { MAX_FEATURES } from "@/lib/models/Tenant";
 import Pipeline from "@/lib/models/Pipeline";
 import AgentSession from "@/lib/models/AgentSession";
 import { generateSiteConfig } from "@/lib/agent";
 import { getTemplate } from "@/lib/templates";
+import { isValidIconKey } from "@/lib/landingIcons";
 
 export async function POST(request) {
   const session = await auth();
@@ -53,15 +54,20 @@ export async function POST(request) {
       technology: technology || "balanced",
     });
 
+    // Dotted paths, not a whole `landingPage` object — re-running AI setup
+    // should refresh the copy without wiping the tenant's uploaded background
+    // photos, overlay strength, or logo preference.
     const update = {
       industry,
       templateId: config.templateId,
-      landingPage: {
-        headline: config.headline,
-        subheadline: config.subheadline,
-        ctaLabel: config.ctaLabel,
-        features: config.features,
-      },
+      "landingPage.headline": config.headline,
+      "landingPage.subheadline": config.subheadline,
+      "landingPage.ctaLabel": config.ctaLabel,
+      "landingPage.features": (config.features || []).slice(0, MAX_FEATURES).map((f) => ({
+        title: f.title,
+        description: (f.description || "").slice(0, 300),
+        icon: isValidIconKey(f.icon) ? f.icon : "",
+      })),
     };
     if (brandColor) update["theme.primaryColor"] = brandColor;
 
