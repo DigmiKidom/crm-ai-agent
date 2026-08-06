@@ -4,8 +4,10 @@ import { useState } from "react";
 import FullTutorial from "./FullTutorial";
 import QuickTutorial from "./QuickTutorial";
 import styles from "./tutorial.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function TutorialGuide({ tenantSlug }) {
+  const t = useT();
   const [mode, setMode] = useState("full");
 
   return (
@@ -16,14 +18,14 @@ export default function TutorialGuide({ tenantSlug }) {
           className={`${styles.modeToggleOption} ${mode === "full" ? styles.modeToggleOptionActive : ""}`}
           onClick={() => setMode("full")}
         >
-          Full guide
+          {t("tutorial.fullGuide")}
         </button>
         <button
           type="button"
           className={`${styles.modeToggleOption} ${mode === "quick" ? styles.modeToggleOptionActive : ""}`}
           onClick={() => setMode("quick")}
         >
-          Quick tour (3 pages)
+          {t("tutorial.quickTour")}
         </button>
       </div>
 

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
+import { getServerT } from "@/lib/i18n/server";
 import { getAnalytics, RANGES, DEFAULT_RANGE } from "@/lib/analytics";
 import RangePicker from "@/components/RangePicker";
 import DeltaBadge from "@/components/DeltaBadge";
@@ -29,7 +30,7 @@ import {
 import styles from "@/components/analytics.module.css";
 import dash from "@/components/dashboard.module.css";
 
-export const metadata = { title: "Analytics" };
+
 
 // Reporting should reflect a lead captured thirty seconds ago, so this page
 // opts out of the route cache entirely rather than serving a stale snapshot.
@@ -38,6 +39,8 @@ export const dynamic = "force-dynamic";
 export default async function AnalyticsPage({ params, searchParams }) {
   const { tenantSlug } = await params;
   const { range: rangeParam } = (await searchParams) ?? {};
+
+  const { t, locale } = await getServerT();
 
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -49,7 +52,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
 
   await connectDB();
   const tenant = await Tenant.findOne({ slug: tenantSlug }).select("name").lean();
-  const data = await getAnalytics({ tenantId: session.user.tenantId, range });
+  const data = await getAnalytics({ tenantId: session.user.tenantId, range, t, locale });
 
   const basePath = `/t/${tenantSlug}/analytics`;
   const { totals, timing, formStats } = data;
@@ -59,19 +62,22 @@ export default async function AnalyticsPage({ params, searchParams }) {
       <div className={styles.header}>
         <div className={styles.headerText}>
           <h1 className={dash.pageTitle} style={{ marginBottom: 0 }}>
-            Analytics
+            {t("analytics.title")}
           </h1>
           <p className={styles.subtitle}>
-            {RANGES[range].caption} for {tenant?.name || tenantSlug} · {totals.leadsAllTime} leads
-            captured all time
+            {t("analytics.insights.subtitle", {
+              caption: t(`analytics.range.${range}Caption`),
+              company: tenant?.name || tenantSlug,
+              total: totals.leadsAllTime,
+            })}
           </p>
         </div>
-        <RangePicker basePath={basePath} active={range} />
+        <RangePicker basePath={basePath} active={range} t={t} />
       </div>
 
       {totals.leadsAllTime === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyStateTitle}>No leads yet</div>
+          <div className={styles.emptyStateTitle}>{t("analytics.noLeads")}</div>
           Every chart on this page is built from the leads your landing page captures. Share{" "}
           <strong>/pages/{tenantSlug}</strong> and the reporting fills in from the first submission.
         </div>
@@ -86,7 +92,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
               >
                 <div className={styles.kpiTop}>
                   <span className={styles.kpiLabel}>{kpi.label}</span>
-                  <DeltaBadge value={kpi.delta} />
+                  <DeltaBadge value={kpi.delta} t={t} />
                 </div>
                 <div className={styles.kpiValue}>{kpi.value}</div>
                 {kpi.spark && <Sparkline values={kpi.spark} />}
@@ -101,14 +107,16 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconChart size={16} />
-                  Leads received
+                  {t("analytics.panel.leadsReceived")}
                 </h2>
                 <span className={styles.panelNote}>
-                  {data.range.bucket === "day" ? "Daily" : "Monthly"} · dashed line is the previous{" "}
-                  {RANGES[range].caption.replace("Last ", "")}
+                  {t("analytics.panel.dashedPrev", {
+                    bucket: t(data.range.bucket === "day" ? "analytics.panel.daily" : "analytics.panel.monthly"),
+                    period: t(`analytics.range.prev${range === "3y" ? "3y" : range.charAt(0).toUpperCase() + range.slice(1)}`),
+                  })}
                 </span>
               </div>
-              <TimeSeriesChart points={data.leadsOverTime} valueLabel="leads" />
+              <TimeSeriesChart points={data.leadsOverTime} valueLabel={t("analytics.panel.leadsUnit")} />
             </section>
           </div>
 
@@ -117,11 +125,11 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconTrendUp size={16} />
-                  Cumulative leads
+                  {t("analytics.panel.cumulative")}
                 </h2>
-                <span className={styles.panelNote}>Running total across the period</span>
+                <span className={styles.panelNote}>{t("analytics.panel.runningTotal")}</span>
               </div>
-              <TimeSeriesChart points={data.cumulative} valueLabel="leads total" />
+              <TimeSeriesChart points={data.cumulative} valueLabel={t("analytics.panel.leadsTotalUnit")} />
             </section>
 
             <section className={styles.panel}>
@@ -131,13 +139,12 @@ export default async function AnalyticsPage({ params, searchParams }) {
                   Outcomes
                 </h2>
                 <span className={styles.panelNote}>
-                  {totals.winRate != null ? `${totals.winRate}% win rate` : "Nothing decided yet"}
+                  {totals.winRate != null ? `${totals.winRate}% win rate` : t("analytics.panel.nothingDecided")}
                 </span>
               </div>
               <DonutChart slices={data.outcomes} centerLabel="leads" />
               <div className={styles.panelFooter}>
-                Win rate counts leads that reached a final stage. Leads still in progress are
-                excluded so an early-stage backlog doesn&apos;t drag the number down.
+                {t("analytics.panel2.winRateNote")}
               </div>
             </section>
           </div>
@@ -148,15 +155,13 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconPipeline size={16} />
-                  Where leads sit
+                  {t("analytics.panel2.whereLeadsSit")}
                 </h2>
-                <span className={styles.panelNote}>Current stage occupancy</span>
+                <span className={styles.panelNote}>{t("analytics.panel.stageOccupancy")}</span>
               </div>
               <FunnelBars stages={data.stageDistribution} />
               <div className={styles.panelFooter}>
-                Each lead counts once, in the stage it&apos;s in today. The CRM doesn&apos;t keep a
-                stage-change history, so this isn&apos;t a pass-through funnel — it&apos;s a
-                snapshot of the pipeline right now.
+                {t("analytics.panel2.stageNote")}
               </div>
             </section>
 
@@ -164,18 +169,18 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconTarget size={16} />
-                  Win rate over time
+                  {t("analytics.panel2.winRateOverTime")}
                 </h2>
-                <span className={styles.panelNote}>Of leads that reached a decision</span>
+                <span className={styles.panelNote}>{t("analytics.panel.ofDecided")}</span>
               </div>
               <TimeSeriesChart
                 points={data.winRateOverTime}
-                valueLabel="win rate"
+                valueLabel={t("analytics.panel.winRateUnit")}
                 unit="%"
-                emptyMessage="No leads have reached a final stage yet."
+                emptyMessage={t("analytics.panel.noFinalStage")}
               />
               <div className={styles.panelFooter}>
-                Gaps are periods where no lead was won or lost — not a 0% close rate.
+                {t("analytics.panel.gapsNote")}
               </div>
             </section>
           </div>
@@ -186,13 +191,13 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconClock size={16} />
-                  Speed to first response
+                  {t("analytics.panel2.speedToFirst")}
                 </h2>
-                <span className={styles.panelNote}>Time from submission to first open</span>
+                <span className={styles.panelNote}>{t("analytics.panel.timeToFirstOpen")}</span>
               </div>
               <HBarList rows={data.responseBreakdown} mode="max" />
               <div className={styles.panelFooter}>
-                Measured from when a lead arrives to the first time someone opens it in the CRM.
+                {t("analytics.panel2.speedNote")}
               </div>
             </section>
 
@@ -200,7 +205,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconAlert size={16} />
-                  Unanswered backlog
+                  {t("analytics.panel2.backlog")}
                 </h2>
                 <span className={styles.panelNote}>
                   {totals.backlog} waiting · all time, not just this period
@@ -210,11 +215,10 @@ export default async function AnalyticsPage({ params, searchParams }) {
                 rows={data.backlogAging}
                 mode="max"
                 showShare={false}
-                emptyMessage="Nothing is waiting — every lead has been opened."
+                emptyMessage={t("analytics.panel.nothingWaiting")}
               />
               <div className={styles.panelFooter}>
-                How long leads nobody has opened yet have been sitting there. Anything past three
-                days is highlighted.
+                {t("analytics.panel2.backlogNote")}
               </div>
             </section>
           </div>
@@ -225,33 +229,31 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconForm size={16} />
-                  Form submissions
+                  {t("analytics.panel2.formSubmissions")}
                 </h2>
-                <span className={styles.panelNote}>What visitors actually fill in</span>
+                <span className={styles.panelNote}>{t("analytics.panel.whatVisitorsFill")}</span>
               </div>
               <div className={styles.miniStats}>
                 <div className={styles.miniStat}>
                   <span className={styles.miniStatValue}>{formStats.total}</span>
-                  <span className={styles.miniStatLabel}>Forms submitted</span>
+                  <span className={styles.miniStatLabel}>{t("analytics.panel.formsSubmitted")}</span>
                 </div>
                 <div className={styles.miniStat}>
                   <span className={styles.miniStatValue}>{formStats.completionRate}%</span>
-                  <span className={styles.miniStatLabel}>Filled every field</span>
+                  <span className={styles.miniStatLabel}>{t("analytics.panel.filledEveryField")}</span>
                 </div>
                 <div className={styles.miniStat}>
                   <span className={styles.miniStatValue}>{formStats.avgFields}</span>
-                  <span className={styles.miniStatLabel}>Avg. fields of 4</span>
+                  <span className={styles.miniStatLabel}>{t("analytics.panel.avgFieldsOf4")}</span>
                 </div>
                 <div className={styles.miniStat}>
                   <span className={styles.miniStatValue}>{formStats.avgMessageLength}</span>
-                  <span className={styles.miniStatLabel}>Avg. message chars</span>
+                  <span className={styles.miniStatLabel}>{t("analytics.panel.avgMessageChars")}</span>
                 </div>
               </div>
               <HBarList rows={data.formCompleteness} mode="share" />
               <div className={styles.panelFooter}>
-                Name and email are required, so they&apos;re always 100%. Phone and message are
-                optional — how often visitors bother with them is a read on both form friction and
-                how serious the enquiries are.
+                {t("analytics.panel2.completionNote")}
               </div>
             </section>
 
@@ -259,9 +261,9 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconInbox size={16} />
-                  Lead sources
+                  {t("analytics.panel2.leadSources")}
                 </h2>
-                <span className={styles.panelNote}>Where submissions came from</span>
+                <span className={styles.panelNote}>{t("analytics.panel.whereFrom")}</span>
               </div>
               <DonutChart slices={data.sources} centerLabel="leads" />
               <div className={styles.panelFooter}>
@@ -277,12 +279,12 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconFlame size={16} />
-                  When leads arrive
+                  {t("analytics.panel2.whenArrive")}
                 </h2>
                 <span className={styles.panelNote}>
                   {timing.busiestDay
                     ? `Busiest: ${timing.busiestDay}${timing.busiestHour ? ` around ${timing.busiestHour}` : ""} · ${timing.businessHoursShare}% arrive in business hours`
-                    : "Not enough data yet"}
+                    : t("analytics.panel.notEnoughData")}
                 </span>
               </div>
               <Heatmap grid={data.heatmap} />
@@ -294,21 +296,21 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconCalendar size={16} />
-                  By day of week
+                  {t("analytics.panel2.byDayOfWeek")}
                 </h2>
               </div>
-              <BarChart points={timing.byWeekday} valueLabel="leads" />
+              <BarChart points={timing.byWeekday} valueLabel={t("analytics.panel.leadsUnit")} />
             </section>
 
             <section className={styles.panel}>
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconClock size={16} />
-                  By hour of day
+                  {t("analytics.panel2.byHourOfDay")}
                 </h2>
-                <span className={styles.panelNote}>Server time</span>
+                <span className={styles.panelNote}>{t("analytics.panel.serverTime")}</span>
               </div>
-              <BarChart points={timing.byHour} valueLabel="leads" />
+              <BarChart points={timing.byHour} valueLabel={t("analytics.panel.leadsUnit")} />
             </section>
           </div>
 
@@ -318,14 +320,14 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconUsers size={16} />
-                  Contact book growth
+                  {t("analytics.panel2.contactGrowth")}
                 </h2>
                 <span className={styles.panelNote}>{totals.contactsAllTime} contacts total</span>
               </div>
               <TimeSeriesChart
                 points={data.contactsOverTime}
                 valueLabel="contacts"
-                emptyMessage="No contacts yet."
+                emptyMessage={t("analytics.panel.noContacts")}
               />
             </section>
 
@@ -333,10 +335,14 @@ export default async function AnalyticsPage({ params, searchParams }) {
               <div className={styles.panelHeader}>
                 <h2 className={styles.panelTitle}>
                   <IconInfo size={16} />
-                  What stands out
+                  {t("analytics.insights.heading")}
                 </h2>
               </div>
-              <Insights data={data} rangeLabel={RANGES[range].caption.toLowerCase()} />
+              <Insights
+                data={data}
+                period={t(`analytics.range.prev${range === "3y" ? "3y" : range.charAt(0).toUpperCase() + range.slice(1)}`)}
+                t={t}
+              />
             </section>
           </div>
         </>
@@ -350,7 +356,31 @@ export default async function AnalyticsPage({ params, searchParams }) {
  * data already computed — no model call, nothing that can hallucinate a trend
  * that isn't in the chart directly above it.
  */
-function Insights({ data, rangeLabel }) {
+/**
+ * Renders a translated string that contains <b>…</b> emphasis.
+ *
+ * The alternative — splitting each sentence into three separate keys around
+ * the bold part — produces fragments no translator can order correctly, and
+ * Hebrew puts the emphasised number in a different position than English.
+ * Keeping one key per sentence is what makes these translatable at all.
+ */
+function Rich({ text }) {
+  return (
+    <>
+      {text.split(/(<b>.*?<\/b>)/g).map((part, i) =>
+        part.startsWith("<b>") ? (
+          <span key={i} className={styles.insightStrong}>
+            {part.slice(3, -4)}
+          </span>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
+function Insights({ data, period, t }) {
   const { totals, timing, formStats, kpis } = data;
   const items = [];
 
@@ -358,91 +388,61 @@ function Insights({ data, rangeLabel }) {
   if (leadKpi?.delta != null && Math.abs(leadKpi.delta) >= 10) {
     items.push({
       tone: leadKpi.delta > 0 ? "good" : "warn",
-      text: (
-        <>
-          Lead volume is{" "}
-          <span className={styles.insightStrong}>
-            {leadKpi.delta > 0 ? "up" : "down"} {Math.abs(leadKpi.delta)}%
-          </span>{" "}
-          against the previous {rangeLabel.replace("last ", "")} ({totals.leadsInRange} vs{" "}
-          {totals.leadsPrevRange}).
-        </>
-      ),
+      text: t("analytics.insights.volume", {
+        dir: t(leadKpi.delta > 0 ? "analytics.insights.up" : "analytics.insights.down"),
+        pct: Math.abs(leadKpi.delta),
+        period,
+        now: totals.leadsInRange,
+        prev: totals.leadsPrevRange,
+      }),
     });
   }
 
   if (totals.backlog > 0) {
     items.push({
       tone: "warn",
-      text: (
-        <>
-          <span className={styles.insightStrong}>{totals.backlog}</span>{" "}
-          {totals.backlog === 1 ? "lead has" : "leads have"} never been opened. Speed of first reply
-          is the single biggest driver of close rate for inbound enquiries.
-        </>
-      ),
+      text: t("analytics.insights.backlog", {
+        count: totals.backlog,
+        leadWord: t(totals.backlog === 1 ? "analytics.insights.leadOne" : "analytics.insights.leadMany"),
+        haveWord: t(totals.backlog === 1 ? "analytics.insights.hasOne" : "analytics.insights.haveMany"),
+        duration: timing.oldestUnansweredLabel ?? "—",
+      }),
     });
   }
 
   if (formStats.total > 0 && formStats.phoneRate < 50) {
-    items.push({
-      tone: "warn",
-      text: (
-        <>
-          Only <span className={styles.insightStrong}>{formStats.phoneRate}%</span> of submissions
-          include a phone number — worth deciding whether to make the field required or drop it.
-        </>
-      ),
-    });
+    items.push({ tone: "warn", text: t("analytics.insights.phone", { pct: formStats.phoneRate }) });
   }
 
   if (formStats.messageRate >= 70) {
     items.push({
       tone: "good",
-      text: (
-        <>
-          <span className={styles.insightStrong}>{formStats.messageRate}%</span> of visitors wrote a
-          message, averaging {formStats.avgMessageLength} characters. Engaged enquiries, not
-          drive-by form fills.
-        </>
-      ),
+      text: t("analytics.insights.message", {
+        pct: formStats.messageRate,
+        chars: formStats.avgMessageLength,
+      }),
     });
   }
 
   if (timing.busiestDay && totals.leadsInRange >= 5) {
     items.push({
       tone: "info",
-      text: (
-        <>
-          <span className={styles.insightStrong}>{timing.busiestDay}</span> is your strongest day
-          {timing.busiestHour ? ` and ${timing.busiestHour} your busiest hour` : ""}.{" "}
-          {timing.businessHoursShare < 50
-            ? `${100 - timing.businessHoursShare}% of leads arrive outside business hours — an auto-reply would cover the gap.`
-            : `${timing.businessHoursShare}% arrive during business hours.`}
-        </>
-      ),
+      text: t("analytics.insights.busiestDay", {
+        day: timing.busiestDay,
+        hour: timing.busiestHourLabel ?? timing.busiestHour,
+      }),
     });
   }
 
   if (totals.winRate != null && totals.won + totals.lost >= 5) {
     items.push({
       tone: totals.winRate >= 30 ? "good" : "info",
-      text: (
-        <>
-          You&apos;re closing <span className={styles.insightStrong}>{totals.winRate}%</span> of
-          leads that reach a decision, with {totals.open} still in progress.
-        </>
-      ),
+      text: t("analytics.insights.winRate", { pct: totals.winRate, open: totals.open }),
     });
   }
 
   if (!items.length) {
-    return (
-      <p className={styles.subtitle}>
-        Not enough activity in this period to call out a trend yet. Try a wider range, or check back
-        once more leads have come in.
-      </p>
-    );
+    items.push({ tone: "info", text: t("analytics.insights.none") });
   }
 
   return (
@@ -458,7 +458,9 @@ function Insights({ data, rangeLabel }) {
         return (
           <div className={styles.insight} key={i}>
             <Icon size={15} className={`${styles.insightIcon} ${iconClass}`} />
-            <span>{item.text}</span>
+            <span>
+              <Rich text={item.text} />
+            </span>
           </div>
         );
       })}

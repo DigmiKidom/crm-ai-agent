@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from "./charts.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 // Fixed viewBox with `width: 100%; height: auto` — the SVG scales with its
 // container while every coordinate below stays in one predictable space, so a
@@ -40,6 +41,7 @@ export default function TimeSeriesChart({
   unit = "",
   emptyMessage = "No data in this period yet.",
 }) {
+  const t = useT();
   const [hover, setHover] = useState(null);
   const format = (v) => `${v}${unit}`;
 
@@ -87,13 +89,13 @@ export default function TimeSeriesChart({
         aria-label={`${valueLabel} over time`}
         onMouseLeave={() => setHover(null)}
       >
-        {gridTicks.map((t) => {
-          const gy = PAD.top + PLOT_H - t * PLOT_H;
+        {gridTicks.map((tick) => {
+          const gy = PAD.top + PLOT_H - tick * PLOT_H;
           return (
-            <g key={t}>
+            <g key={tick}>
               <line className={styles.gridLine} x1={PAD.left} y1={gy} x2={VIEW_W - PAD.right} y2={gy} />
               <text className={styles.axisLabelY} x={PAD.left - 8} y={gy + 3.5}>
-                {format(Math.round(max * t))}
+                {format(Math.round(max * tick))}
               </text>
             </g>
           );
@@ -196,7 +198,7 @@ export default function TimeSeriesChart({
         <div className={styles.legend}>
           <span className={styles.legendItem}>
             <span className={styles.legendSwatch} style={{ background: "var(--primary)" }} />
-            This period
+            {t("analytics.panel2.thisPeriod")}
           </span>
           <span className={styles.legendItem}>
             <span className={styles.legendDash} />

@@ -3,19 +3,45 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUpload from "./ImageUpload";
+import PillGroup from "./PillGroup";
+import CheckboxGroup from "./CheckboxGroup";
+import { useT } from "@/components/i18n/LocaleProvider";
 import ThemeToggle from "./ThemeToggle";
 import { IconCheck } from "./icons";
 import styles from "./dashboard.module.css";
+import {
+  TONE_VALUES,
+  PERSONALITY_VALUES,
+  STYLE_VALUES,
+  AUDIENCE_VALUES,
+  TECH_VALUES,
+  DEFAULT_AGENT_PREFERENCES,
+} from "@/lib/agentPreferences";
 
+// Values are real CSS font stacks written to the tenant; only the label is
+// translated, so switching UI language can't change a tenant's chosen font.
 const FONT_OPTIONS = [
-  { value: "system-ui, sans-serif", label: "System (default)" },
-  { value: "Georgia, 'Times New Roman', serif", label: "Serif — classic" },
-  { value: "'Helvetica Neue', Helvetica, Arial, sans-serif", label: "Helvetica — neutral" },
-  { value: "'Trebuchet MS', 'Segoe UI', sans-serif", label: "Trebuchet — friendly" },
-  { value: "'Courier New', monospace", label: "Monospace — technical" },
+  { value: "system-ui, sans-serif", key: "system" },
+  { value: "Georgia, 'Times New Roman', serif", key: "serif" },
+  { value: "'Helvetica Neue', Helvetica, Arial, sans-serif", key: "helvetica" },
+  { value: "'Trebuchet MS', 'Segoe UI', sans-serif", key: "trebuchet" },
+  { value: "'Courier New', monospace", key: "mono" },
 ];
 
 export default function SettingsForm({ tenant }) {
+  const t = useT();
+
+  // Reuses the exact same `onboarding.*Opt.*` dictionary keys the AI Setup
+  // form translates its options with — one set of labels for one set of
+  // stable English values (lib/agentPreferences.js), not a duplicate
+  // "settings.*" copy of the same strings.
+  const opts = (values, ns) => values.map((v) => ({ value: v, label: t(`onboarding.${ns}.${v}`) }));
+  const TONE_OPTIONS = opts(TONE_VALUES, "toneOpt");
+  const PERSONALITY_OPTIONS = opts(PERSONALITY_VALUES, "personalityOpt");
+  const STYLE_OPTIONS = opts(STYLE_VALUES, "styleOpt");
+  const TARGET_AUDIENCE_OPTIONS = opts(AUDIENCE_VALUES, "audienceOpt");
+  const TECHNOLOGY_OPTIONS = opts(TECH_VALUES, "techOpt");
+
   const [form, setForm] = useState({
     name: tenant.name || "",
     logoMediaId: tenant.logoMediaId || null,
@@ -43,6 +69,13 @@ export default function SettingsForm({ tenant }) {
     },
     notifications: {
       emailOnNewLead: Boolean(tenant.notifications?.emailOnNewLead),
+    },
+    agentPreferences: {
+      tone: tenant.agentPreferences?.tone || DEFAULT_AGENT_PREFERENCES.tone,
+      personality: tenant.agentPreferences?.personality || DEFAULT_AGENT_PREFERENCES.personality,
+      style: tenant.agentPreferences?.style || DEFAULT_AGENT_PREFERENCES.style,
+      targetAudience: tenant.agentPreferences?.targetAudience || DEFAULT_AGENT_PREFERENCES.targetAudience,
+      technology: tenant.agentPreferences?.technology || DEFAULT_AGENT_PREFERENCES.technology,
     },
   });
 
@@ -79,6 +112,11 @@ export default function SettingsForm({ tenant }) {
     setForm((f) => ({ ...f, theme: { ...f.theme, [field]: value } }));
   }
 
+  function setAgentPreference(field, value) {
+    touch();
+    setForm((f) => ({ ...f, agentPreferences: { ...f.agentPreferences, [field]: value } }));
+  }
+
   async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
@@ -90,11 +128,11 @@ export default function SettingsForm({ tenant }) {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json().catch(() => ({ error: "Unexpected server error." }));
+    const data = await res.json().catch(() => ({ error: t("settings.serverError") }));
     setSaving(false);
 
     if (!res.ok) {
-      setError(data.error || "Could not save settings.");
+      setError(data.error || t("settings.saveFailed"));
       return;
     }
     setSaved(true);
@@ -105,10 +143,14 @@ export default function SettingsForm({ tenant }) {
 
   return (
     <form className={styles.settingsForm} onSubmit={handleSave}>
-      {error && <p className={styles.formError}>{error}</p>}
+      {error && (
+        <p className={styles.formError} role="alert">
+          {error}
+        </p>
+      )}
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Appearance</h2>
+        <h2 className={styles.sectionTitle}>{t("settings.appearance")}</h2>
         <p className={styles.sectionHint}>
           A display preference saved on this device — it doesn&apos;t affect your public landing
           page or your other devices.
@@ -117,31 +159,29 @@ export default function SettingsForm({ tenant }) {
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Company profile</h2>
-        <p className={styles.sectionHint}>
-          Used across your dashboard and shown on your public landing page.
-        </p>
+        <h2 className={styles.sectionTitle}>{t("settings.companyProfile")}</h2>
+        <p className={styles.sectionHint}>{t("settings.companyProfileHint")}</p>
 
         <div className={styles.detailField}>
-          <label htmlFor="name">Company name</label>
+          <label htmlFor="name">{t("settings.companyName")}</label>
           <input id="name" value={form.name} onChange={(e) => setTop("name", e.target.value)} />
         </div>
 
         <div className={styles.fieldRow}>
           <div className={styles.detailField}>
-            <label htmlFor="legalName">Legal name</label>
+            <label htmlFor="legalName">{t("settings.legalName")}</label>
             <input
               id="legalName"
-              placeholder="Acme Services Ltd."
+              placeholder={t("settings.ph.legalName")}
               value={form.profile.legalName}
               onChange={(e) => setProfile("legalName", e.target.value)}
             />
           </div>
           <div className={styles.detailField}>
-            <label htmlFor="tagline">Tagline</label>
+            <label htmlFor="tagline">{t("settings.tagline")}</label>
             <input
               id="tagline"
-              placeholder="Plumbing done right, first time"
+              placeholder={t("settings.ph.tagline")}
               value={form.profile.tagline}
               onChange={(e) => setProfile("tagline", e.target.value)}
             />
@@ -149,12 +189,12 @@ export default function SettingsForm({ tenant }) {
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="about">About</label>
+          <label htmlFor="about">{t("settings.about")}</label>
           <textarea
             id="about"
             rows={3}
             maxLength={600}
-            placeholder="A short paragraph about what your company does."
+            placeholder={t("settings.ph.about")}
             value={form.profile.about}
             onChange={(e) => setProfile("about", e.target.value)}
           />
@@ -163,39 +203,38 @@ export default function SettingsForm({ tenant }) {
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Logo</h2>
+        <h2 className={styles.sectionTitle}>{t("settings.logo")}</h2>
         <p className={styles.sectionHint}>
-          Square or wide images both work. Resized and compressed automatically — upload the
-          highest quality file you have.
+          {t("settings.logoUploadHint")}
         </p>
         <ImageUpload
           kind="logo"
           value={form.logoMediaId}
           onChange={(id) => setTop("logoMediaId", id)}
-          hint="PNG with transparency looks best"
+          hint={t("settings.logoHint")}
           previewClassName={styles.logoPreview}
         />
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Contact details</h2>
+        <h2 className={styles.sectionTitle}>{t("settings.contactDetails")}</h2>
 
         <div className={styles.fieldRow}>
           <div className={styles.detailField}>
-            <label htmlFor="contactEmail">Contact email</label>
+            <label htmlFor="contactEmail">{t("settings.contactEmail")}</label>
             <input
               id="contactEmail"
               type="email"
-              placeholder="hello@yourcompany.com"
+              placeholder={t("settings.ph.email")}
               value={form.profile.contactEmail}
               onChange={(e) => setProfile("contactEmail", e.target.value)}
             />
           </div>
           <div className={styles.detailField}>
-            <label htmlFor="contactPhone">Phone</label>
+            <label htmlFor="contactPhone">{t("settings.phone")}</label>
             <input
               id="contactPhone"
-              placeholder="+972 50 000 0000"
+              placeholder={t("settings.ph.phone")}
               value={form.profile.contactPhone}
               onChange={(e) => setProfile("contactPhone", e.target.value)}
             />
@@ -203,10 +242,10 @@ export default function SettingsForm({ tenant }) {
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="addressLine">Address</label>
+          <label htmlFor="addressLine">{t("settings.address")}</label>
           <input
             id="addressLine"
-            placeholder="12 Rothschild Blvd"
+            placeholder={t("settings.ph.address")}
             value={form.profile.addressLine}
             onChange={(e) => setProfile("addressLine", e.target.value)}
           />
@@ -214,7 +253,7 @@ export default function SettingsForm({ tenant }) {
 
         <div className={styles.fieldRow}>
           <div className={styles.detailField}>
-            <label htmlFor="city">City</label>
+            <label htmlFor="city">{t("settings.city")}</label>
             <input
               id="city"
               value={form.profile.city}
@@ -222,7 +261,7 @@ export default function SettingsForm({ tenant }) {
             />
           </div>
           <div className={styles.detailField}>
-            <label htmlFor="country">Country</label>
+            <label htmlFor="country">{t("settings.country")}</label>
             <input
               id="country"
               value={form.profile.country}
@@ -232,10 +271,10 @@ export default function SettingsForm({ tenant }) {
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="website">Website</label>
+          <label htmlFor="website">{t("settings.website")}</label>
           <input
             id="website"
-            placeholder="https://yourcompany.com"
+            placeholder={t("settings.ph.website")}
             value={form.profile.website}
             onChange={(e) => setProfile("website", e.target.value)}
           />
@@ -243,8 +282,8 @@ export default function SettingsForm({ tenant }) {
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Social links</h2>
-        <p className={styles.sectionHint}>Leave blank to hide. Shown in your landing page footer.</p>
+        <h2 className={styles.sectionTitle}>{t("settings.socialLinks")}</h2>
+        <p className={styles.sectionHint}>{t("settings.socialLinksHint")}</p>
 
         <div className={styles.fieldRow}>
           <div className={styles.detailField}>
@@ -290,12 +329,12 @@ export default function SettingsForm({ tenant }) {
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Branding</h2>
-        <p className={styles.sectionHint}>Applied to your landing page immediately after saving.</p>
+        <h2 className={styles.sectionTitle}>{t("settings.branding")}</h2>
+        <p className={styles.sectionHint}>{t("settings.brandingHint")}</p>
 
         <div className={styles.fieldRow}>
           <div className={styles.detailField}>
-            <label htmlFor="primaryColor">Primary colour</label>
+            <label htmlFor="primaryColor">{t("settings.primaryColour")}</label>
             <div className={styles.colorField}>
               <input
                 id="primaryColor"
@@ -304,14 +343,14 @@ export default function SettingsForm({ tenant }) {
                 onChange={(e) => setTheme("primaryColor", e.target.value)}
               />
               <input
-                aria-label="Primary colour hex"
+                aria-label={t("settings.primaryColourHex")}
                 value={form.theme.primaryColor}
                 onChange={(e) => setTheme("primaryColor", e.target.value)}
               />
             </div>
           </div>
           <div className={styles.detailField}>
-            <label htmlFor="accentColor">Accent colour</label>
+            <label htmlFor="accentColor">{t("settings.accentColour")}</label>
             <div className={styles.colorField}>
               <input
                 id="accentColor"
@@ -320,7 +359,7 @@ export default function SettingsForm({ tenant }) {
                 onChange={(e) => setTheme("accentColor", e.target.value)}
               />
               <input
-                aria-label="Accent colour hex"
+                aria-label={t("settings.accentColourHex")}
                 value={form.theme.accentColor}
                 onChange={(e) => setTheme("accentColor", e.target.value)}
               />
@@ -329,7 +368,7 @@ export default function SettingsForm({ tenant }) {
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="fontFamily">Font</label>
+          <label htmlFor="fontFamily">{t("settings.font")}</label>
           <select
             id="fontFamily"
             value={form.theme.fontFamily}
@@ -337,7 +376,7 @@ export default function SettingsForm({ tenant }) {
           >
             {FONT_OPTIONS.map((f) => (
               <option key={f.value} value={f.value}>
-                {f.label}
+                {t(`settings.fontOpt.${f.key}`)}
               </option>
             ))}
           </select>
@@ -345,7 +384,62 @@ export default function SettingsForm({ tenant }) {
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Notifications</h2>
+        <h2 className={styles.sectionTitle}>{t("settings.brandVoice")}</h2>
+        <p className={styles.sectionHint}>{t("settings.brandVoiceHint")}</p>
+
+        <div className={styles.detailField}>
+          <label>{t("onboarding.tone")}</label>
+          <PillGroup
+            ariaLabel={t("onboarding.tone")}
+            options={TONE_OPTIONS}
+            value={form.agentPreferences.tone}
+            onChange={(v) => setAgentPreference("tone", v)}
+          />
+        </div>
+
+        <div className={styles.detailField}>
+          <label>{t("onboarding.personalityLabel")}</label>
+          <CheckboxGroup
+            ariaLabel={t("onboarding.personality")}
+            options={PERSONALITY_OPTIONS}
+            values={form.agentPreferences.personality}
+            onChange={(v) => setAgentPreference("personality", v)}
+          />
+        </div>
+
+        <div className={styles.detailField}>
+          <label>{t("onboarding.visualStyle")}</label>
+          <PillGroup
+            ariaLabel={t("onboarding.visualStyle")}
+            options={STYLE_OPTIONS}
+            value={form.agentPreferences.style}
+            onChange={(v) => setAgentPreference("style", v)}
+          />
+        </div>
+
+        <div className={styles.detailField}>
+          <label>{t("onboarding.targetAudienceLabel")}</label>
+          <CheckboxGroup
+            ariaLabel={t("onboarding.targetAudience")}
+            options={TARGET_AUDIENCE_OPTIONS}
+            values={form.agentPreferences.targetAudience}
+            onChange={(v) => setAgentPreference("targetAudience", v)}
+          />
+        </div>
+
+        <div className={styles.detailField}>
+          <label>{t("onboarding.technologyLabel")}</label>
+          <PillGroup
+            ariaLabel={t("onboarding.technology")}
+            options={TECHNOLOGY_OPTIONS}
+            value={form.agentPreferences.technology}
+            onChange={(v) => setAgentPreference("technology", v)}
+          />
+        </div>
+      </section>
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>{t("settings.notifications")}</h2>
         <label className={styles.checkboxRow}>
           <input
             type="checkbox"
@@ -358,19 +452,21 @@ export default function SettingsForm({ tenant }) {
               }));
             }}
           />
-          <span>Email me whenever a new lead comes in</span>
+          <span>{t("settings.emailOnNewLead")}</span>
         </label>
-        <p className={styles.sectionHint}>
-          The unread dot in the sidebar is always on — this adds an email on top of it.
-        </p>
+        <p className={styles.sectionHint}>{t("settings.emailOnNewLeadHint")}</p>
       </section>
 
       <div className={styles.actionsRow}>
         <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`} disabled={saving}>
           <IconCheck size={14} />
-          {saving ? "Saving…" : "Save settings"}
+          {saving ? t("common.saving") : t("settings.saveSettings")}
         </button>
-        {saved && <span className={styles.savedNote}>Saved</span>}
+        {saved && (
+          <span className={styles.savedNote} role="status">
+            {t("settings.saved")}
+          </span>
+        )}
       </div>
     </form>
   );

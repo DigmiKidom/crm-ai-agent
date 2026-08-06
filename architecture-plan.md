@@ -1,5 +1,12 @@
 # CRM AI Agent — Architecture Plan
 
+> **Historical document — superseded.** This was the original pre-build design and its
+> Phase 1–3 plan is now fully shipped or overtaken by different decisions (Claude →
+> Gemini, `/l/[tenantSlug]` → `/pages/[tenantSlug]`, a `templates` Mongo collection that
+> was never built — the real registry is `lib/templates.js`, and so on). Kept for
+> historical context only. For what's actually built today see
+> `ARCHITECTURE_SUMMARY.md`; for what's next see `CERAMONY_FUTURE_ROADMAP.md`.
+
 ## 1. What this is
 
 A multi-tenant SaaS platform. A company signs up, answers a short set of questions about their business and preferences, and an AI agent picks a template/theme and generates a working landing page (for capturing leads) plus a configured CRM instance (contacts, pipeline stages, fields relevant to that business). It isn't fully custom design from scratch — the agent works within a set of pre-built templates and fills them in intelligently.

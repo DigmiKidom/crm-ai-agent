@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
 import Media from "@/lib/models/Media";
+import { requireTenantRole } from "@/lib/tenantSession";
+import { tenantScoped } from "@/lib/tenantScope";
+import { normalizeAgentPreferences } from "@/lib/agentPreferences";
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
@@ -12,22 +14,21 @@ function str(value, max = 200) {
 }
 
 export async function PATCH(request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const ctx = await requireTenantRole("admin");
+  if (ctx.res) return ctx.res;
+  const { t, tenantId } = ctx;
 
   const body = (await request.json().catch(() => null)) ?? {};
-  const { name, profile = {}, theme = {}, logoMediaId, notifications = {} } = body;
+  const { name, profile = {}, theme = {}, logoMediaId, notifications = {}, agentPreferences } = body;
 
   const companyName = str(name, 120);
   if (!companyName) {
-    return NextResponse.json({ error: "Company name is required." }, { status: 400 });
+    return NextResponse.json({ error: t("api.tenantSettings.companyNameRequired") }, { status: 400 });
   }
 
   const contactEmail = str(profile.contactEmail, 160);
   if (contactEmail && !/^\S+@\S+\.\S+$/.test(contactEmail)) {
-    return NextResponse.json({ error: "That contact email doesn't look valid." }, { status: 400 });
+    return NextResponse.json({ error: t("api.tenantSettings.invalidContactEmail") }, { status: 400 });
   }
 
   for (const [key, value] of [
@@ -35,8 +36,10 @@ export async function PATCH(request) {
     ["accentColor", theme.accentColor],
   ]) {
     if (value && !HEX_COLOR.test(value)) {
+      const field =
+        key === "primaryColor" ? t("api.tenantSettings.primaryColor") : t("api.tenantSettings.accentColor");
       return NextResponse.json(
-        { error: `${key} must be a 6-digit hex colour like #2563eb.` },
+        { error: t("api.tenantSettings.invalidHexColour", { field }) },
         { status: 400 }
       );
     }
@@ -47,7 +50,7 @@ export async function PATCH(request) {
   let logoId = null;
   if (logoMediaId) {
     if (!mongoose.isValidObjectId(logoMediaId)) {
-      return NextResponse.json({ error: "Invalid logo reference." }, { status: 400 });
+      return NextResponse.json({ error: t("api.tenantSettings.invalidLogoReference") }, { status: 400 });
     }
     logoId = logoMediaId;
   }
@@ -56,9 +59,9 @@ export async function PATCH(request) {
     await connectDB();
 
     if (logoId) {
-      const owned = await Media.exists({ _id: logoId, tenantId: session.user.tenantId });
+      const owned = await tenantScoped(Media, tenantId).exists({ _id: logoId });
       if (!owned) {
-        return NextResponse.json({ error: "That logo could not be found." }, { status: 400 });
+        return NextResponse.json({ error: t("api.tenantSettings.logoNotFound") }, { status: 400 });
       }
     }
 
@@ -79,6 +82,9 @@ export async function PATCH(request) {
       "profile.social.x": str(profile.social?.x, 200),
       logoMediaId: logoId,
       "notifications.emailOnNewLead": Boolean(notifications.emailOnNewLead),
+      // Same brand-voice knobs onboarding sets, editable here without a full
+      // "AI Setup" regenerate — see lib/agentPreferences.js.
+      agentPreferences: normalizeAgentPreferences(agentPreferences),
     };
 
     if (theme.primaryColor) $set["theme.primaryColor"] = theme.primaryColor;
@@ -86,18 +92,18 @@ export async function PATCH(request) {
     if (theme.fontFamily) $set["theme.fontFamily"] = str(theme.fontFamily, 200);
 
     const tenant = await Tenant.findByIdAndUpdate(
-      session.user.tenantId,
+      tenantId,
       { $set },
       { new: true }
     ).lean();
 
     if (!tenant) {
-      return NextResponse.json({ error: "Tenant not found." }, { status: 404 });
+      return NextResponse.json({ error: t("api.common.tenantNotFound") }, { status: 404 });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Updating settings failed:", err);
-    return NextResponse.json({ error: "Could not save settings." }, { status: 503 });
+    return NextResponse.json({ error: t("api.tenantSettings.saveFailed") }, { status: 503 });
   }
 }

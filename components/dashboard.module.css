@@ -1,8 +1,20 @@
+/* Column, not row: the sticky product Header spans the full width and the
+   sidebar/content split lives underneath it in .shellBody. The dark-mode token
+   block below is still scoped to .shell, so the header stays inside that scope
+   even though it deliberately ignores those tokens for its own colours. */
 .shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
+  flex-direction: column;
   background: var(--background);
   color: var(--foreground);
+}
+
+.shellBody {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 /* ── Dark mode ────────────────────────────────────────────────────────────
@@ -43,10 +55,18 @@
 
 .sidebar {
   width: 220px;
-  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  border-inline-end: 1px solid var(--border);
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  /* Sticks under the header and scrolls independently, so a tenant with many
+     Workplace pages can't push the sign-out button off-screen. */
+  position: sticky;
+  top: var(--chrome-height);
+  align-self: flex-start;
+  max-height: calc(100vh - var(--chrome-height));
+  overflow-y: auto;
 }
 
 /* Inline mark + name by default. With an uploaded logo the block stacks
@@ -111,11 +131,22 @@
   overflow: hidden;
 }
 
+/* Every direct child of the nav — and of the sidebar itself — must keep its
+   natural height. Flex items shrink by default, so without this, adding
+   Workplace pages compressed all the existing rows down to slivers instead of
+   letting .sidebar's own overflow-y take over and scroll. */
+.navTable > *,
+.sidebar > * {
+  flex-shrink: 0;
+}
+
 .navRow {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 9px 12px;
+  /* Long labels ellipsize; they never force the row taller or the sidebar wider. */
+  min-height: 36px;
   font-size: 0.85rem;
   color: inherit;
   border-bottom: 1px solid var(--border);
@@ -297,7 +328,7 @@
   color: inherit;
   cursor: pointer;
   font-size: 0.85rem;
-  text-align: left;
+  text-align: start;
 }
 
 .main {
@@ -317,7 +348,7 @@
 }
 
 .table th {
-  text-align: left;
+  text-align: start;
   font-size: 0.8rem;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
@@ -379,6 +410,23 @@
   opacity: 0.4;
 }
 
+.pipelineCardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 6px;
+}
+
+.pipelineCardMoveSelect {
+  width: 100%;
+  font-size: 0.78rem;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-sunken);
+  color: var(--muted);
+}
+
 .pipelineColumnOver {
   background: var(--surface-accent);
   border-color: var(--primary);
@@ -396,6 +444,37 @@
   border-radius: 12px;
   padding: 24px;
   max-width: 560px;
+}
+
+.activityList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.activityIcon {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.activityText {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.activityMeta {
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
 .detailField {
@@ -523,6 +602,51 @@
   font-size: 0.9rem;
   background: var(--surface);
   color: inherit;
+}
+
+/* ── Landing-page contact form field editor ──────────────────────────────── */
+
+.formFieldRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.formFieldRow input[type="text"],
+.formFieldRow select {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: var(--surface);
+  color: inherit;
+}
+
+.formFieldRow input[type="text"] {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.formFieldTypeSelect {
+  flex: 0 0 auto;
+  width: 110px;
+}
+
+.formFieldRequired {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.formFieldActions {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
 }
 
 .iconButton {
@@ -674,7 +798,7 @@
 .stageBarCount {
   font-size: 0.8rem;
   font-weight: 600;
-  text-align: right;
+  text-align: end;
 }
 
 .recentList {
@@ -1018,7 +1142,7 @@
 /* ── Unread lead notifications ───────────────────────────────────────────── */
 
 .navBadge {
-  margin-left: auto;
+  margin-inline-start: auto;
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
@@ -1036,7 +1160,7 @@
   display: inline-block;
   width: 7px;
   height: 7px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   border-radius: 999px;
   background: var(--danger);
   vertical-align: middle;
@@ -1127,7 +1251,7 @@
   position: relative;
   width: 34px;
   height: 20px;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   border-radius: 999px;
   background: var(--border);
   transition: background 0.15s ease;
@@ -1141,7 +1265,7 @@
 .themeToggleThumb {
   position: absolute;
   top: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -1149,8 +1273,16 @@
   transition: transform 0.15s ease;
 }
 
+/* The thumb travels toward the track's end edge, which is +X in LTR and -X in
+   RTL. `inset-inline-start` handles the resting position on its own, but a
+   transform is always in physical space, so the direction has to be flipped
+   explicitly for Hebrew. */
 .themeToggleTrack[data-on="true"] .themeToggleThumb {
   transform: translateX(14px);
+}
+
+:global([dir="rtl"]) .themeToggleTrack[data-on="true"] .themeToggleThumb {
+  transform: translateX(-14px);
 }
 
 .tutorialCard {
@@ -1188,14 +1320,10 @@
 /* ── Mobile navigation ────────────────────────────────────────────────────
    Below the breakpoint, the always-visible 220px sidebar (fine on desktop)
    would eat most of a phone screen, so it becomes an off-canvas drawer:
-   hidden by default, opened by the hamburger button in a fixed top bar, and
-   dismissed via the backdrop or its own close button. Above the breakpoint
-   none of this applies — .mobileTopBar stays display:none and .sidebar keeps
-   its normal static layout, so desktop is unaffected. */
-
-.mobileTopBar {
-  display: none;
-}
+   hidden by default, opened by the hamburger button in the sticky product
+   Header, and dismissed via the backdrop, Escape, or its own close button.
+   Above the breakpoint none of this applies and .sidebar keeps its normal
+   sticky layout, so desktop is unaffected. */
 
 .mobileMenuButton {
   display: inline-flex;
@@ -1212,33 +1340,6 @@
   flex-shrink: 0;
 }
 
-.mobileBrand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: inherit;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.9rem;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.mobileBrand span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mobileBrandLogo {
-  display: block;
-  max-height: 26px;
-  max-width: 120px;
-  width: auto;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
 .sidebarBackdrop {
   display: none;
 }
@@ -1248,25 +1349,12 @@
 }
 
 @media (max-width: 780px) {
-  .shell {
+  .shellBody {
     display: block;
   }
 
-  .mobileTopBar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 56px;
-    padding: 0 16px;
-    background: var(--background);
-    border-bottom: 1px solid var(--border);
-    z-index: 60;
-  }
-
+  /* Above the sticky header (z-index 60) so the drawer and its backdrop
+     cover the whole viewport rather than tucking under the bar. */
   .sidebarBackdrop {
     display: block;
     position: fixed;
@@ -1278,20 +1366,22 @@
   .sidebarCloseRow {
     display: flex;
     justify-content: flex-end;
-    margin: -8px -4px 8px 0;
+    margin-block: -8px 8px;
+    margin-inline: 0 -4px;
   }
 
   .sidebar {
     position: fixed;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     bottom: 0;
     width: min(78vw, 280px);
+    max-height: none;
     z-index: 80;
     background: var(--background);
     box-shadow: 4px 0 24px var(--shadow-color);
     transform: translateX(-100%);
-    transition: transform 0.22s ease;
+    transition: transform 0.22s var(--ease-out);
     overflow-y: auto;
   }
 
@@ -1299,9 +1389,42 @@
     transform: translateX(0);
   }
 
+  /* `transform` is always physical, so the off-canvas start position has to
+     be inverted by hand for Hebrew — `inset-inline-start` has already moved
+     the drawer to the right edge, and it must slide out to the right too. */
+  :global([dir="rtl"]) .sidebar {
+    transform: translateX(100%);
+    box-shadow: -4px 0 24px var(--shadow-color);
+  }
+
+  :global([dir="rtl"]) .sidebar[data-open="true"] {
+    transform: translateX(0);
+  }
+
   .main {
     padding: 16px;
-    padding-top: 72px;
     max-width: 100%;
   }
+}
+
+/* ── Profile: avatar editor ───────────────────────────────────────────────
+   The live preview sits beside the picker so the crop and colour fallback are
+   visible while choosing, rather than only after saving. */
+.avatarEditRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.avatarEditControls {
+  flex: 1;
+  min-width: 220px;
+}
+
+.fieldHint {
+  display: block;
+  margin-block-start: 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
 }

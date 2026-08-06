@@ -2,8 +2,11 @@
 
 import { signOut } from "next-auth/react";
 import { IconLogout } from "@/components/icons";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function SignOutButton({ className }) {
+  const t = useT();
+
   return (
     <button
       className={className}
@@ -11,7 +14,7 @@ export default function SignOutButton({ className }) {
       style={{ display: "flex", alignItems: "center", gap: 8 }}
     >
       <IconLogout size={16} />
-      Sign out
+      {t("account.signOut")}
     </button>
   );
 }

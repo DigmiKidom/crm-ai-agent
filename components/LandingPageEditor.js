@@ -5,7 +5,10 @@ import ImageUpload from "./ImageUpload";
 import IconPicker from "./IconPicker";
 import TemplateThumbnail from "./TemplateThumbnail";
 import styles from "./dashboard.module.css";
-import { IconCheck, IconClose, IconPlus, IconExternalLink } from "./icons";
+import { IconCheck, IconClose, IconPlus, IconExternalLink, IconChevronUp, IconChevronDown, IconGlobe } from "./icons";
+import { useT } from "@/components/i18n/LocaleProvider";
+import { CONTENT_LANGUAGES } from "@/lib/i18n/languages";
+import { MAX_FORM_FIELDS, FIELD_TYPES, CORE_FIELDS, isCoreKey, blankCustomField, defaultFormFields } from "@/lib/formFields";
 
 const MAX_FEATURES = 3;
 const MAX_BACKGROUNDS = 3;
@@ -24,12 +27,16 @@ export default function LandingPageEditor({
   theme,
   templates = [],
   templateId,
+  variantCounts = null,
 }) {
+  const t = useT();
   const [form, setForm] = useState({
     headline: landingPage.headline || "",
+    headlineVariantB: landingPage.headlineVariantB || "",
     subheadline: landingPage.subheadline || "",
     ctaLabel: landingPage.ctaLabel || "",
     showLogo: landingPage.showLogo !== false,
+    showTeamSection: Boolean(landingPage.showTeamSection),
     backgroundOverlay:
       typeof landingPage.backgroundOverlay === "number" ? landingPage.backgroundOverlay : 0.55,
     backgroundMediaIds: (landingPage.backgroundMediaIds || []).slice(0, MAX_BACKGROUNDS),
@@ -48,6 +55,30 @@ export default function LandingPageEditor({
           accentColor: f.accentColor === "accent" ? "accent" : "primary",
         }))
       : [blankFeature()],
+    // The language this page's copy is written in — see lib/i18n/languages.js.
+    // Editable here so a tenant can fix a wrong AI guess, or switch after
+    // rewriting the page by hand, without rerunning AI Setup.
+    language: {
+      code: landingPage.language?.code || "en",
+      name: landingPage.language?.name || "English",
+      dir: landingPage.language?.dir === "rtl" ? "rtl" : "ltr",
+    },
+    // The visitor-facing lead form. Falls back to the four core fields so a
+    // tenant who's never touched this still sees something sensible to edit,
+    // rather than a blank list.
+    formFields: landingPage.formFields?.length
+      ? landingPage.formFields.map((f) => ({
+          key: f.key,
+          label: f.label || "",
+          type: isCoreKey(f.key) ? CORE_FIELDS[f.key].type : FIELD_TYPES.includes(f.type) ? f.type : "text",
+          required: f.key === "name" ? true : Boolean(f.required),
+        }))
+      : defaultFormFields(),
+    statusMessages: {
+      sending: landingPage.formLabels?.sending || "",
+      success: landingPage.formLabels?.success || "",
+      error: landingPage.formLabels?.error || "",
+    },
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -103,6 +134,51 @@ export default function LandingPageEditor({
     setSaved(false);
   }
 
+  function setLanguage(code) {
+    const known = CONTENT_LANGUAGES.find((l) => l.code === code);
+    if (!known) return;
+    setForm((f) => ({ ...f, language: { code: known.code, name: known.name, dir: known.dir } }));
+    setSaved(false);
+  }
+
+  function updateFormField(key, patch) {
+    setForm((f) => ({
+      ...f,
+      formFields: f.formFields.map((field) => (field.key === key ? { ...field, ...patch } : field)),
+    }));
+    setSaved(false);
+  }
+
+  function moveFormField(index, direction) {
+    setForm((f) => {
+      const next = [...f.formFields];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return f;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...f, formFields: next };
+    });
+    setSaved(false);
+  }
+
+  function addFormField() {
+    setForm((f) =>
+      f.formFields.length >= MAX_FORM_FIELDS
+        ? f
+        : { ...f, formFields: [...f.formFields, blankCustomField()] }
+    );
+    setSaved(false);
+  }
+
+  function removeFormField(key) {
+    setForm((f) => ({ ...f, formFields: f.formFields.filter((field) => field.key !== key) }));
+    setSaved(false);
+  }
+
+  function updateStatusMessage(key, value) {
+    setForm((f) => ({ ...f, statusMessages: { ...f.statusMessages, [key]: value } }));
+    setSaved(false);
+  }
+
   async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
@@ -118,13 +194,13 @@ export default function LandingPageEditor({
     try {
       data = await res.json();
     } catch {
-      data = { error: "Unexpected server error. Please try again." };
+      data = { error: t("editor.serverError") };
     }
 
     setSaving(false);
 
     if (!res.ok) {
-      setError(data.error || "Could not save changes.");
+      setError(data.error || t("editor.saveFailed"));
       return;
     }
     setSaved(true);
@@ -135,47 +211,50 @@ export default function LandingPageEditor({
 
   return (
     <form className={styles.settingsForm} onSubmit={handleSave}>
-      {error && <p className={styles.formError}>{error}</p>}
+      {error && (
+        <p className={styles.formError} role="alert">
+          {error}
+        </p>
+      )}
 
       {templates.length > 0 && (
         <section className={styles.detailCard} style={{ maxWidth: 760 }}>
-          <h2 className={styles.sectionTitle}>Template</h2>
+          <h2 className={styles.sectionTitle}>{t("editor.template")}</h2>
           <p className={styles.sectionHint}>
-            Preview any template with your own content before switching — nothing saves until you
-            hit Save changes below.
+            {t("editor.templateHint")}
           </p>
 
           <div className={styles.templateGrid}>
-            {templates.map((t) => {
-              const active = form.templateId === t.id;
+            {templates.map((tpl) => {
+              const active = form.templateId === tpl.id;
               return (
                 <div
-                  key={t.id}
+                  key={tpl.id}
                   className={`${styles.templateCard} ${active ? styles.templateCardActive : ""}`}
                 >
-                  <TemplateThumbnail id={t.id} />
+                  <TemplateThumbnail id={tpl.id} />
                   <div className={styles.templateCardHeader}>
-                    <strong>{t.name}</strong>
-                    {active && <span className={styles.countPill}>Selected</span>}
+                    <strong>{tpl.name}</strong>
+                    {active && <span className={styles.countPill}>{t("editor.selected")}</span>}
                   </div>
-                  <p className={styles.templateCardDescription}>{t.description}</p>
+                  <p className={styles.templateCardDescription}>{tpl.description}</p>
                   <div className={styles.templateCardActions}>
                     <a
                       className={`${styles.linkButton} ${styles.iconLabel}`}
-                      href={`/pages/${tenantSlug}?template=${t.id}`}
+                      href={`/pages/${tenantSlug}?template=${tpl.id}`}
                       target="_blank"
                       rel="noreferrer"
                     >
                       <IconExternalLink size={13} />
-                      Preview
+                      {t("editor.preview")}
                     </a>
                     <button
                       type="button"
                       className={styles.linkButton}
-                      onClick={() => update("templateId", t.id)}
+                      onClick={() => update("templateId", tpl.id)}
                       disabled={active}
                     >
-                      {active ? "In use" : "Use this template"}
+                      {active ? t("editor.inUse") : t("editor.useThisTemplate")}
                     </button>
                   </div>
                 </div>
@@ -186,10 +265,41 @@ export default function LandingPageEditor({
       )}
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Hero copy</h2>
+        <h2 className={styles.sectionTitle}>
+          <span className={styles.iconLabel}>
+            <IconGlobe size={16} />
+            {t("editor.contentLanguage")}
+          </span>
+        </h2>
+        <p className={styles.sectionHint}>{t("editor.contentLanguageHint")}</p>
 
         <div className={styles.detailField}>
-          <label htmlFor="headline">Headline</label>
+          <label htmlFor="content-language">{t("editor.contentLanguage")}</label>
+          <select
+            id="content-language"
+            value={form.language.code}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            {!CONTENT_LANGUAGES.some((l) => l.code === form.language.code) && (
+              // The agent picked a language outside our known list — keep it
+              // selectable so saving the rest of the form doesn't silently
+              // reset it to English.
+              <option value={form.language.code}>{form.language.name}</option>
+            )}
+            {CONTENT_LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.nativeName}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>{t("editor.heroCopy")}</h2>
+
+        <div className={styles.detailField}>
+          <label htmlFor="headline">{t("editor.headline")}</label>
           <input
             id="headline"
             value={form.headline}
@@ -198,7 +308,23 @@ export default function LandingPageEditor({
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="subheadline">Subheadline</label>
+          <label htmlFor="headlineVariantB">{t("editor.headlineVariantB")}</label>
+          <input
+            id="headlineVariantB"
+            placeholder={t("editor.headlineVariantBPlaceholder")}
+            value={form.headlineVariantB}
+            onChange={(e) => update("headlineVariantB", e.target.value)}
+          />
+          <span className={styles.sectionHint}>{t("editor.headlineVariantBHint")}</span>
+          {form.headlineVariantB && variantCounts && (
+            <p className={styles.sectionHint} style={{ marginTop: 4 }}>
+              {t("editor.headlineVariantBResults", { a: variantCounts.a, b: variantCounts.b })}
+            </p>
+          )}
+        </div>
+
+        <div className={styles.detailField}>
+          <label htmlFor="subheadline">{t("editor.subheadline")}</label>
           <textarea
             id="subheadline"
             rows={2}
@@ -208,7 +334,7 @@ export default function LandingPageEditor({
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="ctaLabel">Call-to-action button text</label>
+          <label htmlFor="ctaLabel">{t("editor.ctaText")}</label>
           <input
             id="ctaLabel"
             value={form.ctaLabel}
@@ -223,20 +349,32 @@ export default function LandingPageEditor({
             onChange={(e) => update("showLogo", e.target.checked)}
             disabled={!hasLogo}
           />
-          <span>Show my company logo at the top of the page</span>
+          <span>{t("editor.showLogo")}</span>
         </label>
+
         {!hasLogo && (
           <p className={styles.sectionHint}>
-            Upload a logo in <a href={`/t/${tenantSlug}/settings`}>Settings</a> to enable this.
+            {t("editor.uploadLogoHintBefore")}{" "}
+            <a href={`/t/${tenantSlug}/settings`}>{t("editor.settings")}</a>
+            {t("editor.uploadLogoHintAfter")}
           </p>
         )}
+
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            checked={form.showTeamSection}
+            onChange={(e) => update("showTeamSection", e.target.checked)}
+          />
+          <span>{t("editor.showTeamSection")}</span>
+        </label>
+        <p className={styles.sectionHint}>{t("editor.showTeamSectionHint")}</p>
       </section>
 
       <section className={styles.detailCard}>
-        <h2 className={styles.sectionTitle}>Background photos</h2>
+        <h2 className={styles.sectionTitle}>{t("editor.backgroundPhotos")}</h2>
         <p className={styles.sectionHint}>
-          Up to {MAX_BACKGROUNDS} images behind your headline. Add one for a static background, or
-          two to three to cross-fade between them. Images are resized and compressed automatically.
+          {t("editor.backgroundPhotosHint", { n: MAX_BACKGROUNDS })}
         </p>
 
         <div className={styles.backgroundGrid}>
@@ -246,8 +384,8 @@ export default function LandingPageEditor({
               kind="background"
               value={form.backgroundMediaIds[slot] || null}
               onChange={(id) => setBackground(slot, id)}
-              label={`Photo ${slot + 1}`}
-              hint="Landscape works best"
+              label={t("editor.photoN", { n: slot + 1 })}
+              hint={t("editor.landscapeBest")}
               previewClassName={styles.backgroundPreview}
             />
           ))}
@@ -256,7 +394,7 @@ export default function LandingPageEditor({
         {form.backgroundMediaIds.length > 0 && (
           <div className={styles.detailField} style={{ marginTop: 12 }}>
             <label htmlFor="overlay">
-              Darkening overlay — {Math.round(form.backgroundOverlay * 100)}%
+              {t("editor.overlayLabel", { percent: Math.round(form.backgroundOverlay * 100) })}
             </label>
             <input
               id="overlay"
@@ -268,7 +406,7 @@ export default function LandingPageEditor({
               onChange={(e) => update("backgroundOverlay", Number(e.target.value))}
             />
             <span className={styles.sectionHint}>
-              More overlay keeps your headline readable over a busy photo.
+              {t("editor.overlayHint")}
             </span>
           </div>
         )}
@@ -276,14 +414,13 @@ export default function LandingPageEditor({
 
       <section className={styles.detailCard} style={{ maxWidth: 760 }}>
         <h2 className={styles.sectionTitle}>
-          Photo gallery{" "}
+          {t("editor.photoGallery")}{" "}
           <span className={styles.countPill}>
             {form.galleryMediaIds.length}/{MAX_GALLERY}
           </span>
         </h2>
         <p className={styles.sectionHint}>
-          Up to {MAX_GALLERY} photos shown in a grid further down the page — good for a portfolio,
-          past work, your space, or your team.
+          {t("editor.photoGalleryHint", { n: MAX_GALLERY })}
         </p>
 
         <div className={styles.backgroundGrid}>
@@ -293,7 +430,7 @@ export default function LandingPageEditor({
               kind="gallery"
               value={form.galleryMediaIds[slot] || null}
               onChange={(id) => setGalleryPhoto(slot, id)}
-              label={`Photo ${slot + 1}`}
+              label={t("editor.photoN", { n: slot + 1 })}
               previewClassName={styles.backgroundPreview}
             />
           ))}
@@ -301,8 +438,8 @@ export default function LandingPageEditor({
 
         {form.galleryMediaIds.length > 0 && (
           <div className={styles.detailField} style={{ marginTop: 12 }}>
-            <span className={styles.iconPickerLabel}>Grid columns</span>
-            <div className={styles.colorToggle} role="radiogroup" aria-label="Gallery columns">
+            <span className={styles.iconPickerLabel}>{t("editor.gridColumns")}</span>
+            <div className={styles.colorToggle} role="radiogroup" aria-label={t("editor.galleryColumns")}>
               {GALLERY_COLUMNS.map((n) => (
                 <button
                   key={n}
@@ -314,7 +451,7 @@ export default function LandingPageEditor({
                   }`}
                   onClick={() => update("galleryColumns", n)}
                 >
-                  {n} columns
+                  {t("editor.nColumns", { n })}
                 </button>
               ))}
             </div>
@@ -324,27 +461,147 @@ export default function LandingPageEditor({
 
       <section className={styles.detailCard}>
         <h2 className={styles.sectionTitle}>
-          Feature cards{" "}
+          {t("editor.formFieldsTitle")}{" "}
+          <span className={styles.countPill}>
+            {form.formFields.length}/{MAX_FORM_FIELDS}
+          </span>
+        </h2>
+        <p className={styles.sectionHint}>{t("editor.formFieldsHint", { n: MAX_FORM_FIELDS })}</p>
+
+        {form.formFields.map((field, index) => {
+          const core = isCoreKey(field.key);
+          const locked = field.key === "name";
+          return (
+            <div key={field.key} className={styles.formFieldRow}>
+              <input
+                type="text"
+                value={field.label}
+                placeholder={t("editor.fieldLabelPlaceholder")}
+                onChange={(e) => updateFormField(field.key, { label: e.target.value })}
+              />
+
+              <select
+                className={styles.formFieldTypeSelect}
+                value={field.type}
+                disabled={core}
+                onChange={(e) => updateFormField(field.key, { type: e.target.value })}
+              >
+                {FIELD_TYPES.map((typeKey) => (
+                  <option key={typeKey} value={typeKey}>
+                    {t(`editor.fieldTypes.${typeKey}`)}
+                  </option>
+                ))}
+              </select>
+
+              <label className={styles.formFieldRequired}>
+                <input
+                  type="checkbox"
+                  checked={field.required}
+                  disabled={locked}
+                  onChange={(e) => updateFormField(field.key, { required: e.target.checked })}
+                />
+                {t("editor.fieldRequired")}
+              </label>
+
+              <div className={styles.formFieldActions}>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => moveFormField(index, -1)}
+                  disabled={index === 0}
+                  aria-label={t("editor.moveFieldUp")}
+                >
+                  <IconChevronUp size={14} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => moveFormField(index, 1)}
+                  disabled={index === form.formFields.length - 1}
+                  aria-label={t("editor.moveFieldDown")}
+                >
+                  <IconChevronDown size={14} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => removeFormField(field.key)}
+                  disabled={locked}
+                  aria-label={t("editor.removeField")}
+                >
+                  <IconClose size={14} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+
+        {form.formFields.length < MAX_FORM_FIELDS && (
+          <button
+            type="button"
+            className={`${styles.linkButton} ${styles.iconLabel}`}
+            onClick={addFormField}
+          >
+            <IconPlus size={13} />
+            {t("editor.addField")}
+          </button>
+        )}
+
+        <div className={styles.formSection} style={{ marginTop: 18, paddingTop: 18, borderTop: "1px dashed var(--border)" }}>
+          <h3 className={styles.formSectionTitle}>{t("editor.statusMessages")}</h3>
+          <p className={styles.formSectionHint}>{t("editor.statusMessagesHint")}</p>
+
+          <div className={styles.fieldRow}>
+            <div className={styles.detailField}>
+              <label htmlFor="status-sending">{t("editor.statusSending")}</label>
+              <input
+                id="status-sending"
+                value={form.statusMessages.sending}
+                onChange={(e) => updateStatusMessage("sending", e.target.value)}
+              />
+            </div>
+            <div className={styles.detailField}>
+              <label htmlFor="status-success">{t("editor.statusSuccess")}</label>
+              <input
+                id="status-success"
+                value={form.statusMessages.success}
+                onChange={(e) => updateStatusMessage("success", e.target.value)}
+              />
+            </div>
+            <div className={styles.detailField}>
+              <label htmlFor="status-error">{t("editor.statusError")}</label>
+              <input
+                id="status-error"
+                value={form.statusMessages.error}
+                onChange={(e) => updateStatusMessage("error", e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>
+          {t("editor.featureCards")}{" "}
           <span className={styles.countPill}>
             {form.features.length}/{MAX_FEATURES}
           </span>
         </h2>
         <p className={styles.sectionHint}>
-          Up to {MAX_FEATURES} selling points, each with an optional icon — a coin for great pricing,
-          a thumbs-up for honesty, and so on.
+          {t("editor.featureCardsHint", { n: MAX_FEATURES })}
         </p>
 
         {form.features.map((feature, index) => (
           <div key={index} className={styles.featureRow}>
             <input
-              placeholder="Feature title"
+              placeholder={t("editor.featureTitle")}
               value={feature.title}
               onChange={(e) => updateFeature(index, "title", e.target.value)}
             />
             <textarea
               rows={2}
               maxLength={MAX_DESCRIPTION}
-              placeholder="Feature description"
+              placeholder={t("editor.featureDescription")}
               value={feature.description}
               onChange={(e) => updateFeature(index, "description", e.target.value)}
             />
@@ -358,7 +615,7 @@ export default function LandingPageEditor({
             />
 
             <div className={styles.cardStyleRow}>
-              <span className={styles.iconPickerLabel}>Card styling</span>
+              <span className={styles.iconPickerLabel}>{t("editor.cardStyling")}</span>
 
               <label className={styles.checkboxRow}>
                 <input
@@ -366,7 +623,7 @@ export default function LandingPageEditor({
                   checked={feature.topStrip}
                   onChange={(e) => updateFeature(index, "topStrip", e.target.checked)}
                 />
-                <span>Coloured top strip</span>
+                <span>{t("editor.colouredTopStrip")}</span>
               </label>
 
               <label className={styles.checkboxRow}>
@@ -375,15 +632,15 @@ export default function LandingPageEditor({
                   checked={feature.border}
                   onChange={(e) => updateFeature(index, "border", e.target.checked)}
                 />
-                <span>Coloured border</span>
+                <span>{t("editor.colouredBorder")}</span>
               </label>
 
               {/* The colour toggle is meaningless until one of the two is on. */}
               {(feature.topStrip || feature.border) && (
-                <div className={styles.colorToggle} role="radiogroup" aria-label="Card colour">
+                <div className={styles.colorToggle} role="radiogroup" aria-label={t("editor.cardColour")}>
                   {[
-                    ["primary", "Primary", theme?.primaryColor || "#2563eb"],
-                    ["accent", "Accent", theme?.accentColor || "#111827"],
+                    ["primary", t("editor.colourPrimary"), theme?.primaryColor || "#2563eb"],
+                    ["accent", t("editor.colourAccent"), theme?.accentColor || "#111827"],
                   ].map(([value, label, swatch]) => (
                     <button
                       key={value}
@@ -406,12 +663,12 @@ export default function LandingPageEditor({
             <button
               type="button"
               className={`${styles.linkButton} ${styles.iconLabel}`}
-              style={{ color: "#b91c1c", alignSelf: "flex-start" }}
+              style={{ color: "var(--danger-strong)", alignSelf: "flex-start" }}
               onClick={() => removeFeature(index)}
               disabled={form.features.length <= 1}
             >
               <IconClose size={13} />
-              Remove
+              {t("editor.removeFeature")}
             </button>
           </div>
         ))}
@@ -423,7 +680,7 @@ export default function LandingPageEditor({
             onClick={addFeature}
           >
             <IconPlus size={13} />
-            Add feature
+            {t("editor.addFeature")}
           </button>
         )}
       </section>
@@ -431,7 +688,7 @@ export default function LandingPageEditor({
       <div className={styles.actionsRow}>
         <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`} disabled={saving}>
           <IconCheck size={14} />
-          {saving ? "Saving..." : "Save changes"}
+          {saving ? t("common.saving") : t("editor.saveChanges")}
         </button>
         <a
           className={`${styles.deleteButton} ${styles.iconLabel}`}
@@ -441,9 +698,13 @@ export default function LandingPageEditor({
           rel="noreferrer"
         >
           <IconExternalLink size={14} />
-          Preview landing page
+          {t("editor.previewLandingPage")}
         </a>
-        {saved && <span className={styles.savedNote}>Saved</span>}
+        {saved && (
+          <span className={styles.savedNote} role="status">
+            {t("settings.saved")}
+          </span>
+        )}
       </div>
     </form>
   );

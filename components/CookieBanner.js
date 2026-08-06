@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { IconCookie, IconClose } from "./icons";
 import styles from "./CookieBanner.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 const STORAGE_KEY = "cookie-consent";
 
@@ -10,6 +11,7 @@ const STORAGE_KEY = "cookie-consent";
 // pages and the pre-login auth screens too, since that's where a first-time
 // visitor actually lands. Rendered from the root layout for that reason.
 export default function CookieBanner() {
+  const t = useT();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -33,17 +35,16 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className={styles.wrap} role="dialog" aria-label="Cookie notice">
+    <div className={styles.wrap} role="dialog" aria-label={t("cookies.notice")}>
       <IconCookie size={22} className={styles.icon} />
       <p className={styles.text}>
-        <strong>We use cookies.</strong> Just the essential kind — to keep you signed in and
-        remember your preferences. No tracking, no third-party ads.
+        <strong>{t("cookies.headline")}</strong> {t("cookies.body")}
       </p>
       <div className={styles.actions}>
         <button type="button" className={styles.accept} onClick={accept}>
-          Got it
+          {t("cookies.gotIt")}
         </button>
-        <button type="button" className={styles.dismiss} onClick={dismiss} aria-label="Dismiss">
+        <button type="button" className={styles.dismiss} onClick={dismiss} aria-label={t("cookies.dismiss")}>
           <IconClose size={16} />
         </button>
       </div>

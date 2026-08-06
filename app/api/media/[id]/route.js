@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Media from "@/lib/models/Media";
+import { getServerT } from "@/lib/i18n/server";
 
 // Public on purpose: these images are rendered on public landing pages.
 // A media id is an opaque ObjectId and the document holds nothing sensitive.
@@ -9,6 +10,7 @@ import Media from "@/lib/models/Media";
 // so we can hand out a one-year immutable cache. In practice a given image is
 // fetched from Mongo once and then served from the CDN edge forever after.
 export async function GET(request, { params }) {
+  const { t } = await getServerT();
   const { id } = await params;
 
   try {
@@ -16,7 +18,7 @@ export async function GET(request, { params }) {
     const media = await Media.findById(id).lean();
 
     if (!media) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: t("api.common.notFound") }, { status: 404 });
     }
 
     // Skip re-sending the body when the browser already has this exact image.
@@ -42,6 +44,6 @@ export async function GET(request, { params }) {
     });
   } catch (err) {
     console.error("Serving media failed:", err);
-    return NextResponse.json({ error: "Could not load image." }, { status: 503 });
+    return NextResponse.json({ error: t("api.media.loadFailed") }, { status: 503 });
   }
 }

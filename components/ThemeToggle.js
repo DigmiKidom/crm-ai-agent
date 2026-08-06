@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { IconMoon, IconSun } from "./icons";
 import styles from "./dashboard.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 // Local-only preference — dark mode isn't a tenant setting, it's a browser
 // preference, so it's read/written straight to localStorage rather than
 // going through the tenant settings API. See dashboard.module.css for how
 // [data-theme="dark"] on <html> actually repaints the dashboard shell.
 export default function ThemeToggle() {
+  const t = useT();
   const [dark, setDark] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -46,7 +48,7 @@ export default function ThemeToggle() {
       <span className={styles.themeToggleIcon}>
         {dark ? <IconMoon size={16} /> : <IconSun size={16} />}
       </span>
-      <span>{dark ? "Dark mode" : "Light mode"}</span>
+      <span>{dark ? t("theme.dark") : t("theme.light")}</span>
       <span className={styles.themeToggleTrack} data-on={dark}>
         <span className={styles.themeToggleThumb} />
       </span>

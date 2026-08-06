@@ -1,25 +1,25 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Media, { MAX_MEDIA_BYTES } from "@/lib/models/Media";
+import { requireTenantSession } from "@/lib/tenantSession";
+import { tenantScoped } from "@/lib/tenantScope";
 
 const ALLOWED_TYPES = ["image/webp", "image/jpeg", "image/png"];
-const ALLOWED_KINDS = ["logo", "background", "gallery"];
+const ALLOWED_KINDS = ["logo", "background", "gallery", "avatar"];
 
 // Uploads arrive already resized + compressed by the browser. This route is
 // the trust boundary: it re-checks type, size, and tenant ownership before
 // anything lands in Mongo.
 export async function POST(request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const ctx = await requireTenantSession();
+  if (ctx.res) return ctx.res;
+  const { t, tenantId } = ctx;
 
   let form;
   try {
     form = await request.formData();
   } catch {
-    return NextResponse.json({ error: "Expected a file upload." }, { status: 400 });
+    return NextResponse.json({ error: t("api.media.expectedFileUpload") }, { status: 400 });
   }
 
   const file = form.get("file");
@@ -28,20 +28,20 @@ export async function POST(request) {
   const height = Number(form.get("height") || 0);
 
   if (!file || typeof file.arrayBuffer !== "function") {
-    return NextResponse.json({ error: "No file received." }, { status: 400 });
+    return NextResponse.json({ error: t("api.media.noFileReceived") }, { status: 400 });
   }
   if (!ALLOWED_KINDS.includes(kind)) {
-    return NextResponse.json({ error: "Unknown image kind." }, { status: 400 });
+    return NextResponse.json({ error: t("api.media.unknownKind") }, { status: 400 });
   }
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
-      { error: "Only WebP, JPEG, and PNG images are supported." },
+      { error: t("api.media.unsupportedType") },
       { status: 400 }
     );
   }
   if (file.size > MAX_MEDIA_BYTES) {
     return NextResponse.json(
-      { error: "That image is too large even after compression. Try a smaller one." },
+      { error: t("api.media.tooLarge") },
       { status: 413 }
     );
   }
@@ -51,8 +51,7 @@ export async function POST(request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const media = await Media.create({
-      tenantId: session.user.tenantId,
+    const media = await tenantScoped(Media, tenantId).create({
       kind,
       contentType: file.type,
       width: Number.isFinite(width) ? width : 0,
@@ -74,29 +73,28 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error("Media upload failed:", err);
-    return NextResponse.json({ error: "Could not save that image." }, { status: 503 });
+    return NextResponse.json({ error: t("api.media.saveFailed") }, { status: 503 });
   }
 }
 
 // Deleting is scoped to the caller's tenant so an id guess can't wipe someone
 // else's logo.
 export async function DELETE(request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const ctx = await requireTenantSession();
+  if (ctx.res) return ctx.res;
+  const { t, tenantId } = ctx;
 
   const id = new URL(request.url).searchParams.get("id");
   if (!id) {
-    return NextResponse.json({ error: "Missing image id." }, { status: 400 });
+    return NextResponse.json({ error: t("api.media.missingId") }, { status: 400 });
   }
 
   try {
     await connectDB();
-    await Media.findOneAndDelete({ _id: id, tenantId: session.user.tenantId });
+    await tenantScoped(Media, tenantId).findOneAndDelete({ _id: id });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Media delete failed:", err);
-    return NextResponse.json({ error: "Could not delete that image." }, { status: 503 });
+    return NextResponse.json({ error: t("api.media.deleteFailed") }, { status: 503 });
   }
 }

@@ -3,16 +3,18 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
 import { consumeToken } from "@/lib/tokens";
+import { getServerT } from "@/lib/i18n/server";
 
 export async function POST(request) {
+  const { t } = await getServerT();
   const { token, password } = (await request.json()) ?? {};
 
   if (!token || !password) {
-    return NextResponse.json({ error: "Missing token or password." }, { status: 400 });
+    return NextResponse.json({ error: t("api.resetPassword.missingTokenOrPassword") }, { status: 400 });
   }
   if (password.length < 8) {
     return NextResponse.json(
-      { error: "Password must be at least 8 characters." },
+      { error: t("api.common.passwordTooShort") },
       { status: 400 }
     );
   }
@@ -23,7 +25,7 @@ export async function POST(request) {
     const userId = await consumeToken(token, "reset");
     if (!userId) {
       return NextResponse.json(
-        { error: "This reset link is invalid or has expired. Request a new one." },
+        { error: t("api.resetPassword.linkInvalid") },
         { status: 400 }
       );
     }
@@ -31,12 +33,12 @@ export async function POST(request) {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findByIdAndUpdate(userId, { passwordHash });
     if (!user) {
-      return NextResponse.json({ error: "Account not found." }, { status: 404 });
+      return NextResponse.json({ error: t("api.common.accountNotFound") }, { status: 404 });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Resetting password failed:", err);
-    return NextResponse.json({ error: "Could not reset password. Try again." }, { status: 503 });
+    return NextResponse.json({ error: t("api.resetPassword.resetFailed") }, { status: 503 });
   }
 }

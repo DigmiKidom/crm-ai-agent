@@ -5,8 +5,10 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import styles from "./page.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function SignupPage() {
+  const t = useT();
   const router = useRouter();
   const [companyName, setCompanyName] = useState("");
   const [name, setName] = useState("");
@@ -33,11 +35,11 @@ export default function SignupPage() {
     } catch {
       // Server crashed before returning JSON (e.g. an unhandled 500) —
       // don't let that show up as a blank unhandled-rejection in the console.
-      data = { error: "Unexpected server error. Please try again." };
+      data = { error: t("auth.serverError") };
     }
 
     if (!res.ok) {
-      setError(data.error || "Something went wrong.");
+      setError(data.error || t("common.error"));
       setLoading(false);
       return;
     }
@@ -60,14 +62,14 @@ export default function SignupPage() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <Logo href={null} markSize={30} />
         </div>
-        <h1 className={styles.title}>Create your account</h1>
-        <p className={styles.subtitle}>Set up your company&apos;s CRM and landing page.</p>
+        <h1 className={styles.title}>{t("auth.createYourAccount")}</h1>
+        <p className={styles.subtitle}>{t("auth.signupSubtitle")}</p>
 
         {error && <p className={styles.error}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
-            <label htmlFor="companyName">Company name</label>
+            <label htmlFor="companyName">{t("auth.companyName")}</label>
             <input
               id="companyName"
               type="text"
@@ -77,7 +79,7 @@ export default function SignupPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="name">Your name</label>
+            <label htmlFor="name">{t("auth.yourName")}</label>
             <input
               id="name"
               type="text"
@@ -87,7 +89,7 @@ export default function SignupPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t("auth.email")}</label>
             <input
               id="email"
               type="email"
@@ -97,7 +99,7 @@ export default function SignupPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t("auth.password")}</label>
             <input
               id="password"
               type="password"
@@ -126,20 +128,19 @@ export default function SignupPage() {
               style={{ marginTop: 2 }}
             />
             <span>
-              I agree to the{" "}
+              {t("auth.agreeToThe")}{" "}
               <a href="/terms" target="_blank" rel="noreferrer">
-                Terms of Use
+                {t("auth.termsOfUse")}
               </a>
-              .
             </span>
           </label>
           <button className={styles.button} type="submit" disabled={loading || !agreedToTerms}>
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? t("auth.creatingAccount") : t("auth.createAccount")}
           </button>
         </form>
 
         <p className={styles.footer}>
-          Already have an account? <a href="/login">Log in</a>
+          {t("auth.haveAccount")} <a href="/login">{t("auth.logInLink")}</a>
         </p>
       </div>
     </div>

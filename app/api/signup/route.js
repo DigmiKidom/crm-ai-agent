@@ -7,19 +7,21 @@ import Pipeline from "@/lib/models/Pipeline";
 import { slugify } from "@/lib/slugify";
 import { createToken } from "@/lib/tokens";
 import { sendVerificationEmail, getAppUrl } from "@/lib/email";
+import { getServerT } from "@/lib/i18n/server";
 
 // MVP signup: creates a brand-new tenant and makes the signing-up user its
 // owner. Joining an existing tenant via an invite link is a Phase 2 addition.
 export async function POST(request) {
+  const { t } = await getServerT();
   const body = await request.json();
   const { companyName, name, email, password } = body ?? {};
 
   if (!companyName || !name || !email || !password) {
-    return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+    return NextResponse.json({ error: t("api.common.allFieldsRequired") }, { status: 400 });
   }
   if (password.length < 8) {
     return NextResponse.json(
-      { error: "Password must be at least 8 characters." },
+      { error: t("api.common.passwordTooShort") },
       { status: 400 }
     );
   }
@@ -29,7 +31,7 @@ export async function POST(request) {
 
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
-      return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
+      return NextResponse.json({ error: t("api.signup.emailExists") }, { status: 409 });
     }
 
     let baseSlug = slugify(companyName) || "company";
@@ -69,7 +71,7 @@ export async function POST(request) {
     // instead of letting Next.js return an HTML error page for a 500.
     console.error("Signup failed:", err);
     return NextResponse.json(
-      { error: "Could not reach the database. Check your MONGODB_URI and Atlas Network Access, then try again." },
+      { error: t("api.signup.dbUnreachable") },
       { status: 503 }
     );
   }

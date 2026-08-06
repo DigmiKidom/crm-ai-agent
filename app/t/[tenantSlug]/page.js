@@ -1,3 +1,4 @@
+import { getServerT } from "@/lib/i18n/server";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
@@ -16,6 +17,9 @@ import styles from "@/components/dashboard.module.css";
 
 export default async function OverviewPage({ params }) {
   const { tenantSlug } = await params;
+  // This route is already dynamic (the layout calls auth()), so reading the
+  // locale cookie here costs nothing extra.
+  const { t } = await getServerT();
 
   await connectDB();
   const tenant = await Tenant.findOne({ slug: tenantSlug }).lean();
@@ -44,17 +48,19 @@ export default async function OverviewPage({ params }) {
     const to = new Date(from);
     to.setDate(to.getDate() + 1);
     return leads.filter((l) => {
-      const t = new Date(l.createdAt);
-      return t >= from && t < to;
+      const ts = new Date(l.createdAt);
+      return ts >= from && ts < to;
     }).length;
   });
   const leadsLast30 = last30.reduce((a, b) => a + b, 0);
 
   return (
     <div>
-      <h1 className={styles.pageTitle}>Overview</h1>
+      <h1 className={styles.pageTitle}>{t("overview.title")}</h1>
       <p style={{ color: "var(--muted)", marginTop: -16, marginBottom: 24, fontSize: "0.9rem" }}>
-        Welcome back to {tenant?.name || "your"} CRM.
+        {tenant?.name
+          ? t("overview.welcome", { company: tenant.name })
+          : t("overview.welcomeGeneric")}
       </p>
 
       <div className={styles.statGrid}>
@@ -62,30 +68,30 @@ export default async function OverviewPage({ params }) {
           <IconInbox size={22} className={styles.statIcon} />
           <div>
             <div className={styles.statValue}>{leads.length}</div>
-            <div className={styles.statLabel}>Total leads</div>
+            <div className={styles.statLabel}>{t("overview.totalLeads")}</div>
           </div>
         </a>
         <a href={`/t/${tenantSlug}/contacts`} className={styles.statCard}>
           <IconUsers size={22} className={styles.statIcon} />
           <div>
             <div className={styles.statValue}>{contactCount}</div>
-            <div className={styles.statLabel}>Contacts</div>
+            <div className={styles.statLabel}>{t("overview.contacts")}</div>
           </div>
         </a>
         <a href={`/t/${tenantSlug}/pipeline`} className={styles.statCard}>
           <IconPipeline size={22} className={styles.statIcon} />
           <div>
             <div className={styles.statValue}>{stages.length}</div>
-            <div className={styles.statLabel}>Pipeline stages</div>
+            <div className={styles.statLabel}>{t("overview.pipelineStages")}</div>
           </div>
         </a>
         <a href={`/t/${tenantSlug}/analytics`} className={styles.statCard}>
           <IconChart size={22} className={styles.statIcon} />
           <div>
             <div className={styles.statValue}>{leadsLast30}</div>
-            <div className={styles.statLabel}>Last 30 days</div>
+            <div className={styles.statLabel}>{t("overview.last30Days")}</div>
           </div>
-          <div style={{ marginLeft: "auto" }}>
+          <div style={{ marginInlineStart: "auto" }}>
             <Sparkline values={last30} width={64} height={26} />
           </div>
         </a>
@@ -93,9 +99,9 @@ export default async function OverviewPage({ params }) {
 
       <div className={styles.overviewColumns}>
         <div className={styles.overviewPanel}>
-          <h2 className={styles.panelTitle}>Leads by stage</h2>
+          <h2 className={styles.panelTitle}>{t("overview.leadsByStage")}</h2>
           {leads.length === 0 ? (
-            <p className={styles.empty}>No leads yet.</p>
+            <p className={styles.empty}>{t("overview.noLeads")}</p>
           ) : (
             <div className={styles.stageBars}>
               {stageCounts.map(({ stage, count }) => (
@@ -116,12 +122,12 @@ export default async function OverviewPage({ params }) {
 
         <div className={styles.overviewPanel}>
           <h2 className={styles.panelTitle}>
-            <IconClock size={16} style={{ verticalAlign: "-3px", marginRight: 6 }} />
-            Recent leads
+            <IconClock size={16} style={{ verticalAlign: "-3px", marginInlineEnd: 6 }} />
+            {t("overview.recentLeads")}
           </h2>
           {recentLeads.length === 0 ? (
             <p className={styles.empty}>
-              No leads yet. Share your landing page (/pages/{tenantSlug}) to start collecting them.
+              {t("overview.noLeadsHint", { url: `/pages/${tenantSlug}` })}
             </p>
           ) : (
             <ul className={styles.recentList}>
@@ -141,7 +147,7 @@ export default async function OverviewPage({ params }) {
             </ul>
           )}
           <a href={`/t/${tenantSlug}/leads`} className={styles.linkButton} style={{ marginTop: 12, display: "inline-block" }}>
-            View all leads
+            {t("overview.viewAllLeads")}
           </a>
         </div>
       </div>

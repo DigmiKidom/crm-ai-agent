@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import { IconChevronUp, IconChevronDown, IconClose, IconPlus, IconEdit } from "./icons";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 let nextKey = 0;
 function makeRow(name) {
@@ -12,6 +13,7 @@ function makeRow(name) {
 }
 
 export default function PipelineStagesEditor({ tenantSlug, stages }) {
+  const t = useT();
   const router = useRouter();
   const [rows, setRows] = useState(() => stages.map((s) => makeRow(s)));
   const [open, setOpen] = useState(false);
@@ -73,13 +75,13 @@ export default function PipelineStagesEditor({ tenantSlug, stages }) {
     try {
       data = await res.json();
     } catch {
-      data = { error: "Unexpected server error. Please try again." };
+      data = { error: t("pipeline.serverError") };
     }
 
     setSaving(false);
 
     if (!res.ok) {
-      setError(data.error || "Could not save changes.");
+      setError(data.error || t("pipeline.saveFailed"));
       return;
     }
 
@@ -97,14 +99,18 @@ export default function PipelineStagesEditor({ tenantSlug, stages }) {
         onClick={() => setOpen(true)}
       >
         <IconEdit size={14} />
-        Edit stages
+        {t("pipeline.editStages")}
       </button>
     );
   }
 
   return (
     <div className={styles.detailCard} style={{ maxWidth: 480, marginBottom: 24 }}>
-      {error && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{error}</p>}
+      {error && (
+        <p style={{ color: "#b91c1c", marginBottom: 12 }} role="alert">
+          {error}
+        </p>
+      )}
 
       {rows.map((row, index) => (
         <div key={row.key} className={styles.stageRow}>
@@ -114,7 +120,7 @@ export default function PipelineStagesEditor({ tenantSlug, stages }) {
             className={styles.iconButton}
             onClick={() => moveRow(index, -1)}
             disabled={index === 0}
-            aria-label="Move up"
+            aria-label={t("pipeline.moveUp")}
           >
             <IconChevronUp size={14} />
           </button>
@@ -123,7 +129,7 @@ export default function PipelineStagesEditor({ tenantSlug, stages }) {
             className={styles.iconButton}
             onClick={() => moveRow(index, 1)}
             disabled={index === rows.length - 1}
-            aria-label="Move down"
+            aria-label={t("pipeline.moveDown")}
           >
             <IconChevronDown size={14} />
           </button>
@@ -132,7 +138,7 @@ export default function PipelineStagesEditor({ tenantSlug, stages }) {
             className={styles.iconButton}
             onClick={() => removeRow(row.key)}
             disabled={rows.length <= 1}
-            aria-label="Remove stage"
+            aria-label={t("pipeline.removeStage")}
           >
             <IconClose size={14} />
           </button>
@@ -153,12 +159,16 @@ export default function PipelineStagesEditor({ tenantSlug, stages }) {
 
       <div className={styles.actionsRow}>
         <button type="button" className={styles.saveButton} onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save stages"}
+          {saving ? t("common.saving") : t("pipeline.saveStages")}
         </button>
         <button type="button" className={styles.deleteButton} style={{ color: "inherit", borderColor: "var(--border)" }} onClick={() => setOpen(false)}>
           Close
         </button>
-        {saved && <span className={styles.savedNote}>Saved</span>}
+        {saved && (
+          <span className={styles.savedNote} role="status">
+            {t("pipeline.saved")}
+          </span>
+        )}
       </div>
     </div>
   );

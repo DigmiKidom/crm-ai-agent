@@ -46,8 +46,8 @@
 }
 
 .logoLeft {
-  margin-left: 0;
-  margin-right: auto;
+  margin-inline-start: 0;
+  margin-inline-end: auto;
 }
 
 .footerBrand {
@@ -144,4 +144,59 @@
   .galleryGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Team section ────────────────────────────────────────────────────────
+   Deliberately neutral/undecorated (unlike each template's own hero/feature
+   styling) so it reads consistently regardless of which of the 4 templates
+   is active — this is shared chrome, not a per-template design element. */
+.teamSection {
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.teamSection h2 {
+  margin: 0 0 32px;
+  font-size: 1.5rem;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 28px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.teamCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.teamAvatar {
+  margin-bottom: 8px;
+}
+
+.teamName {
+  margin: 0;
+  font-weight: 600;
+}
+
+.teamTitle {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.teamCvLink {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--tenant-primary, #2563eb);
+  text-decoration: none;
+}
+
+.teamCvLink:hover {
+  text-decoration: underline;
 }

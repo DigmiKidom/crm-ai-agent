@@ -1,0 +1,799 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   Ceramony product chrome — Header, Footer, language toggle, avatar menu.
+
+   Two rules hold throughout this file:
+
+   1. No physical direction properties. Everything uses `inline-start`/
+      `inline-end` logical equivalents, so setting <html dir="rtl"> mirrors the
+      whole bar with no RTL-specific overrides. The only exceptions are marked
+      inline (transforms, which are always physical).
+
+   2. Colours come from the fixed `--chrome-*` / `--accent` tokens in
+      globals.css, never from `--surface`/`--foreground`. The chrome is the one
+      constant surface across marketing pages, auth screens, and the dashboard,
+      so it deliberately ignores both the light/dark toggle and tenant branding.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Page scaffold ───────────────────────────────────────────────────────── */
+
+.siteLayout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh; /* keeps the footer off mobile browser toolbars */
+}
+
+/* Pushes the footer to the bottom on short pages without a fixed height. */
+.siteMain {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  border-block-end: 1px solid transparent;
+  transition: border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out);
+}
+
+/* Frosted glass, but only where it's actually supported — without the query,
+   unsupported browsers get a flat translucent bar and unreadable text. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header {
+    background: var(--chrome-bg-blur);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
+  }
+}
+
+.header[data-scrolled] {
+  border-block-end-color: var(--chrome-border);
+  box-shadow: 0 8px 26px -18px rgba(0, 0, 0, 0.9);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--chrome-height);
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+/* The dashboard bar spans the full viewport (it sits above a full-width
+   sidebar + content split), so it drops the centred max-width. */
+.headerInnerApp {
+  max-width: none;
+  padding-inline: 16px;
+}
+
+.headerLead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.headerTrail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+/* ── Brand lockup ────────────────────────────────────────────────────────── */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--chrome-radius);
+  padding: 4px 6px;
+  margin-inline-start: -6px;
+  transition: opacity var(--dur-fast) var(--ease-out);
+  min-width: 0;
+}
+
+.brand:hover {
+  opacity: 0.82;
+}
+
+/* The tagline rides beside the wordmark on wide screens only — below that the
+   mark alone carries the brand and the space is worth more to the nav. */
+.brandTagline {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--chrome-fg-muted);
+  white-space: nowrap;
+  padding-inline-start: 10px;
+  border-inline-start: 1px solid var(--chrome-border);
+  letter-spacing: 0.01em;
+}
+
+/* ── Primary nav ─────────────────────────────────────────────────────────── */
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.navLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding-inline: 12px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--chrome-fg-muted);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.navLink:hover {
+  color: var(--chrome-fg-strong);
+  background: var(--chrome-hover);
+}
+
+.navLink[data-active] {
+  color: var(--chrome-fg-strong);
+}
+
+/* Underline grows from the centre on hover and stays put when active. Uses
+   scaleX, which is direction-agnostic because it's symmetric about the centre. */
+.navLink::after {
+  content: "";
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 4px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.navLink[data-active]::after,
+.navLink:hover::after {
+  transform: scaleX(1);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.authLinks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ghostButton,
+.accentButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding-inline: 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.ghostButton {
+  color: var(--chrome-fg);
+  background: transparent;
+  border: 1px solid var(--chrome-border);
+}
+
+.ghostButton:hover {
+  background: var(--chrome-hover);
+  color: var(--chrome-fg-strong);
+}
+
+.accentButton {
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 1px solid transparent;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.accentButton:hover {
+  background: var(--accent-strong);
+  box-shadow: 0 6px 18px -8px var(--accent-glow);
+}
+
+/* A 1px lift on press reads as physical feedback without moving neighbours. */
+.ghostButton:active,
+.accentButton:active {
+  transform: translateY(1px);
+}
+
+.menuTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--chrome-border);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--chrome-fg);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.menuTrigger:hover {
+  background: var(--chrome-hover);
+}
+
+.menuTriggerMobileOnly {
+  display: none;
+}
+
+/* ── Language menu ───────────────────────────────────────────────────────── */
+
+.langMenu {
+  position: relative;
+}
+
+/* Icon-only by default: the globe is a near-universal affordance and keeps the
+   trailing slot compact, which matters most on the dashboard bar. */
+.langButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  min-width: 36px;
+  padding-inline: 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--chrome-fg-muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.langButton:hover,
+.langButton[aria-expanded="true"] {
+  color: var(--chrome-fg-strong);
+  background: var(--chrome-hover);
+  border-color: var(--chrome-border);
+}
+
+.langButtonLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* The option list reuses .menu / .menuItem wholesale so both dropdowns in the
+   header are visually identical — only the row contents differ. */
+.langOptionName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.langOptionCode {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--chrome-fg-muted);
+  /* Latin codes stay upright and unreordered inside a Hebrew row. */
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Reserves the tick column on every row, so selecting a different language
+   doesn't shift the labels sideways. */
+.menuItemCheck {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.menuItem:not([aria-checked="true"]) .langOptionCode {
+  opacity: 0.75;
+}
+
+.menuItem[aria-checked="true"] {
+  background: var(--chrome-active);
+  color: var(--chrome-fg-strong);
+}
+
+/* ── Avatar ──────────────────────────────────────────────────────────────── */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+  /* Separates the circle from whatever sits behind it, on both palettes. */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Avatar menu ─────────────────────────────────────────────────────────── */
+
+.avatarMenu {
+  position: relative;
+}
+
+.avatarButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding-inline: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--chrome-fg);
+  cursor: pointer;
+  max-width: 190px;
+  transition: background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.avatarButton:hover,
+.avatarButton[aria-expanded="true"] {
+  background: var(--chrome-hover);
+  border-color: var(--chrome-border);
+}
+
+.avatarButtonName {
+  font-size: 0.83rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatarChevron {
+  color: var(--chrome-fg-muted);
+  flex-shrink: 0;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* Rotation is symmetric, so this needs no RTL variant. */
+.avatarChevron[data-open] {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  /* Anchors to the end edge: right in English, left in Hebrew. */
+  inset-inline-end: 0;
+  min-width: 232px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #171c27;
+  border: 1px solid var(--chrome-border);
+  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.85);
+  z-index: 70;
+  animation: menuIn var(--dur-base) var(--ease-out);
+  transform-origin: top var(--menu-origin, right);
+}
+
+/* The language list has short rows; the account menu's 232px would leave it
+   mostly empty. */
+.menuNarrow {
+  min-width: 176px;
+}
+
+/* transform-origin takes physical keywords only, so the RTL case is explicit. */
+:global([dir="rtl"]) .menu {
+  --menu-origin: left;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menuHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 11px 11px;
+  border-block-end: 1px solid var(--chrome-border);
+  margin-block-end: 6px;
+}
+
+.menuHeaderLabel {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--chrome-fg-muted);
+}
+
+.menuHeaderName {
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--chrome-fg-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuHeaderEmail {
+  font-size: 0.76rem;
+  color: var(--chrome-fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.menuGroup + .menuGroup {
+  margin-block-start: 6px;
+  padding-block-start: 6px;
+  border-block-start: 1px solid var(--chrome-border);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--chrome-fg);
+  font-size: 0.85rem;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: var(--chrome-hover);
+  color: var(--chrome-fg-strong);
+}
+
+.menuItem:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.menuItemIcon {
+  color: var(--chrome-fg-muted);
+  flex-shrink: 0;
+}
+
+.menuItemDanger:hover,
+.menuItemDanger:focus-visible {
+  background: rgba(244, 63, 94, 0.14);
+  color: #fda4af;
+}
+
+.menuItemDanger:hover .menuItemIcon,
+.menuItemDanger:focus-visible .menuItemIcon {
+  color: #fda4af;
+}
+
+/* ── Mobile nav sheet ────────────────────────────────────────────────────── */
+
+.mobileNavBackdrop {
+  display: none;
+}
+
+.mobileNav {
+  display: none;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.footer {
+  flex-shrink: 0;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  border-block-start: 1px solid var(--chrome-border);
+}
+
+.footerInner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: 48px 20px 32px;
+}
+
+.footerBrand {
+  flex: 1 1 260px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.footerTagline {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--chrome-fg-strong);
+}
+
+/* Gradient text needs the WebKit prefixes to render in Safari and Chrome; the
+   colour underneath is the fallback wherever clipping isn't supported. */
+.footerTaglineAccent {
+  color: var(--accent);
+  background: linear-gradient(95deg, var(--accent) 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.footerBlurb {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--chrome-fg-muted);
+  max-width: 34ch;
+}
+
+.footerColumns {
+  flex: 2 1 420px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.footerColumn {
+  min-width: 0;
+}
+
+.footerColumnTitle {
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--chrome-fg-muted);
+}
+
+.footerLinkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.footerLink {
+  font-size: 0.85rem;
+  color: var(--chrome-fg);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out),
+    padding-inline-start var(--dur-fast) var(--ease-out);
+}
+
+/* Nudging toward the reading direction on hover is the one micro-interaction
+   here that has to be direction-aware — hence the logical property. */
+.footerLink:hover {
+  color: var(--accent);
+  padding-inline-start: 4px;
+}
+
+.footerBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: 16px 20px 22px;
+  border-block-start: 1px solid var(--chrome-border);
+}
+
+.footerCopyright,
+.footerBarLink {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--chrome-fg-muted);
+}
+
+.footerBarLink {
+  text-decoration: none;
+}
+
+.footerBarLink:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 1000px) {
+  .brandTagline {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .nav {
+    display: none;
+  }
+
+  .menuTriggerMobileOnly {
+    display: inline-flex;
+  }
+
+  /* The header owns the hamburger at this width, so the CTA pair would crowd
+     it — sign-in moves into the sheet instead. */
+  .authLinks {
+    display: none;
+  }
+
+  .avatarButtonName {
+    display: none;
+  }
+
+  .mobileNavBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: var(--chrome-height);
+    background: rgba(2, 6, 23, 0.6);
+    z-index: 55;
+  }
+
+  .mobileNav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    padding: 12px 16px 18px;
+    background: var(--chrome-bg);
+    border-block-end: 1px solid var(--chrome-border);
+    box-shadow: 0 18px 34px -20px rgba(0, 0, 0, 0.9);
+    z-index: 58;
+    animation: sheetIn var(--dur-base) var(--ease-out);
+  }
+
+  @keyframes sheetIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .mobileNavLink {
+    padding: 12px 10px;
+    border-radius: 9px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--chrome-fg);
+    text-decoration: none;
+  }
+
+  .mobileNavLink[data-active] {
+    background: var(--chrome-active);
+    color: var(--chrome-fg-strong);
+  }
+
+  .mobileNavActions {
+    display: flex;
+    gap: 10px;
+    margin-block-start: 10px;
+    padding-block-start: 14px;
+    border-block-start: 1px solid var(--chrome-border);
+  }
+
+  .mobileNavActions > * {
+    flex: 1;
+    height: 40px;
+  }
+
+  .footerColumns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .headerInner {
+    gap: 10px;
+    padding-inline: 14px;
+  }
+
+  /* Drop the code beside the globe — the menu still names the current
+     language, and the trailing slot is tight at this width. */
+  .langButtonLabel {
+    display: none;
+  }
+
+  .footerInner {
+    gap: 32px;
+    padding: 36px 18px 26px;
+  }
+
+  .footerColumns {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* ── Skip link ───────────────────────────────────────────────────────────
+   Off-screen until focused, then jumps above the sticky header (z-index
+   higher than the header's own 60) so it's never obscured. */
+.skipLink {
+  position: absolute;
+  inset-block-start: -100px;
+  inset-inline-start: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg-strong);
+  border-radius: var(--chrome-radius);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: inset-block-start var(--dur-fast) var(--ease-out);
+}
+
+.skipLink:focus {
+  inset-block-start: 8px;
+}

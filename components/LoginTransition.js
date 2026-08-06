@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./loginTransition.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 // The clip is 3.2s. This is the hard ceiling before we navigate regardless —
 // if autoplay is blocked, the file 404s, or `ended` never fires, the user must
@@ -15,6 +16,7 @@ const FAILSAFE_MS = 4200;
  * gates access — the worst case is that it navigates early.
  */
 export default function LoginTransition({ target }) {
+  const t = useT();
   const router = useRouter();
   const videoRef = useRef(null);
   const doneRef = useRef(false);
@@ -56,7 +58,7 @@ export default function LoginTransition({ target }) {
 
   return (
     <div className={styles.overlay} role="status">
-      <span className={styles.srOnly}>Signing you in…</span>
+      <span className={styles.srOnly}>{t("auth.signingIn")}</span>
       <video
         ref={videoRef}
         className={styles.video}

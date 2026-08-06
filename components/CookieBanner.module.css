@@ -62,7 +62,7 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .accept {
@@ -104,7 +104,7 @@
 
   .actions {
     width: 100%;
-    margin-left: 0;
+    margin-inline-start: 0;
     justify-content: space-between;
   }
 

@@ -12,7 +12,7 @@ import styles from "./analytics.module.css";
  * Callers that measure something where lower is better (response time) flip the
  * sign before passing it in, so up is always good here.
  */
-export default function DeltaBadge({ value, suffix = "%" }) {
+export default function DeltaBadge({ value, suffix = "%" , t }) {
   if (value === undefined) return null;
 
   if (value === null) {
@@ -20,7 +20,7 @@ export default function DeltaBadge({ value, suffix = "%" }) {
   }
 
   if (value === 0) {
-    return <span className={`${styles.kpiDelta} ${styles.deltaFlat}`}>No change</span>;
+    return <span className={`${styles.kpiDelta} ${styles.deltaFlat}`}>{t("common.noChange")}</span>;
   }
 
   const up = value > 0;

@@ -59,8 +59,8 @@
 }
 
 .heroInnerSolo .subheadline {
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
 }
 
 .ctaButton {
@@ -229,7 +229,7 @@
 }
 
 .cardStrip {
-  border-left: 4px solid var(--card-accent);
+  border-inline-start: 4px solid var(--card-accent);
   border-top: none !important;
 }
 
@@ -238,5 +238,5 @@
 }
 
 .cardStrip.cardBordered {
-  border-left-width: 4px;
+  border-inline-start-width: 4px;
 }

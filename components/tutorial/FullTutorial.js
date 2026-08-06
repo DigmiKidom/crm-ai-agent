@@ -10,87 +10,37 @@ import {
   IconTable,
 } from "@/components/icons";
 import styles from "./tutorial.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
+// Descriptors only — every string resolves through t() at render time, so the
+// tutorial follows the dashboard language like the rest of the app.
 const STEPS = [
+  { key: "s1", icon: IconSparkles, paragraphs: 2 },
+  { key: "s2", icon: IconChart, image: "/tutorial/landing-preview.png", paragraphs: 1 },
+  { key: "s3", icon: IconInbox, image: "/tutorial/dashboard-preview.png", paragraphs: 1 },
   {
-    title: "Set up with AI",
-    eyebrow: "Step 1",
-    body: (
-      <>
-        <p>
-          When you first sign up, describe your business in a sentence or two. The AI setup
-          fills in your company profile, writes starter copy, and picks a landing page layout —
-          you&apos;re not starting from a blank page.
-        </p>
-        <p>Everything it generates is editable afterwards, so it&apos;s a starting point, not a lock-in.</p>
-      </>
-    ),
-    icon: IconSparkles,
-  },
-  {
-    title: "Customize your landing page",
-    eyebrow: "Step 2",
-    body: (
-      <p>
-        Pick from four layouts, choose your grid and column style, and add up to six photos to
-        your gallery. Your brand colors and fonts carry across the whole page automatically.
-      </p>
-    ),
-    image: "/tutorial/landing-preview.png",
-    icon: IconChart,
-  },
-  {
-    title: "Every lead lands in one place",
-    eyebrow: "Step 3",
-    body: (
-      <p>
-        Visitors who fill out your landing page form show up instantly in your Leads inbox and
-        your pipeline board. Nothing to connect, nothing to configure — it just works the moment
-        your page goes live.
-      </p>
-    ),
-    image: "/tutorial/dashboard-preview.png",
-    icon: IconInbox,
-  },
-  {
-    title: "Keep your own notes and lists",
-    eyebrow: "Step 4",
-    body: (
-      <p>
-        The Workplace section in your sidebar is yours to shape: create documents for notes and
-        plans, or tables with typed columns for anything you want to track — supplier lists,
-        follow-ups, pricing, whatever your business needs.
-      </p>
-    ),
+    key: "s4",
+    paragraphs: 1,
     icons: [
-      { icon: IconDocument, label: "Documents" },
-      { icon: IconTable, label: "Tables" },
+      { icon: IconDocument, labelKey: "tutorial.documents" },
+      { icon: IconTable, labelKey: "tutorial.tables" },
     ],
   },
-  {
-    title: "See what's working",
-    eyebrow: "Step 5",
-    body: (
-      <p>
-        Analytics shows where your leads come from, how your pipeline is moving, and which parts
-        of your page get the most attention — so you know what to double down on.
-      </p>
-    ),
-    icon: IconChart,
-  },
+  { key: "s5", icon: IconChart, paragraphs: 1 },
 ];
 
 export default function FullTutorial({ tenantSlug }) {
+  const t = useT();
   const [active, setActive] = useState(0);
   const step = STEPS[active];
   const isLast = active === STEPS.length - 1;
 
   return (
     <div className={styles.guide}>
-      <nav className={styles.stepNav} aria-label="Tutorial steps">
+      <nav className={styles.stepNav} aria-label={t("tutorial.steps")}>
         {STEPS.map((s, i) => (
           <button
-            key={s.title}
+            key={s.key}
             type="button"
             className={`${styles.stepNavItem} ${i === active ? styles.stepNavItemActive : ""} ${
               i < active ? styles.stepNavItemDone : ""
@@ -98,15 +48,19 @@ export default function FullTutorial({ tenantSlug }) {
             onClick={() => setActive(i)}
           >
             <span className={styles.stepDot}>{i + 1}</span>
-            {s.title}
+            {t(`tutorial.${s.key}t`)}
           </button>
         ))}
       </nav>
 
       <div className={styles.step}>
-        <span className={styles.stepEyebrow}>{step.eyebrow}</span>
-        <h2 className={styles.stepTitle}>{step.title}</h2>
-        <div className={styles.stepBody}>{step.body}</div>
+        <span className={styles.stepEyebrow}>{t("tutorial.stepN", { n: active + 1 })}</span>
+        <h2 className={styles.stepTitle}>{t(`tutorial.${step.key}t`)}</h2>
+        <div className={styles.stepBody}>
+          {Array.from({ length: step.paragraphs }, (_, i) => (
+            <p key={i}>{t(`tutorial.${step.key}${String.fromCharCode(97 + i)}`)}</p>
+          ))}
+        </div>
 
         {step.image && (
           <div className={styles.stepImageWrap}>

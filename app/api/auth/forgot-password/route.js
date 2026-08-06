@@ -3,15 +3,17 @@ import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
 import { createToken } from "@/lib/tokens";
 import { sendPasswordResetEmail, getAppUrl } from "@/lib/email";
+import { getServerT } from "@/lib/i18n/server";
 
 // Always returns a generic "ok" response regardless of whether the email
 // exists — otherwise this endpoint becomes a way to enumerate registered
 // accounts by email address.
 export async function POST(request) {
+  const { t } = await getServerT();
   const { email } = (await request.json()) ?? {};
   const genericResponse = NextResponse.json({
     ok: true,
-    message: "If an account exists for that email, a reset link is on its way.",
+    message: t("api.forgotPassword.genericResponse"),
   });
 
   if (!email) return genericResponse;

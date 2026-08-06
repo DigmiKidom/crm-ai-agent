@@ -1,3 +1,4 @@
+import { getServerT } from "@/lib/i18n/server";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
@@ -7,6 +8,7 @@ import PipelineStagesEditor from "@/components/PipelineStagesEditor";
 import styles from "@/components/dashboard.module.css";
 
 export default async function PipelinePage({ params }) {
+  const { t } = await getServerT();
   const { tenantSlug } = await params;
 
   await connectDB();
@@ -20,7 +22,7 @@ export default async function PipelinePage({ params }) {
 
   return (
     <div>
-      <h1 className={styles.pageTitle}>Pipeline</h1>
+      <h1 className={styles.pageTitle}>{t("pipeline.title")}</h1>
       <PipelineStagesEditor tenantSlug={tenantSlug} stages={stages} />
       <PipelineBoard
         initialLeads={JSON.parse(JSON.stringify(leads))}

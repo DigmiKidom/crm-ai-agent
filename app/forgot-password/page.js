@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Logo from "@/components/Logo";
 import styles from "./page.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function ForgotPasswordPage() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,7 +26,7 @@ export default function ForgotPasswordPage() {
     setLoading(false);
 
     if (!res.ok) {
-      setError("Something went wrong. Please try again.");
+      setError(t("auth.serverError"));
       return;
     }
     setSent(true);
@@ -36,21 +38,21 @@ export default function ForgotPasswordPage() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <Logo href={null} markSize={30} />
         </div>
-        <h1 className={styles.title}>Reset your password</h1>
+        <h1 className={styles.title}>{t("auth.resetTitle")}</h1>
         <p className={styles.subtitle}>
-          Enter your email and we&apos;ll send you a link to set a new password.
+          {t("auth.resetIntro")}
         </p>
 
         {error && <p className={styles.error}>{error}</p>}
 
         {sent ? (
           <p className={styles.success}>
-            If an account exists for that email, a reset link is on its way. Check your inbox.
+            {t("auth.resetSent")}
           </p>
         ) : (
           <form onSubmit={handleSubmit}>
             <div className={styles.field}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">{t("auth.email")}</label>
               <input
                 id="email"
                 type="email"
@@ -60,13 +62,13 @@ export default function ForgotPasswordPage() {
               />
             </div>
             <button className={styles.button} type="submit" disabled={loading}>
-              {loading ? "Sending..." : "Send reset link"}
+              {loading ? t("auth.sending") : t("auth.sendResetLink")}
             </button>
           </form>
         )}
 
         <p className={styles.footer}>
-          <a href="/login">Back to log in</a>
+          <a href="/login">{t("auth.backToLogin")}</a>
         </p>
       </div>
     </div>

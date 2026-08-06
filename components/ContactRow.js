@@ -3,8 +3,10 @@
 import { useState } from "react";
 import styles from "./dashboard.module.css";
 import { IconEdit, IconTrash, IconCheck, IconClose } from "./icons";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function ContactRow({ contact, onUpdated, onDeleted }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     name: contact.name || "",
@@ -63,7 +65,7 @@ export default function ContactRow({ contact, onUpdated, onDeleted }) {
         <td className={styles.rowActions}>
           <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={handleSave} disabled={saving}>
             <IconCheck size={13} />
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </button>
           <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={() => setEditing(false)}>
             <IconClose size={13} />
@@ -87,7 +89,7 @@ export default function ContactRow({ contact, onUpdated, onDeleted }) {
         </button>
         <button className={`${styles.linkButton} ${styles.iconLabel}`} onClick={handleDelete} disabled={deleting}>
           <IconTrash size={13} />
-          {deleting ? "Deleting..." : "Delete"}
+          {deleting ? t("leads.deleting") : "Delete"}
         </button>
       </td>
     </tr>

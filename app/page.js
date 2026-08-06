@@ -1,29 +1,31 @@
+"use client";
+
 import Logo from "@/components/Logo";
+import { useT } from "@/components/i18n/LocaleProvider";
 import styles from "./page.module.css";
 
+// A client component purely so it can translate. It fetches nothing, so this
+// costs no server round trip — and it keeps the route statically renderable,
+// which reading the locale cookie on the server would not.
 export default function Home() {
+  const t = useT();
+
   return (
     <div className={styles.page}>
       <div className={styles.content}>
         <div className={styles.logoRow}>
           <Logo href={null} markSize={36} />
         </div>
-        <h1 className={styles.title}>CRM AI Agent</h1>
-        <p className={styles.subtitle}>
-          Sign up, tell us about your company, and get a lead-capturing landing page plus a
-          CRM tailored to your business — generated for you.
-        </p>
+        <h1 className={styles.title}>{t("home.title")}</h1>
+        <p className={styles.subtitle}>{t("home.subtitle")}</p>
         <div className={styles.ctas}>
           <a className={styles.primary} href="/signup">
-            Get started
+            {t("home.getStarted")}
           </a>
           <a className={styles.secondary} href="/login">
-            Log in
+            {t("home.logIn")}
           </a>
         </div>
-        <p className={styles.footer}>
-          <a href="/terms">Terms of Use</a>
-        </p>
       </div>
     </div>
   );

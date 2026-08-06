@@ -3,49 +3,21 @@
 import { useState } from "react";
 import { IconArrowRight } from "@/components/icons";
 import styles from "./tutorial.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 // The condensed "short book" version — same ground as the full guide, folded
 // into 3 pages for anyone who'd rather skim than step through 5 screens.
+// The condensed "short book" version — same ground as the full guide, folded
+// into 3 pages for anyone who'd rather skim than step through 5 screens.
+// Body paragraphs are reused from the full tutorial's keys.
 const PAGES = [
-  {
-    title: "AI builds your starting point",
-    body: (
-      <>
-        <p>
-          Describe your business once and the AI setup writes your company profile and picks a
-          landing page layout for you — pick from 4 templates, adjust the grid, and add up to 6
-          gallery photos whenever you like.
-        </p>
-      </>
-    ),
-  },
-  {
-    title: "Leads and notes, organized",
-    body: (
-      <>
-        <p>
-          Every form submission on your landing page lands straight in your Leads inbox and
-          pipeline board — no setup required.
-        </p>
-        <p>
-          The Workplace section in your sidebar is yours: create documents for notes, or tables
-          with typed columns for anything else you need to track.
-        </p>
-      </>
-    ),
-  },
-  {
-    title: "Track what's working",
-    body: (
-      <p>
-        Analytics shows where your leads come from and how your pipeline is moving, so you always
-        know what to focus on next.
-      </p>
-    ),
-  },
+  { key: "q1", bodyKeys: ["tutorial.s2a"] },
+  { key: "q2", bodyKeys: ["tutorial.s3a", "tutorial.s4a"] },
+  { key: "q3", bodyKeys: ["tutorial.s5a"] },
 ];
 
 export default function QuickTutorial({ tenantSlug }) {
+  const t = useT();
   const [page, setPage] = useState(0);
   const isLast = page === PAGES.length - 1;
   const current = PAGES[page];
@@ -56,13 +28,17 @@ export default function QuickTutorial({ tenantSlug }) {
         <span className={styles.quickPageNumber}>
           Page {page + 1} of {PAGES.length}
         </span>
-        <h2 className={styles.quickPageTitle}>{current.title}</h2>
-        <div className={styles.quickPageBody}>{current.body}</div>
+        <h2 className={styles.quickPageTitle}>{t(`tutorial.${current.key}t`)}</h2>
+        <div className={styles.quickPageBody}>
+          {current.bodyKeys.map((k) => (
+            <p key={k}>{t(k)}</p>
+          ))}
+        </div>
       </div>
 
       <div className={styles.quickDots} aria-hidden="true">
         {PAGES.map((p, i) => (
-          <span key={p.title} className={i === page ? styles.quickDotActive : styles.quickDot} />
+          <span key={p.key} className={i === page ? styles.quickDotActive : styles.quickDot} />
         ))}
       </div>
 

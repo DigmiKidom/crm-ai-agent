@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function ResetPasswordForm() {
+  const t = useT();
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token") || "";
@@ -20,7 +22,7 @@ export default function ResetPasswordForm() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match.");
+      setError(t("auth.passwordsDontMatch"));
       return;
     }
 
@@ -35,13 +37,13 @@ export default function ResetPasswordForm() {
     try {
       data = await res.json();
     } catch {
-      data = { error: "Unexpected server error. Please try again." };
+      data = { error: t("auth.serverError") };
     }
 
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Could not reset password.");
+      setError(data.error || t("auth.resetFailed"));
       return;
     }
 
@@ -59,7 +61,7 @@ export default function ResetPasswordForm() {
   }
 
   if (done) {
-    return <p className={styles.success}>Password updated. Redirecting to log in...</p>;
+    return <p className={styles.success}>{t("auth.passwordUpdated")}</p>;
   }
 
   return (
@@ -67,7 +69,7 @@ export default function ResetPasswordForm() {
       {error && <p className={styles.error}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className={styles.field}>
-          <label htmlFor="password">New password</label>
+          <label htmlFor="password">{t("auth.newPassword")}</label>
           <input
             id="password"
             type="password"
@@ -78,7 +80,7 @@ export default function ResetPasswordForm() {
           />
         </div>
         <div className={styles.field}>
-          <label htmlFor="confirmPassword">Confirm new password</label>
+          <label htmlFor="confirmPassword">{t("auth.confirmNewPassword")}</label>
           <input
             id="confirmPassword"
             type="password"
@@ -89,7 +91,7 @@ export default function ResetPasswordForm() {
           />
         </div>
         <button className={styles.button} type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Set new password"}
+          {loading ? t("common.saving") : t("auth.setNewPassword")}
         </button>
       </form>
     </>

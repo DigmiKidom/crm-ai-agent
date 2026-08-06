@@ -4,10 +4,14 @@ import MarkLeadRead from "@/components/MarkLeadRead";
 import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
 import Pipeline from "@/lib/models/Pipeline";
+import LeadActivity from "@/lib/models/LeadActivity";
 import LeadDetailEditor from "@/components/LeadDetailEditor";
+import LeadActivityTimeline from "@/components/LeadActivityTimeline";
+import { getServerT } from "@/lib/i18n/server";
 import styles from "@/components/dashboard.module.css";
 
 export default async function LeadDetailPage({ params }) {
+  const { t, locale } = await getServerT();
   const { tenantSlug, leadId } = await params;
 
   await connectDB();
@@ -20,6 +24,11 @@ export default async function LeadDetailPage({ params }) {
   ]);
 
   if (!lead) notFound();
+
+  // Oldest first — reads as a story of how the lead moved, not a changelog.
+  const activity = await LeadActivity.find({ tenantId: tenant._id, leadId: lead._id })
+    .sort({ createdAt: 1 })
+    .lean();
 
   const stages = pipeline?.stages || ["new", "contacted", "qualified", "won", "lost"];
 
@@ -36,6 +45,10 @@ export default async function LeadDetailPage({ params }) {
       {lead.read === false && <MarkLeadRead leadId={lead._id.toString()} />}
 
       <LeadDetailEditor lead={JSON.parse(JSON.stringify(lead))} stages={stages} tenantSlug={tenantSlug} />
+
+      <div style={{ marginTop: 24 }}>
+        <LeadActivityTimeline activity={JSON.parse(JSON.stringify(activity))} t={t} locale={locale} />
+      </div>
     </div>
   );
 }

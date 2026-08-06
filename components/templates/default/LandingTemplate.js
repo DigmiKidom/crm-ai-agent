@@ -1,13 +1,18 @@
 import styles from "./default.module.css";
 import shared from "../shared/shared.module.css";
+import { resolveLandingCopy } from "@/lib/landingCopy";
 import LeadForm from "./LeadForm";
 import HeroBackground from "../shared/HeroBackground";
 import Gallery from "../shared/Gallery";
 import { TenantLogo, BrandFooter, cardAccent } from "../shared/Branding";
 import { LandingIcon } from "@/lib/landingIcons";
+import ABHeadline from "../shared/ABHeadline";
+import TeamSection from "../shared/TeamSection";
 
 export default function LandingTemplate({ tenant }) {
   const { name, slug, theme, landingPage } = tenant;
+  // Language, direction, and every visitor-facing string in one place.
+  const copy = resolveLandingCopy(tenant);
 
   const themeVars = {
     "--tenant-primary": theme?.primaryColor || "#2563eb",
@@ -20,7 +25,7 @@ export default function LandingTemplate({ tenant }) {
   const gallery = landingPage?.galleryMediaIds || [];
 
   return (
-    <div className={styles.page} style={themeVars}>
+    <main className={styles.page} style={themeVars}>
       {/* With a photo the hero drops its solid colour block and lets the
           image plus overlay carry the background instead. */}
       <section className={`${styles.hero} ${hasPhoto ? styles.heroWithPhoto : ""}`}>
@@ -28,12 +33,17 @@ export default function LandingTemplate({ tenant }) {
 
         <div className={shared.heroContent}>
           <TenantLogo tenant={tenant} />
-          <h1 className={styles.headline}>{landingPage?.headline || `Grow ${name}`}</h1>
+          <ABHeadline
+            tenantSlug={slug}
+            headlineA={landingPage?.headline || `Grow ${name}`}
+            headlineB={landingPage?.headlineVariantB || ""}
+            className={styles.headline}
+          />
           <p className={styles.subheadline}>
-            {landingPage?.subheadline || "Tell your visitors why they should reach out."}
+            {copy.subheadline}
           </p>
           <a className={styles.ctaButton} href="#lead-form">
-            {landingPage?.ctaLabel || "Get in touch"}
+            {copy.ctaLabel}
           </a>
         </div>
       </section>
@@ -59,21 +69,35 @@ export default function LandingTemplate({ tenant }) {
 
       {gallery.length > 0 && (
         <section className={styles.gallerySection}>
-          <h2>Gallery</h2>
-          <Gallery mediaIds={gallery} columns={landingPage?.galleryColumns || 3} />
+          <h2>{copy.galleryHeading}</h2>
+          <Gallery mediaIds={gallery} columns={landingPage?.galleryColumns || 3} label={copy.galleryHeading} />
         </section>
+      )}
+
+      {landingPage?.showTeamSection && (
+        <TeamSection
+          members={tenant.teamMembers || []}
+          heading={copy.teamHeading}
+          viewCvLabel={copy.viewCvLabel}
+        />
       )}
 
       <section className={styles.formSection} id="lead-form">
         <div className={styles.formCard}>
-          <h2>{landingPage?.ctaLabel || "Get in touch"}</h2>
-          <LeadForm tenantSlug={slug} ctaLabel={landingPage?.ctaLabel} styles={styles} />
+          <h2>{copy.contactHeading}</h2>
+          <LeadForm
+            tenantSlug={slug}
+            ctaLabel={copy.ctaLabel}
+            labels={copy.formLabels}
+            fields={copy.fields}
+            styles={styles}
+          />
         </div>
       </section>
 
       <footer className={styles.footer}>
         <BrandFooter tenant={tenant} />
       </footer>
-    </div>
+    </main>
   );
 }

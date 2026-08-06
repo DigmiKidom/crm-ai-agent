@@ -1,5 +1,12 @@
 # Roadmap
 
+> **Superseded by `CERAMONY_FUTURE_ROADMAP.md`.** This file is kept as the shipped-feature
+> changelog up to that point — everything under "Shipped so far" below is still accurate
+> history. For current priorities and what's next, use the new roadmap instead; several
+> items below (rate limiting, team invites, custom domains, billing) are restated there
+> with updated context now that localization, the CV builder, and configurable lead forms
+> have shipped since this was last current.
+
 What's already shipped, and what's next, roughly in the order it's worth tackling. See
 `architecture-plan.md` for the original design and `crm-ai-agent/README.md` for what's
 running today.

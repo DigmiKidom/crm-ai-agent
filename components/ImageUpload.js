@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { IconClose, IconPlus } from "./icons";
 import styles from "./dashboard.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 // Compression happens in the browser, before upload. This is deliberate:
 // it keeps Mongo storing 30–250KB blobs instead of 5MB phone photos, moves the
@@ -12,8 +13,14 @@ const PRESETS = {
   logo: { maxW: 512, maxH: 512, quality: 0.9 },
   background: { maxW: 1920, maxH: 1080, quality: 0.82 },
   gallery: { maxW: 1400, maxH: 1400, quality: 0.82 },
+  // Avatars never render above 96px, so 256 covers a 2x display with room to
+  // spare and keeps the stored blob around 15-25KB.
+  avatar: { maxW: 256, maxH: 256, quality: 0.88 },
 };
 
+// Rejects with a translation KEY, not a message: this runs at module scope,
+// outside any component, so it has no translator. The caller — which is inside
+// the component — turns the key into text.
 function compress(file, { maxW, maxH, quality }) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -41,7 +48,7 @@ function compress(file, { maxW, maxH, quality }) {
       canvas.toBlob(
         (blob) => {
           if (blob) resolve({ blob, width, height });
-          else canvas.toBlob((jpg) => (jpg ? resolve({ blob: jpg, width, height }) : reject(new Error("Could not process that image."))), "image/jpeg", quality);
+          else canvas.toBlob((jpg) => (jpg ? resolve({ blob: jpg, width, height }) : reject(new Error("upload.processFailed"))), "image/jpeg", quality);
         },
         "image/webp",
         quality
@@ -50,7 +57,7 @@ function compress(file, { maxW, maxH, quality }) {
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("That file doesn't look like an image."));
+      reject(new Error("upload.notAnImage"));
     };
 
     img.src = url;
@@ -69,6 +76,7 @@ export default function ImageUpload({
   hint,
   previewClassName,
 }) {
+  const t = useT();
   const inputRef = useRef(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -79,7 +87,7 @@ export default function ImageUpload({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please choose an image file.");
+      setError(t("upload.chooseImageFile"));
       return;
     }
 
@@ -98,10 +106,14 @@ export default function ImageUpload({
       const res = await fetch("/api/media", { method: "POST", body });
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) throw new Error(data.error || "Upload failed.");
+      if (!res.ok) throw new Error(data.error || t("upload.uploadFailed"));
       onChange(data.media.id);
     } catch (err) {
-      setError(err.message || "Upload failed.");
+      // compress() rejects with a translation key (it has no translator in
+      // scope); everything else rejects with a ready-made message. t() falls
+      // back to returning the input unchanged when it isn't a known key, so
+      // one call handles both.
+      setError(err.message ? t(err.message) : t("upload.uploadFailed"));
     } finally {
       setBusy(false);
     }
@@ -133,7 +145,7 @@ export default function ImageUpload({
             <button
               type="button"
               className={`${styles.linkButton} ${styles.iconLabel}`}
-              style={{ color: "#b91c1c" }}
+              style={{ color: "var(--danger-strong)" }}
               onClick={() => onChange(null)}
               disabled={busy}
             >
@@ -150,7 +162,7 @@ export default function ImageUpload({
           disabled={busy}
         >
           <IconPlus size={18} />
-          <span>{busy ? "Optimizing and uploading…" : "Choose an image"}</span>
+          <span>{busy ? t("upload.optimizing") : t("upload.chooseImage")}</span>
           {hint && <em className={styles.imageHint}>{hint}</em>}
         </button>
       )}

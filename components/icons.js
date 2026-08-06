@@ -372,3 +372,89 @@ export function IconFlame(props) {
     </Base>
   );
 }
+
+export function IconGlobe(props) {
+  return (
+    <Base {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17" />
+      <path d="M12 3.5c2.2 2.3 3.3 5.2 3.3 8.5s-1.1 6.2-3.3 8.5c-2.2-2.3-3.3-5.2-3.3-8.5S9.8 5.8 12 3.5Z" />
+    </Base>
+  );
+}
+
+export function IconUser(props) {
+  return (
+    <Base {...props}>
+      <circle cx="12" cy="8" r="3.75" />
+      <path d="M4.75 20a7.25 7.25 0 0 1 14.5 0" />
+    </Base>
+  );
+}
+
+export function IconCamera(props) {
+  return (
+    <Base {...props}>
+      <path d="M4 8h3l1.5-2.5h7L17 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 4 8Z" />
+      <circle cx="12" cy="13" r="3.25" />
+    </Base>
+  );
+}
+
+export function IconBriefcase(props) {
+  return (
+    <Base {...props}>
+      <rect x="3" y="7.5" width="18" height="12.5" rx="2" />
+      <path d="M8.75 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3.5A1.5 1.5 0 0 1 15.25 6v1.5" />
+      <path d="M3 12.5h18" />
+    </Base>
+  );
+}
+
+export function IconGraduation(props) {
+  return (
+    <Base {...props}>
+      <path d="M12 4.5 21 9l-9 4.5L3 9l9-4.5Z" />
+      <path d="M6.75 10.9V15c0 1.6 2.35 2.9 5.25 2.9s5.25-1.3 5.25-2.9v-4.1" />
+      <path d="M20 9.6v4.4" />
+    </Base>
+  );
+}
+
+export function IconDownload(props) {
+  return (
+    <Base {...props}>
+      <path d="M12 4v10.5" />
+      <path d="m7.75 10.5 4.25 4.25 4.25-4.25" />
+      <path d="M4.5 18.5h15" />
+    </Base>
+  );
+}
+
+export function IconArrowLeft(props) {
+  return (
+    <Base {...props}>
+      <path d="M19 12H5" />
+      <path d="m10.5 6.5-5.5 5.5 5.5 5.5" />
+    </Base>
+  );
+}
+
+export function IconChevronRight(props) {
+  return (
+    <Base {...props}>
+      <path d="m9 5.5 6.5 6.5L9 18.5" />
+    </Base>
+  );
+}
+
+export function IconFileText(props) {
+  return (
+    <Base {...props}>
+      <path d="M13.5 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9l-5.5-5.5Z" />
+      <path d="M13.5 3.5V9H19" />
+      <path d="M8.5 13h7" />
+      <path d="M8.5 16.5h5" />
+    </Base>
+  );
+}

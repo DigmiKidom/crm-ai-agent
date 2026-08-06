@@ -6,11 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node test/boundaries.test.mjs && node --import ./test/register.mjs test/analytics.test.mjs && node --import ./test/register.mjs test/i18n.test.mjs && node --import ./test/register.mjs test/tenantScope.test.mjs"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.3",
     "@google/genai": "^2.15.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.2",
     "bcryptjs": "^3.0.3",
     "mongoose": "^9.8.1",
     "next": "16.2.12",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "eslint": "^9",
-    "eslint-config-next": "16.2.12"
+    "eslint-config-next": "16.2.12",
+    "globals": "^16.4.0"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useT } from "@/components/i18n/LocaleProvider";
 import {
   IconOverview,
   IconInbox,
@@ -10,6 +11,8 @@ import {
   IconEdit,
   IconSparkles,
   IconSettings,
+  IconUser,
+  IconFileText,
   IconExternalLink,
   IconChart,
   IconDocument,
@@ -17,9 +20,11 @@ import {
   IconPlus,
   IconClose,
 } from "@/components/icons";
+import { hasRole } from "@/lib/roles";
 import styles from "./dashboard.module.css";
 
-export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceItems = [] }) {
+export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceItems = [], role }) {
+  const t = useT();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -30,14 +35,22 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
   const [error, setError] = useState("");
 
   const items = [
-    { href: `/t/${tenantSlug}`, label: "Overview", Icon: IconOverview, exact: true },
-    { href: `/t/${tenantSlug}/leads`, label: "Leads", Icon: IconInbox, badge: unreadLeads },
-    { href: `/t/${tenantSlug}/analytics`, label: "Analytics", Icon: IconChart },
-    { href: `/t/${tenantSlug}/pipeline`, label: "Pipeline", Icon: IconPipeline },
-    { href: `/t/${tenantSlug}/contacts`, label: "Contacts", Icon: IconContacts },
-    { href: `/t/${tenantSlug}/site`, label: "Edit landing page", Icon: IconEdit },
-    { href: `/t/${tenantSlug}/onboarding`, label: "AI Setup", Icon: IconSparkles },
-    { href: `/t/${tenantSlug}/settings`, label: "Settings", Icon: IconSettings },
+    { href: `/t/${tenantSlug}`, label: t("sidebar.overview"), Icon: IconOverview, exact: true },
+    { href: `/t/${tenantSlug}/leads`, label: t("sidebar.leads"), Icon: IconInbox, badge: unreadLeads },
+    { href: `/t/${tenantSlug}/analytics`, label: t("sidebar.analytics"), Icon: IconChart },
+    { href: `/t/${tenantSlug}/pipeline`, label: t("sidebar.pipeline"), Icon: IconPipeline },
+    { href: `/t/${tenantSlug}/contacts`, label: t("sidebar.contacts"), Icon: IconContacts },
+    { href: `/t/${tenantSlug}/site`, label: t("sidebar.editLandingPage"), Icon: IconEdit },
+    { href: `/t/${tenantSlug}/cv`, label: t("cv.title"), Icon: IconFileText },
+    { href: `/t/${tenantSlug}/onboarding`, label: t("sidebar.aiSetup"), Icon: IconSparkles },
+    { href: `/t/${tenantSlug}/profile`, label: t("account.profile"), Icon: IconUser },
+    // Settings (including team management) is where every tenant-level config
+    // change lives, so it's hidden for a "member" the same way the routes
+    // underneath it are role-gated (see lib/roles.js) — not just redirected
+    // on arrival, but never offered in the first place.
+    ...(hasRole(role, "admin")
+      ? [{ href: `/t/${tenantSlug}/settings`, label: t("sidebar.settings"), Icon: IconSettings }]
+      : []),
   ];
 
   function isActive(item) {
@@ -70,7 +83,7 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
     setBusy(false);
 
     if (!res.ok) {
-      setError(data.error || "Could not create that page.");
+      setError(data.error || t("sidebar.createFailed"));
       return;
     }
 
@@ -94,7 +107,11 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
           {item.badge > 0 && (
             <span
               className={styles.navBadge}
-              title={`${item.badge} unread ${item.badge === 1 ? "lead" : "leads"}`}
+              title={
+                item.badge === 1
+                  ? t("sidebar.unreadOne", { count: item.badge })
+                  : t("sidebar.unreadMany", { count: item.badge })
+              }
             >
               {item.badge > 99 ? "99+" : item.badge}
             </span>
@@ -109,18 +126,18 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
         className={styles.navRow}
       >
         <IconExternalLink size={18} className={styles.navRowIcon} />
-        <span>View landing page</span>
+        <span>{t("sidebar.viewLandingPage")}</span>
       </a>
 
       <div className={styles.navSectionLabel}>
-        <span>Workplace</span>
+        <span>{t("sidebar.workplace")}</span>
         {!creating && (
           <button
             type="button"
             className={styles.navSectionAdd}
             onClick={() => setCreating(true)}
-            title="New page"
-            aria-label="New page"
+            title={t("sidebar.newPage")}
+            aria-label={t("sidebar.newPage")}
           >
             <IconPlus size={14} />
           </button>
@@ -147,15 +164,15 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
         <form className={styles.navCreate} onSubmit={handleCreate}>
           <input
             autoFocus
-            placeholder="Page name"
+            placeholder={t("sidebar.pageName")}
             value={draftTitle}
             onChange={(e) => setDraftTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && cancelCreate()}
           />
-          <div className={styles.navCreateTypes} role="radiogroup" aria-label="Page type">
+          <div className={styles.navCreateTypes} role="radiogroup" aria-label={t("sidebar.pageType")}>
             {[
-              ["doc", "Document", IconDocument],
-              ["table", "Table", IconTable],
+              ["doc", t("sidebar.document"), IconDocument],
+              ["table", t("sidebar.table"), IconTable],
             ].map(([value, label, Icon]) => (
               <button
                 key={value}
@@ -175,9 +192,9 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
           {error && <span className={styles.navCreateError}>{error}</span>}
           <div className={styles.navCreateActions}>
             <button type="submit" disabled={busy || !draftTitle.trim()}>
-              {busy ? "Creating…" : "Create"}
+              {busy ? t("sidebar.creating") : t("sidebar.create")}
             </button>
-            <button type="button" onClick={cancelCreate} aria-label="Cancel">
+            <button type="button" onClick={cancelCreate} aria-label={t("common.cancel")}>
               <IconClose size={13} />
             </button>
           </div>
@@ -185,9 +202,7 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
       )}
 
       {!creating && workspaceItems.length === 0 && (
-        <p className={styles.navEmptyHint}>
-          Add a document or table to keep notes and lists alongside your CRM.
-        </p>
+        <p className={styles.navEmptyHint}>{t("sidebar.emptyHint")}</p>
       )}
     </nav>
   );

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import WorkspaceItem from "@/lib/models/WorkspaceItem";
 import WorkspaceRow from "@/lib/models/WorkspaceRow";
 import { coerceCells, emptyCell } from "@/lib/workspace";
+import { requireTenantSession } from "@/lib/tenantSession";
+import { tenantScoped } from "@/lib/tenantScope";
 
 // Guard against a table growing unbounded — the page loads every row at once.
 export const MAX_ROWS = 500;
@@ -21,25 +22,24 @@ export const MAX_ROWS = 500;
  * Anything absent from the payload is deleted.
  */
 export async function PUT(request, { params }) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const ctx = await requireTenantSession();
+  if (ctx.res) return ctx.res;
+  const { t, tenantId } = ctx;
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "Page not found." }, { status: 404 });
+    return NextResponse.json({ error: t("api.workspace.pageNotFound") }, { status: 404 });
   }
 
   const body = (await request.json().catch(() => null)) ?? {};
   const incoming = Array.isArray(body.rows) ? body.rows : null;
 
   if (!incoming) {
-    return NextResponse.json({ error: "Expected a list of rows." }, { status: 400 });
+    return NextResponse.json({ error: t("api.workspace.expectedRowList") }, { status: 400 });
   }
   if (incoming.length > MAX_ROWS) {
     return NextResponse.json(
-      { error: `A table can hold at most ${MAX_ROWS} rows.` },
+      { error: t("api.workspace.tooManyRows", { n: MAX_ROWS }) },
       { status: 400 }
     );
   }
@@ -49,22 +49,17 @@ export async function PUT(request, { params }) {
 
     // Ownership is checked on the parent item — that's what makes a guessed
     // itemId from another tenant fail here.
-    const item = await WorkspaceItem.findOne({
-      _id: id,
-      tenantId: session.user.tenantId,
-      type: "table",
-    })
+    const item = await tenantScoped(WorkspaceItem, tenantId)
+      .findOne({ _id: id, type: "table" })
       .select("columns")
       .lean();
 
     if (!item) {
-      return NextResponse.json({ error: "Table not found." }, { status: 404 });
+      return NextResponse.json({ error: t("api.workspace.tableNotFound") }, { status: 404 });
     }
 
-    const existing = await WorkspaceRow.find({
-      itemId: id,
-      tenantId: session.user.tenantId,
-    })
+    const existing = await tenantScoped(WorkspaceRow, tenantId)
+      .find({ itemId: id })
       .select("_id")
       .lean();
 
@@ -86,13 +81,13 @@ export async function PUT(request, { params }) {
         keptIds.add(rowId);
         updates.push({
           updateOne: {
-            filter: { _id: rowId, tenantId: session.user.tenantId },
+            filter: { _id: rowId, tenantId },
             update: { $set: { cells, order: index } },
           },
         });
       } else {
         inserts.push({
-          tenantId: session.user.tenantId,
+          tenantId,
           itemId: id,
           order: index,
           cells,
@@ -103,17 +98,15 @@ export async function PUT(request, { params }) {
     const removedIds = [...existingIds].filter((rid) => !keptIds.has(rid));
 
     if (removedIds.length) {
-      await WorkspaceRow.deleteMany({
-        _id: { $in: removedIds },
-        tenantId: session.user.tenantId,
-      });
+      await tenantScoped(WorkspaceRow, tenantId).deleteMany({ _id: { $in: removedIds } });
     }
     if (updates.length) await WorkspaceRow.bulkWrite(updates);
     if (inserts.length) await WorkspaceRow.insertMany(inserts);
 
     // Hand back the canonical rows so the editor can swap its temporary ids
     // for real ones without a second round trip.
-    const rows = await WorkspaceRow.find({ itemId: id, tenantId: session.user.tenantId })
+    const rows = await tenantScoped(WorkspaceRow, tenantId)
+      .find({ itemId: id })
       .sort({ order: 1, createdAt: 1 })
       .lean();
 
@@ -123,6 +116,6 @@ export async function PUT(request, { params }) {
     });
   } catch (err) {
     console.error("Saving workspace rows failed:", err);
-    return NextResponse.json({ error: "Could not save this table." }, { status: 503 });
+    return NextResponse.json({ error: t("api.workspace.saveTableFailed") }, { status: 503 });
   }
 }

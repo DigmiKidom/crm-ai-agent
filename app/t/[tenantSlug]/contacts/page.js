@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import styles from "@/components/dashboard.module.css";
 import ContactRow from "@/components/ContactRow";
 import { IconPlus, IconSearch } from "@/components/icons";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 export default function ContactsPage() {
+  const t = useT();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ name: "", company: "", email: "", phone: "" });
@@ -20,6 +22,9 @@ export default function ContactsPage() {
   }
 
   useEffect(() => {
+    // Initial client-side data load on mount — a pre-existing pattern, not
+    // part of the Phase 1 change this comment was added alongside.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadContacts();
   }, []);
 
@@ -45,33 +50,33 @@ export default function ContactsPage() {
 
   return (
     <div>
-      <h1 className={styles.pageTitle}>Contacts</h1>
+      <h1 className={styles.pageTitle}>{t("contacts.title")}</h1>
 
       <form onSubmit={handleSubmit} style={{ marginBottom: 16, display: "flex", gap: 8, flexWrap: "wrap" }}>
         <input
-          placeholder="Name"
+          placeholder={t("contacts.name")}
           required
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
         <input
-          placeholder="Company"
+          placeholder={t("contacts.company")}
           value={form.company}
           onChange={(e) => setForm({ ...form, company: e.target.value })}
         />
         <input
-          placeholder="Email"
+          placeholder={t("contacts.email")}
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
         <input
-          placeholder="Phone"
+          placeholder={t("contacts.phone")}
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
         />
         <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`} disabled={saving}>
           <IconPlus size={14} />
-          {saving ? "Adding..." : "Add contact"}
+          {saving ? t("contacts.adding") : t("contacts.addContact")}
         </button>
       </form>
 
@@ -82,7 +87,7 @@ export default function ContactsPage() {
             style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted)" }}
           />
           <input
-            placeholder="Search contacts by name, company, or email..."
+            placeholder={t("contacts.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ display: "block", width: "100%", paddingLeft: 32 }}
@@ -91,20 +96,20 @@ export default function ContactsPage() {
       )}
 
       {loading ? (
-        <p className={styles.empty}>Loading...</p>
+        <p className={styles.empty}>{t("contacts.loading")}</p>
       ) : contacts.length === 0 ? (
-        <p className={styles.empty}>No contacts yet.</p>
+        <p className={styles.empty}>{t("contacts.empty")}</p>
       ) : filteredContacts.length === 0 ? (
         <p className={styles.empty}>No contacts match &quot;{search}&quot;.</p>
       ) : (
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Company</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Actions</th>
+              <th>{t("contacts.name")}</th>
+              <th>{t("contacts.company")}</th>
+              <th>{t("contacts.email")}</th>
+              <th>{t("contacts.phone")}</th>
+              <th>{t("contacts.actions")}</th>
             </tr>
           </thead>
           <tbody>

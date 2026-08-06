@@ -61,7 +61,7 @@
   border-radius: 8px;
   font-size: 0.85rem;
   color: var(--muted);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 
@@ -140,7 +140,7 @@
 
 .stepList {
   margin: 0;
-  padding-left: 20px;
+  padding-inline-start: 20px;
   font-size: 0.88rem;
   line-height: 1.7;
   color: var(--muted);

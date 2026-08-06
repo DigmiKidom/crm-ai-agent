@@ -5,14 +5,10 @@ import { useRouter } from "next/navigation";
 import PageHeader from "./PageHeader";
 import { IconPlus, IconTrash, IconClose, IconChevronDown } from "@/components/icons";
 import styles from "./workspace.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
-const COLUMN_TYPES = [
-  ["text", "Text"],
-  ["number", "Number"],
-  ["date", "Date"],
-  ["select", "Select"],
-  ["checkbox", "Checkbox"],
-];
+// Values are persisted on the column; only the label is translated.
+const COLUMN_TYPES = ["text", "number", "date", "select", "checkbox"];
 
 const MAX_COLUMNS = 12;
 const MAX_ROWS = 500;
@@ -48,6 +44,7 @@ export default function TableEditor({
   initialColumns,
   initialRows,
 }) {
+  const t = useT();
   const router = useRouter();
 
   const [title, setTitle] = useState(initialTitle);
@@ -80,7 +77,7 @@ export default function TableEditor({
 
     if (!itemRes.ok) {
       const data = await itemRes.json().catch(() => ({}));
-      setError(data.error || "Could not save this table.");
+      setError(data.error || t("workspace.tableSaveFailed"));
       setStatus("error");
       return;
     }
@@ -99,7 +96,7 @@ export default function TableEditor({
 
     if (!rowsRes.ok) {
       const data = await rowsRes.json().catch(() => ({}));
-      setError(data.error || "Could not save this table's rows.");
+      setError(data.error || t("workspace.rowsSaveFailed"));
       setStatus("error");
       return;
     }
@@ -111,7 +108,7 @@ export default function TableEditor({
     setSavedSnapshot(snapshot(nextTitle, columns, data.rows));
     setStatus("saved");
     router.refresh();
-  }, [itemId, title, initialTitle, columns, rows, router]);
+  }, [itemId, title, initialTitle, columns, rows, router, t]);
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -260,7 +257,7 @@ export default function TableEditor({
                       type="button"
                       className={styles.thSort}
                       onClick={() => toggleSort(column.id)}
-                      title="Sort by this column"
+                      title={t("workspace.sortByColumn")}
                     >
                       {column.name}
                       {sort.columnId === column.id && (
@@ -275,7 +272,7 @@ export default function TableEditor({
                       onClick={() =>
                         setEditingColumn(editingColumn === column.id ? null : column.id)
                       }
-                      title="Edit column"
+                      title={t("workspace.editColumn")}
                       aria-label={`Edit column ${column.name}`}
                     >
                       <IconChevronDown size={13} />
@@ -300,10 +297,10 @@ export default function TableEditor({
                   disabled={columns.length >= MAX_COLUMNS}
                   title={
                     columns.length >= MAX_COLUMNS
-                      ? `Limit of ${MAX_COLUMNS} columns reached`
-                      : "Add column"
+                      ? t("workspace.columnLimit", { max: MAX_COLUMNS })
+                      : t("workspace.addColumn")
                   }
-                  aria-label="Add column"
+                  aria-label={t("workspace.addColumn")}
                 >
                   <IconPlus size={14} />
                 </button>
@@ -327,8 +324,8 @@ export default function TableEditor({
                   <button
                     type="button"
                     onClick={() => removeRow(row._id)}
-                    title="Delete row"
-                    aria-label="Delete row"
+                    title={t("workspace.deleteRow")}
+                    aria-label={t("workspace.deleteRow")}
                   >
                     <IconTrash size={14} />
                   </button>
@@ -339,7 +336,7 @@ export default function TableEditor({
             {rows.length === 0 && (
               <tr>
                 <td className={styles.emptyCell} colSpan={columns.length + 1}>
-                  No rows yet.
+                  {t("workspace.noRows")}
                 </td>
               </tr>
             )}
@@ -363,6 +360,7 @@ export default function TableEditor({
 
 /** The per-column settings popover: rename, retype, select options, delete. */
 function ColumnMenu({ column, canDelete, onChange, onDelete, onClose }) {
+  const t = useT();
   const [optionDraft, setOptionDraft] = useState("");
 
   function addOption() {
@@ -375,7 +373,7 @@ function ColumnMenu({ column, canDelete, onChange, onDelete, onClose }) {
   return (
     <div className={styles.columnMenu}>
       <div className={styles.columnMenuRow}>
-        <label>Name</label>
+        <label>{t("workspace.name")}</label>
         <input
           value={column.name}
           onChange={(e) => onChange({ name: e.target.value })}
@@ -384,20 +382,20 @@ function ColumnMenu({ column, canDelete, onChange, onDelete, onClose }) {
       </div>
 
       <div className={styles.columnMenuRow}>
-        <label>Type</label>
+        <label>{t("workspace.type")}</label>
         <select value={column.type} onChange={(e) => onChange({ type: e.target.value })}>
-          {COLUMN_TYPES.map(([value, label]) => (
+          {COLUMN_TYPES.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {t(`workspace.colType.${value}`)}
             </option>
           ))}
         </select>
-        <p className={styles.columnMenuHint}>Changing the type clears this column&apos;s values.</p>
+        <p className={styles.columnMenuHint}>{t("workspace.typeChangeWarning")}</p>
       </div>
 
       {column.type === "select" && (
         <div className={styles.columnMenuRow}>
-          <label>Options</label>
+          <label>{t("workspace.options")}</label>
           <div className={styles.optionList}>
             {(column.options || []).map((option) => (
               <span className={styles.optionChip} key={option}>
@@ -417,7 +415,7 @@ function ColumnMenu({ column, canDelete, onChange, onDelete, onClose }) {
           <div className={styles.optionAdd}>
             <input
               value={optionDraft}
-              placeholder="Add option"
+              placeholder={t("workspace.addOption")}
               onChange={(e) => setOptionDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -431,7 +429,7 @@ function ColumnMenu({ column, canDelete, onChange, onDelete, onClose }) {
             </button>
           </div>
           <p className={styles.columnMenuHint}>
-            Removing an option clears it from any row using it, on the next save.
+            {t("workspace.optionRemovalNote")}
           </p>
         </div>
       )}
@@ -442,9 +440,9 @@ function ColumnMenu({ column, canDelete, onChange, onDelete, onClose }) {
           className={styles.dangerButton}
           onClick={onDelete}
           disabled={!canDelete}
-          title={canDelete ? "Delete column" : "A table needs at least one column"}
+          title={canDelete ? t("workspace.deleteColumn") : t("workspace.needOneColumn")}
         >
-          Delete column
+          {t("workspace.deleteColumn")}
         </button>
         <button type="button" className={styles.ghostButton} onClick={onClose}>
           Done

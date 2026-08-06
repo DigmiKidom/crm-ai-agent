@@ -6,76 +6,85 @@ import PillGroup from "./PillGroup";
 import CheckboxGroup from "./CheckboxGroup";
 import ColorSwatchGroup from "./ColorSwatchGroup";
 import { IconSparkles, IconArrowRight, IconExternalLink, IconOverview } from "./icons";
+import { AUTO_LANGUAGE, CONTENT_LANGUAGES } from "@/lib/i18n/languages";
+import { COMPANY_SIZES, DEFAULT_COMPANY_SIZE } from "@/lib/companySize";
+import {
+  TONE_VALUES,
+  PERSONALITY_VALUES,
+  STYLE_VALUES,
+  AUDIENCE_VALUES,
+  TECH_VALUES,
+  DEFAULT_AGENT_PREFERENCES,
+} from "@/lib/agentPreferences";
+import { useT } from "@/components/i18n/LocaleProvider";
 
-const COMPANY_SIZE_OPTIONS = [
-  { value: "1-10", label: "1-10 employees" },
-  { value: "11-50", label: "11-50 employees" },
-  { value: "51-200", label: "51-200 employees" },
-  { value: "200+", label: "200+ employees" },
+// "Auto" first and default: it matches what people actually do — they type
+// their answers in their own language and expect a page in that language.
+// The explicit options exist for the case where those differ, e.g. an
+// Israeli founder describing the business in Hebrew but selling in English.
+// Option VALUES live in lib/agentPreferences.js, shared with the Tenant
+// schema and Settings' Brand Voice section — these are sent to the agent and
+// persisted, so they must stay stable English keys regardless of UI
+// language; only the visible label is translated, at render time.
+
+const COLOR_VALUES = [
+  { value: "#2563eb", key: "blue" },
+  { value: "#16a34a", key: "green" },
+  { value: "#7c3aed", key: "purple" },
+  { value: "#dc2626", key: "red" },
+  { value: "#ea580c", key: "orange" },
+  { value: "#0d9488", key: "teal" },
+  { value: "#db2777", key: "pink" },
+  { value: "#111827", key: "black" },
 ];
 
-const TONE_OPTIONS = [
-  { value: "professional", label: "Professional" },
-  { value: "friendly", label: "Friendly" },
-  { value: "bold", label: "Bold" },
-  { value: "minimal", label: "Minimal" },
-];
+export default function OnboardingForm({ tenantSlug, initial }) {
+  const t = useT();
 
-const PERSONALITY_OPTIONS = [
-  { value: "innovative", label: "Innovative" },
-  { value: "trustworthy", label: "Trustworthy" },
-  { value: "approachable", label: "Approachable" },
-  { value: "premium", label: "Premium" },
-  { value: "down-to-earth", label: "Down-to-earth" },
-  { value: "playful", label: "Playful" },
-  { value: "expert-led", label: "Expert-led" },
-];
+  // Rebuilt each render so the labels follow the active language.
+  const opts = (values, ns) => values.map((v) => ({ value: v, label: t(`onboarding.${ns}.${v}`) }));
+  // Descriptive tiers rather than headcount ranges — the hint carries the
+  // rough team size so the label can stay a self-description.
+  const COMPANY_SIZE_OPTIONS = COMPANY_SIZES.map((size) => ({
+    value: size.value,
+    label: t(`companySize.${size.value}`),
+  }));
+  const TONE_OPTIONS = opts(TONE_VALUES, "toneOpt");
+  const PERSONALITY_OPTIONS = opts(PERSONALITY_VALUES, "personalityOpt");
+  const STYLE_OPTIONS = opts(STYLE_VALUES, "styleOpt");
+  const TARGET_AUDIENCE_OPTIONS = opts(AUDIENCE_VALUES, "audienceOpt");
+  const TECHNOLOGY_OPTIONS = opts(TECH_VALUES, "techOpt");
+  const COLOR_OPTIONS = COLOR_VALUES.map((c) => ({
+    value: c.value,
+    label: t(`onboarding.colorOpt.${c.key}`),
+  }));
+  const LANGUAGE_OPTIONS = [
+    { value: AUTO_LANGUAGE, label: t("onboarding.langAuto") },
+    ...CONTENT_LANGUAGES.map((l) => ({
+      value: l.code,
+      // Native name first: someone looking for Hebrew scans for "עברית".
+      label: l.code === "en" ? l.name : `${l.nativeName} · ${l.name}`,
+    })),
+  ];
 
-const STYLE_OPTIONS = [
-  { value: "minimal", label: "Minimal" },
-  { value: "bold", label: "Bold" },
-  { value: "classic", label: "Classic" },
-  { value: "playful", label: "Playful" },
-  { value: "elegant", label: "Elegant" },
-  { value: "modern", label: "Modern" },
-];
-
-const TARGET_AUDIENCE_OPTIONS = [
-  { value: "consumers", label: "Individual consumers" },
-  { value: "small-business", label: "Small businesses" },
-  { value: "enterprise", label: "Enterprises" },
-  { value: "local-community", label: "Local community" },
-  { value: "b2b", label: "Other businesses (B2B)" },
-];
-
-const TECHNOLOGY_OPTIONS = [
-  { value: "traditional", label: "Traditional, high-touch" },
-  { value: "balanced", label: "Balanced" },
-  { value: "cutting-edge", label: "Cutting-edge, tech-forward" },
-];
-
-const COLOR_OPTIONS = [
-  { value: "#2563eb", label: "Blue" },
-  { value: "#16a34a", label: "Green" },
-  { value: "#7c3aed", label: "Purple" },
-  { value: "#dc2626", label: "Red" },
-  { value: "#ea580c", label: "Orange" },
-  { value: "#0d9488", label: "Teal" },
-  { value: "#db2777", label: "Pink" },
-  { value: "#111827", label: "Black / Neutral" },
-];
-
-export default function OnboardingForm({ tenantSlug }) {
+  // A rerun of "AI Setup" prefills from what's already persisted on the
+  // Tenant (see app/t/[tenantSlug]/onboarding/page.js) rather than resetting
+  // every field — leadDefinition and language are the two exceptions: they
+  // aren't persisted (a lead definition is a one-off description, not a
+  // tunable brand-voice knob), so those always start blank/auto.
   const [form, setForm] = useState({
-    industry: "",
-    companySize: "1-10",
+    industry: initial?.industry || "",
+    companySize: initial?.companySize || DEFAULT_COMPANY_SIZE,
     leadDefinition: "",
-    tone: "professional",
-    personality: [],
-    style: "modern",
-    targetAudience: [],
-    technology: "balanced",
-    brandColor: "#2563eb",
+    tone: initial?.tone || DEFAULT_AGENT_PREFERENCES.tone,
+    personality: initial?.personality?.length ? initial.personality : DEFAULT_AGENT_PREFERENCES.personality,
+    style: initial?.style || DEFAULT_AGENT_PREFERENCES.style,
+    targetAudience: initial?.targetAudience?.length
+      ? initial.targetAudience
+      : DEFAULT_AGENT_PREFERENCES.targetAudience,
+    technology: initial?.technology || DEFAULT_AGENT_PREFERENCES.technology,
+    language: AUTO_LANGUAGE,
+    brandColor: initial?.brandColor || "#2563eb",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -100,13 +109,13 @@ export default function OnboardingForm({ tenantSlug }) {
     try {
       data = await res.json();
     } catch {
-      data = { error: "Unexpected server error. Please try again." };
+      data = { error: t("onboarding.serverError") };
     }
 
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Something went wrong.");
+      setError(data.error || t("common.error"));
       return;
     }
 
@@ -117,13 +126,14 @@ export default function OnboardingForm({ tenantSlug }) {
     return (
       <div className={styles.detailCard}>
         <p style={{ marginBottom: 16 }}>
-          Done — your landing page copy and pipeline are ready
-          {result.templateName ? ` using the "${result.templateName}" template` : ""}.
+          {t("onboarding.doneWithTemplate")}
+          {result.templateName ? ` — ${result.templateName}` : ""}
+          {result.language?.name ? `, written in ${result.language.name}` : ""}.
         </p>
         <div className={styles.actionsRow} style={{ marginTop: 0 }}>
           <a className={`${styles.saveButton} ${styles.iconLabel}`} href={`/pages/${tenantSlug}`} target="_blank" rel="noreferrer">
             <IconExternalLink size={14} />
-            View landing page
+            {t("onboarding.viewLandingPage")}
           </a>
           <a
             className={`${styles.deleteButton} ${styles.iconLabel}`}
@@ -131,7 +141,7 @@ export default function OnboardingForm({ tenantSlug }) {
             href={`/t/${tenantSlug}`}
           >
             <IconOverview size={14} />
-            Go to dashboard
+            {t("onboarding.goToDashboard")}
           </a>
         </div>
       </div>
@@ -140,26 +150,30 @@ export default function OnboardingForm({ tenantSlug }) {
 
   return (
     <form className={styles.detailCard} onSubmit={handleSubmit} style={{ maxWidth: 640 }}>
-      {error && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{error}</p>}
+      {error && (
+        <p style={{ color: "var(--danger-strong)", marginBottom: 12 }} role="alert">
+          {error}
+        </p>
+      )}
 
       <div className={styles.formSection}>
-        <div className={styles.formSectionTitle}>About your business</div>
+        <div className={styles.formSectionTitle}>{t("onboarding.aboutBusiness")}</div>
 
         <div className={styles.detailField}>
-          <label htmlFor="industry">Industry</label>
+          <label htmlFor="industry">{t("onboarding.industry")}</label>
           <input
             id="industry"
             required
-            placeholder="e.g. residential real estate, dental practice, marketing agency"
+            placeholder={t("onboarding.industryPlaceholder")}
             value={form.industry}
             onChange={(e) => update("industry", e.target.value)}
           />
         </div>
 
         <div className={styles.detailField}>
-          <label>Company size</label>
+          <label>{t("onboarding.companySize")}</label>
           <PillGroup
-            ariaLabel="Company size"
+            ariaLabel={t("onboarding.companySize")}
             options={COMPANY_SIZE_OPTIONS}
             value={form.companySize}
             onChange={(v) => update("companySize", v)}
@@ -167,12 +181,25 @@ export default function OnboardingForm({ tenantSlug }) {
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="leadDefinition">What counts as a lead for you?</label>
+          <label>{t("onboarding.pageLanguage")}</label>
+          <div className={styles.formSectionHint} style={{ marginBottom: 8 }}>
+            {t("onboarding.pageLanguageHint")}
+          </div>
+          <PillGroup
+            ariaLabel={t("onboarding.pageLanguage")}
+            options={LANGUAGE_OPTIONS}
+            value={form.language}
+            onChange={(v) => update("language", v)}
+          />
+        </div>
+
+        <div className={styles.detailField}>
+          <label htmlFor="leadDefinition">{t("onboarding.leadDefinition")}</label>
           <textarea
             id="leadDefinition"
             required
             rows={3}
-            placeholder="e.g. someone who books a free consultation, or requests a quote"
+            placeholder={t("onboarding.leadDefinitionPlaceholder")}
             value={form.leadDefinition}
             onChange={(e) => update("leadDefinition", e.target.value)}
           />
@@ -180,15 +207,15 @@ export default function OnboardingForm({ tenantSlug }) {
       </div>
 
       <div className={styles.formSection}>
-        <div className={styles.formSectionTitle}>Brand & voice</div>
+        <div className={styles.formSectionTitle}>{t("onboarding.brandVoice")}</div>
         <div className={styles.formSectionHint}>
-          These shape how the AI writes your copy and picks a template.
+          {t("onboarding.brandVoiceHint")}
         </div>
 
         <div className={styles.detailField}>
-          <label>Tone</label>
+          <label>{t("onboarding.tone")}</label>
           <PillGroup
-            ariaLabel="Tone"
+            ariaLabel={t("onboarding.tone")}
             options={TONE_OPTIONS}
             value={form.tone}
             onChange={(v) => update("tone", v)}
@@ -196,9 +223,9 @@ export default function OnboardingForm({ tenantSlug }) {
         </div>
 
         <div className={styles.detailField}>
-          <label>Personality (pick as many as fit)</label>
+          <label>{t("onboarding.personalityLabel")}</label>
           <CheckboxGroup
-            ariaLabel="Personality"
+            ariaLabel={t("onboarding.personality")}
             options={PERSONALITY_OPTIONS}
             values={form.personality}
             onChange={(v) => update("personality", v)}
@@ -206,9 +233,9 @@ export default function OnboardingForm({ tenantSlug }) {
         </div>
 
         <div className={styles.detailField}>
-          <label>Visual style</label>
+          <label>{t("onboarding.visualStyle")}</label>
           <PillGroup
-            ariaLabel="Visual style"
+            ariaLabel={t("onboarding.visualStyle")}
             options={STYLE_OPTIONS}
             value={form.style}
             onChange={(v) => update("style", v)}
@@ -217,12 +244,12 @@ export default function OnboardingForm({ tenantSlug }) {
       </div>
 
       <div className={styles.formSection}>
-        <div className={styles.formSectionTitle}>Audience & technology</div>
+        <div className={styles.formSectionTitle}>{t("onboarding.audienceTech")}</div>
 
         <div className={styles.detailField}>
-          <label>Who are you selling to? (pick as many as fit)</label>
+          <label>{t("onboarding.targetAudienceLabel")}</label>
           <CheckboxGroup
-            ariaLabel="Target audience"
+            ariaLabel={t("onboarding.targetAudience")}
             options={TARGET_AUDIENCE_OPTIONS}
             values={form.targetAudience}
             onChange={(v) => update("targetAudience", v)}
@@ -230,9 +257,9 @@ export default function OnboardingForm({ tenantSlug }) {
         </div>
 
         <div className={styles.detailField}>
-          <label>How tech-forward should this feel?</label>
+          <label>{t("onboarding.technologyLabel")}</label>
           <PillGroup
-            ariaLabel="Technology positioning"
+            ariaLabel={t("onboarding.technology")}
             options={TECHNOLOGY_OPTIONS}
             value={form.technology}
             onChange={(v) => update("technology", v)}
@@ -241,11 +268,11 @@ export default function OnboardingForm({ tenantSlug }) {
       </div>
 
       <div className={styles.formSection}>
-        <div className={styles.formSectionTitle}>Brand color</div>
+        <div className={styles.formSectionTitle}>{t("onboarding.brandColor")}</div>
 
         <div className={styles.detailField}>
           <ColorSwatchGroup
-            ariaLabel="Preferred color"
+            ariaLabel={t("onboarding.preferredColor")}
             options={COLOR_OPTIONS}
             value={form.brandColor}
             onChange={(v) => update("brandColor", v)}
@@ -253,7 +280,7 @@ export default function OnboardingForm({ tenantSlug }) {
         </div>
 
         <div className={styles.detailField}>
-          <label htmlFor="brandColor">Or pick a custom color</label>
+          <label htmlFor="brandColor">{t("onboarding.customColor")}</label>
           <input
             id="brandColor"
             type="color"
@@ -267,10 +294,10 @@ export default function OnboardingForm({ tenantSlug }) {
       <div className={styles.actionsRow}>
         <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`} disabled={loading}>
           <IconSparkles size={14} />
-          {loading ? "Generating..." : "Generate my site"}
+          {loading ? t("onboarding.generating") : t("onboarding.generate")}
         </button>
         <a className={`${styles.linkButton} ${styles.iconLabel}`} href={`/t/${tenantSlug}`}>
-          Skip for now
+          {t("onboarding.skipForNow")}
           <IconArrowRight size={13} />
         </a>
       </div>

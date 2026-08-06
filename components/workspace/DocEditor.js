@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import PageHeader from "./PageHeader";
 import { renderMarkdown } from "@/lib/markdown";
 import styles from "./workspace.module.css";
+import { useT } from "@/components/i18n/LocaleProvider";
 
-const VIEWS = [
-  ["write", "Write"],
-  ["split", "Split"],
-  ["preview", "Preview"],
-];
+// Values are persisted; only the label is translated.
+const VIEWS = ["write", "split", "preview"];
 
 export default function DocEditor({ tenantSlug, itemId, initialTitle, initialContent }) {
+  const t = useT();
   const router = useRouter();
 
   const [title, setTitle] = useState(initialTitle);
@@ -38,7 +37,7 @@ export default function DocEditor({ tenantSlug, itemId, initialTitle, initialCon
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "Could not save.");
+      setError(data.error || t("workspace.saveFailed"));
       setStatus("error");
       return;
     }
@@ -49,7 +48,7 @@ export default function DocEditor({ tenantSlug, itemId, initialTitle, initialCon
     setStatus("saved");
     // Pick up the (possibly renamed) page in the sidebar.
     router.refresh();
-  }, [itemId, title, content, saved.title, router]);
+  }, [itemId, title, content, saved.title, router, t]);
 
   // Cmd/Ctrl+S is muscle memory in any editor — without this it triggers the
   // browser's own save-page dialog.
@@ -89,8 +88,8 @@ export default function DocEditor({ tenantSlug, itemId, initialTitle, initialCon
         onSave={save}
       />
 
-      <div className={styles.viewToggle} role="tablist" aria-label="Editor view">
-        {VIEWS.map(([value, label]) => (
+      <div className={styles.viewToggle} role="tablist" aria-label={t("workspace.editorView")}>
+        {VIEWS.map((value) => (
           <button
             key={value}
             type="button"
@@ -101,7 +100,7 @@ export default function DocEditor({ tenantSlug, itemId, initialTitle, initialCon
             }`}
             onClick={() => setView(value)}
           >
-            {label}
+            {t(`workspace.${value}`)}
           </button>
         ))}
       </div>
@@ -124,7 +123,7 @@ export default function DocEditor({ tenantSlug, itemId, initialTitle, initialCon
             {content.trim() ? (
               renderMarkdown(content, styles)
             ) : (
-              <p className={styles.docPlaceholder}>Nothing to preview yet.</p>
+              <p className={styles.docPlaceholder}>{t("workspace.nothingToPreview")}</p>
             )}
           </div>
         )}

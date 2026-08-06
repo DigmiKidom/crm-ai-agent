@@ -1,3 +1,4 @@
+import { getServerT } from "@/lib/i18n/server";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
@@ -11,6 +12,7 @@ function escapeRegex(str) {
 }
 
 export default async function LeadsInboxPage({ params, searchParams }) {
+  const { t } = await getServerT();
   const { tenantSlug } = await params;
   const { q = "", stage = "", from = "", to = "" } = (await searchParams) || {};
 
@@ -40,20 +42,20 @@ export default async function LeadsInboxPage({ params, searchParams }) {
 
   return (
     <div>
-      <h1 className={styles.pageTitle}>Leads</h1>
+      <h1 className={styles.pageTitle}>{t("leads.title")}</h1>
 
       <form
         method="GET"
         style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 20 }}
       >
         <div className={styles.detailField} style={{ marginBottom: 0, minWidth: 180 }}>
-          <label htmlFor="q">Search by name</label>
-          <input id="q" name="q" defaultValue={q} placeholder="Search leads..." />
+          <label htmlFor="q">{t("leads.searchByName")}</label>
+          <input id="q" name="q" defaultValue={q} placeholder={t("leads.searchPlaceholder")} />
         </div>
         <div className={styles.detailField} style={{ marginBottom: 0 }}>
-          <label htmlFor="stage">Stage</label>
+          <label htmlFor="stage">{t("leads.stage")}</label>
           <select id="stage" name="stage" defaultValue={stage}>
-            <option value="">All stages</option>
+            <option value="">{t("leads.allStages")}</option>
             {stages.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -62,7 +64,7 @@ export default async function LeadsInboxPage({ params, searchParams }) {
           </select>
         </div>
         <div className={styles.detailField} style={{ marginBottom: 0 }}>
-          <label htmlFor="from">From</label>
+          <label htmlFor="from">{t("leads.from")}</label>
           <input id="from" type="date" name="from" defaultValue={from} />
         </div>
         <div className={styles.detailField} style={{ marginBottom: 0 }}>
@@ -76,7 +78,7 @@ export default async function LeadsInboxPage({ params, searchParams }) {
         {hasFilters && (
           <a className={`${styles.linkButton} ${styles.iconLabel}`} href={`/t/${tenantSlug}/leads`}>
             <IconClose size={13} />
-            Clear filters
+            {t("leads.clearFilters")}
           </a>
         )}
       </form>
@@ -84,18 +86,18 @@ export default async function LeadsInboxPage({ params, searchParams }) {
       {leads.length === 0 ? (
         <p className={styles.empty}>
           {hasFilters
-            ? "No leads match those filters."
+            ? t("leads.noMatch")
             : `No leads yet. Share your landing page (/pages/${tenantSlug}) to start collecting them.`}
         </p>
       ) : (
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Stage</th>
-              <th>Received</th>
+              <th>{t("leads.name")}</th>
+              <th>{t("leads.email")}</th>
+              <th>{t("leads.phone")}</th>
+              <th>{t("leads.stage")}</th>
+              <th>{t("leads.received")}</th>
               <th></th>
             </tr>
           </thead>
@@ -104,7 +106,7 @@ export default async function LeadsInboxPage({ params, searchParams }) {
               <tr key={lead._id} className={lead.read === false ? styles.rowUnread : ""}>
                 <td>
                   {lead.read === false && (
-                    <span className={styles.unreadDot} title="Unread lead" aria-label="Unread" />
+                    <span className={styles.unreadDot} title={t("leads.unreadLead")} aria-label={t("leads.unread")} />
                   )}
                   {lead.name}
                 </td>

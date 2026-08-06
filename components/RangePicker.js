@@ -7,10 +7,15 @@ import styles from "./analytics.module.css";
  * Plain links with a `range` query param rather than client state — same
  * approach as the leads inbox filters, so a particular view is bookmarkable,
  * shareable, and survives a refresh, and the page stays a server component.
+ *
+ * `t` arrives as a prop rather than from useT(): this renders on the server,
+ * where there is no React context to read. The analytics page already has a
+ * translator from getServerT(), and passing it down keeps this component off
+ * the client bundle entirely.
  */
-export default function RangePicker({ basePath, active }) {
+export default function RangePicker({ basePath, active, t }) {
   return (
-    <nav className={styles.rangePicker} aria-label="Time range">
+    <nav className={styles.rangePicker} aria-label={t("range.label")}>
       {RANGE_KEYS.map((key) => {
         const range = RANGES[key];
         const isActive = key === active;
@@ -19,10 +24,10 @@ export default function RangePicker({ basePath, active }) {
             key={key}
             href={`${basePath}?range=${key}`}
             className={`${styles.rangeOption} ${isActive ? styles.rangeOptionActive : ""}`}
-            title={range.caption}
+            title={t(`analytics.range.${key}Caption`)}
             aria-current={isActive ? "page" : undefined}
           >
-            {range.label}
+            {t(`analytics.range.${key}`)}
           </a>
         );
       })}

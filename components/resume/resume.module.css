@@ -1,0 +1,639 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   CV Builder — editor, live preview, and the print sheet.
+
+   Same rules as the rest of the app: logical properties only, so the whole
+   layout mirrors when <html dir="rtl"> or when the CV's own language is RTL.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.builder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Editor ──────────────────────────────────────────────────────────────── */
+
+.editorPane {
+  min-width: 0;
+}
+
+.stepNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-end: 16px;
+}
+
+.stepNavItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease, background-color 0.12s ease;
+}
+
+.stepNavItem:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.stepNavItem[data-active] {
+  border-color: var(--primary);
+  background: var(--surface-accent);
+  color: var(--primary);
+}
+
+/* A completed step reads as done without competing with the active one. */
+.stepNavItem[data-done]:not([data-active]) {
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.stepPanel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 20px;
+}
+
+.stepCounter {
+  margin: 0 0 16px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stepHint {
+  margin: 6px 0 12px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.field input,
+.field select,
+.field textarea,
+.skillInputRow input,
+.bulletRow textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: inherit;
+  font: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+}
+
+.field input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: 12px;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+/* ── Repeatable groups (roles, education) ────────────────────────────────── */
+
+.repeatList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repeatItem {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px 16px;
+  margin: 0;
+  background: var(--surface-sunken);
+}
+
+.repeatLegend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.bulletBlock {
+  margin-block-start: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bulletRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.removeButton:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.addButton,
+.ghostAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ghostAdd {
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+
+.addButton:hover,
+.ghostAdd:hover {
+  border-color: var(--primary);
+  background: var(--surface-accent);
+}
+
+/* ── Skills ──────────────────────────────────────────────────────────────── */
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-block-end: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-accent);
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.chip button:hover {
+  opacity: 1;
+}
+
+.skillInputRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── AI actions ──────────────────────────────────────────────────────────── */
+
+.aiRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-block-start: 8px;
+}
+
+.aiButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: var(--surface-accent);
+  color: var(--primary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.aiButton:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+}
+
+.aiButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.aiNote {
+  margin-block-start: 10px;
+  font-size: 0.82rem;
+  color: var(--success-strong);
+}
+
+.error {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--danger-border);
+  border-radius: 8px;
+  background: var(--danger-bg);
+  color: var(--danger-strong);
+  font-size: 0.84rem;
+}
+
+/* ── Step actions ────────────────────────────────────────────────────────── */
+
+.stepActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block-start: 16px;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: inherit;
+}
+
+.primaryButton {
+  border-color: transparent;
+  background: var(--primary);
+  color: #fff;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.savedNote {
+  font-size: 0.82rem;
+  color: var(--success-strong);
+}
+
+/* ── Preview pane ────────────────────────────────────────────────────────── */
+
+.previewPane {
+  position: sticky;
+  top: calc(var(--chrome-height) + 16px);
+  min-width: 0;
+}
+
+.previewBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.previewTitle {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.exportButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.exportButton:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.exportHint {
+  margin: 6px 0 10px;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.shareBlock {
+  padding: 10px 0 14px;
+  border-block-end: 1px solid var(--border);
+  margin-block-end: 14px;
+}
+
+.shareLinkRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.shareLinkInput {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.previewSheet {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 32px;
+  max-height: calc(100vh - var(--chrome-height) - 120px);
+  overflow-y: auto;
+  box-shadow: 0 8px 28px -20px var(--shadow-color);
+}
+
+.previewEmpty {
+  color: #6b7280;
+  font-size: 0.86rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* ── The document itself ─────────────────────────────────────────────────────
+   Fixed near-black on white regardless of dashboard theme: this is a printed
+   page, and dark mode would produce an unreadable PDF. */
+
+.document {
+  color: #111827;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.docHeader {
+  border-block-end: 2px solid #111827;
+  padding-block-end: 12px;
+  margin-block-end: 18px;
+}
+
+.docName {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.docHeadline {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.docContact {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.docSection {
+  margin-block-end: 18px;
+}
+
+.docSectionTitle {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b7280;
+  border-block-end: 1px solid #e5e7eb;
+  padding-block-end: 4px;
+}
+
+.docSummary {
+  margin: 0;
+}
+
+.docEntry {
+  margin-block-end: 12px;
+}
+
+/* Keeps a role's heading from being orphaned at the foot of a printed page. */
+.docEntry {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.docEntryHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.docEntryTitle {
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.docEntryOrg {
+  font-weight: 500;
+  color: #374151;
+}
+
+.docEntryDates {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.docEntryMeta {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: #6b7280;
+}
+
+.docBullets {
+  margin: 6px 0 0;
+  padding-inline-start: 18px;
+}
+
+.docBullets li {
+  margin-block-end: 3px;
+}
+
+.docSkills {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.docSkills li {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11.5px;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .builder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .previewPane {
+    position: static;
+  }
+
+  .previewSheet {
+    max-height: none;
+  }
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────────
+   This is the entire PDF export. `window.print()` on the button, and these
+   rules strip the app down to the CV element.
+
+   :global(body *) is hidden and only the document's own ancestor chain is
+   restored, which is what lets the printed sheet be the same DOM the user has
+   been reviewing — no second layout to keep in sync, text stays selectable,
+   and the browser handles Hebrew shaping natively. */
+
+@media print {
+  :global(body) {
+    background: #fff;
+  }
+
+  /* Hide everything, then re-show the CV subtree.
+     `visibility` inherits, but an explicit `visible` on a descendant overrides
+     an inherited `hidden` — so the CV's hidden ancestors still lay it out and
+     take no ink. This is deliberately not `display: none` on siblings, which
+     would collapse the layout, and deliberately not a `:has()` selector, which
+     print engines support unevenly. */
+  :global(body *) {
+    visibility: hidden;
+  }
+
+  :global([data-cv-document]),
+  :global([data-cv-document] *) {
+    visibility: visible;
+  }
+
+  :global([data-cv-document]) {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-size: 11pt;
+  }
+
+  .previewSheet {
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .docSectionTitle {
+    /* A section heading alone at the bottom of a page reads as a mistake. */
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 14mm;
+}

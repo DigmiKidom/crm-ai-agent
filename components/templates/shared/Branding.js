@@ -30,7 +30,7 @@ export function TenantLogo({ tenant, align = "center", className }) {
  * stored hex, so re-branding in Settings instantly re-colours every card
  * instead of leaving stale colours baked into the landing page document.
  */
-export function cardAccent(feature, styles) {
+export function cardAccent(feature, templateStyles) {
   if (!feature?.topStrip && !feature?.border) return { className: "", style: undefined };
 
   const color =
@@ -39,8 +39,8 @@ export function cardAccent(feature, styles) {
       : "var(--tenant-primary, #2563eb)";
 
   const className = [
-    feature.topStrip ? styles.cardStrip : "",
-    feature.border ? styles.cardBordered : "",
+    feature.topStrip ? templateStyles.cardStrip : "",
+    feature.border ? templateStyles.cardBordered : "",
   ]
     .filter(Boolean)
     .join(" ");

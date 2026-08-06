@@ -36,14 +36,14 @@
   font-size: 0.82rem;
   color: var(--muted);
   text-decoration: none;
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
   background: var(--background);
   transition: background 0.15s ease, color 0.15s ease;
   white-space: nowrap;
 }
 
 .rangeOption:last-child {
-  border-right: none;
+  border-inline-end: none;
 }
 
 .rangeOption:hover {

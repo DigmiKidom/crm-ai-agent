@@ -3,11 +3,13 @@
 import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import Logo from "@/components/Logo";
+import { useT } from "@/components/i18n/LocaleProvider";
 import LoginTransition from "@/components/LoginTransition";
 import styles from "./page.module.css";
 import VerifyStatus from "./VerifyStatus";
 
 export default function LoginPage() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +30,7 @@ export default function LoginPage() {
 
     if (result?.error) {
       setLoading(false);
-      setError("Invalid email or password.");
+      setError(t("auth.invalidCredentials"));
       return;
     }
 
@@ -50,8 +52,8 @@ export default function LoginPage() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <Logo href={null} markSize={30} />
         </div>
-        <h1 className={styles.title}>Log in</h1>
-        <p className={styles.subtitle}>Welcome back.</p>
+        <h1 className={styles.title}>{t("auth.logIn")}</h1>
+        <p className={styles.subtitle}>{t("auth.welcomeBack")}</p>
 
         <Suspense fallback={null}>
           <VerifyStatus />
@@ -61,7 +63,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t("auth.email")}</label>
             <input
               id="email"
               type="email"
@@ -71,7 +73,7 @@ export default function LoginPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t("auth.password")}</label>
             <input
               id="password"
               type="password"
@@ -81,15 +83,15 @@ export default function LoginPage() {
             />
           </div>
           <button className={styles.button} type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Log in"}
+            {loading ? t("auth.loggingIn") : t("auth.logIn")}
           </button>
         </form>
 
         <p className={styles.footer}>
-          <a href="/forgot-password">Forgot your password?</a>
+          <a href="/forgot-password">{t("auth.forgotPassword")}</a>
         </p>
         <p className={styles.footer}>
-          No account yet? <a href="/signup">Sign up</a>
+          {t("auth.noAccount")} <a href="/signup">{t("auth.signUpLink")}</a>
         </p>
       </div>
     </div>
