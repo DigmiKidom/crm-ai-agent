@@ -26,7 +26,13 @@ import {
 import { hasRole } from "@/lib/roles";
 import styles from "./dashboard.module.css";
 
-export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceItems = [], role }) {
+export default function DashboardNav({
+  tenantSlug,
+  unreadLeads = 0,
+  workspaceItems = [],
+  role,
+  onNavigate,
+}) {
   const t = useT();
   const pathname = usePathname();
   const router = useRouter();
@@ -107,6 +113,7 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
           key={item.href}
           href={item.href}
           className={`${styles.navRow} ${isActive(item) ? styles.navRowActive : ""}`}
+          onClick={onNavigate}
         >
           <item.Icon size={18} className={styles.navRowIcon} />
           <span>{item.label}</span>
@@ -130,6 +137,7 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
         target="_blank"
         rel="noreferrer"
         className={styles.navRow}
+        onClick={onNavigate}
       >
         <IconExternalLink size={18} className={styles.navRowIcon} />
         <span>{t("sidebar.viewLandingPage")}</span>
@@ -159,6 +167,7 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
             href={href}
             className={`${styles.navRow} ${pathname === href ? styles.navRowActive : ""}`}
             title={item.title}
+            onClick={onNavigate}
           >
             <Icon size={18} className={styles.navRowIcon} />
             <span className={styles.navRowTruncate}>{item.title}</span>

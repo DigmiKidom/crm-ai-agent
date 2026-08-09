@@ -26,7 +26,11 @@ export default function AvatarMenu({
   compact = false,
 }) {
   const { t } = useLocale();
-  const { open, close, menuProps, triggerProps, rootRef } = useMenu();
+  // Renamed from useMenu()'s generic `open` at the boundary only — this is
+  // the profile popover's state and nothing else touches it. It's never
+  // shared with or toggled by the mobile drawer's isMobileMenuOpen in
+  // DashboardShell.
+  const { open: isProfileMenuOpen, close, menuProps, triggerProps, rootRef } = useMenu();
   const [signingOut, setSigningOut] = useState(false);
 
   async function handleSignOut() {
@@ -87,11 +91,11 @@ export default function AvatarMenu({
         <IconChevronDown
           size={14}
           className={styles.avatarChevron}
-          data-open={open || undefined}
+          data-open={isProfileMenuOpen || undefined}
         />
       </button>
 
-      {open && (
+      {isProfileMenuOpen && (
         <div {...menuProps} className={styles.menu} aria-label={t("account.menu")}>
           <div className={styles.menuHeader}>
             <span className={styles.menuHeaderLabel}>{t("account.signedInAs")}</span>
