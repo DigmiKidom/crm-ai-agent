@@ -1862,12 +1862,21 @@
     display: block;
   }
 
-  /* Above the sticky header (z-index 60) so the drawer and its backdrop
-     cover the whole viewport rather than tucking under the bar. */
+  /* Starts below the sticky header rather than at inset:0. The header
+     (z-index 60) is lower than the backdrop/drawer (70/80), so a
+     full-viewport backdrop would stack on top of the header too — which
+     doesn't just look wrong, it silently eats clicks: the header's own
+     hamburger button (now showing the close icon) sits right under the
+     drawer's top-left corner, and a tap there never reaches it because the
+     drawer's opaque content intercepts the pointer first. Matches the
+     public header's own mobile sheet (chrome.module.css .mobileNavBackdrop),
+     which already starts at `top: var(--chrome-height)` for this reason. */
   .sidebarBackdrop {
     display: block;
     position: fixed;
-    inset: 0;
+    top: var(--chrome-height);
+    inset-inline: 0;
+    bottom: 0;
     background: rgba(0, 0, 0, 0.45);
     z-index: 70;
   }
@@ -1881,9 +1890,21 @@
 
   .sidebar {
     position: fixed;
-    top: 0;
+    /* Below the header, same reasoning as .sidebarBackdrop above — otherwise
+       the drawer covers the header's own hamburger/close button and a second
+       tap on it (the natural way to close) has nothing to hit. */
+    top: var(--chrome-height);
     inset-inline-start: 0;
     bottom: 0;
+    /* The desktop rule above sets align-self: flex-start for its sticky,
+       in-flow layout inside .shellBody's row flex. A fixed-position element
+       counts as "absolutely positioned" for Flexbox purposes even though
+       it's no longer sized/placed by the flex container, so that leftover
+       align-self keeps overriding this rule's own top/bottom insets —
+       pinning the drawer to the very top of the viewport (over the header)
+       and sizing its height from content instead of the viewport. Resetting
+       it here is what actually makes top/bottom take effect. */
+    align-self: auto;
     width: min(78vw, 280px);
     max-height: none;
     z-index: 80;
