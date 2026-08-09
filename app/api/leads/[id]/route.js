@@ -2,10 +2,30 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Lead from "@/lib/models/Lead";
 import LeadActivity from "@/lib/models/LeadActivity";
+import Pipeline from "@/lib/models/Pipeline";
 import { requireTenantSession } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
+import { classifyStages } from "@/lib/stageClassifier";
+import { DEFAULT_PIPELINE_STAGES } from "@/lib/pipelineDefaults";
+import { activityUpdate } from "@/lib/followUp";
+import { normalizeClosure } from "@/lib/dealClosure";
 
-const EDITABLE_FIELDS = ["stage", "notes", "name", "email", "phone", "message", "read", "customFields"];
+const EDITABLE_FIELDS = [
+  "stage",
+  "notes",
+  "name",
+  "email",
+  "phone",
+  "message",
+  "read",
+  "customFields",
+  "dealValue",
+];
+
+// Which edits count as working the lead, for the follow-up clock. A stage
+// move or a note is contact; correcting a typo in an email address, or
+// marking the lead read, is not — see lib/followUp.js.
+const ACTIVITY_FIELDS = ["stage", "notes"];
 
 export async function GET(request, { params }) {
   const ctx = await requireTenantSession();
@@ -53,6 +73,14 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: t("api.leads.invalidCustomFields") }, { status: 400 });
   }
 
+  if (updates.dealValue !== undefined) {
+    const value = Number(updates.dealValue);
+    if (!Number.isFinite(value) || value < 0) {
+      return NextResponse.json({ error: t("api.leads.invalidDealValue") }, { status: 400 });
+    }
+    updates.dealValue = value;
+  }
+
   try {
     await connectDB();
 
@@ -62,12 +90,82 @@ export async function PATCH(request, { params }) {
     // the "to".
     const current = await tenantScoped(Lead, tenantId)
       .findOne({ _id: id })
-      .select("stage notes customFields")
+      .select("stage notes customFields dealStatus dealValue closure")
       .lean();
 
     if (!current) {
       return NextResponse.json({ error: t("api.leads.notFound") }, { status: 404 });
     }
+
+    // dealStatus/wonAt are never accepted from the client (not in
+    // EDITABLE_FIELDS) — they're re-derived here from whichever stage the
+    // lead is moving to, using the exact same won/lost classification
+    // Analytics uses, so a lead's "closed" status can never disagree with
+    // what the pipeline board and revenue numbers already say about it.
+    if (updates.stage !== undefined && updates.stage !== current.stage) {
+      const pipeline = await tenantScoped(Pipeline, tenantId).findOne({}).select("stages").lean();
+      const stages = pipeline?.stages?.length ? pipeline.stages : DEFAULT_PIPELINE_STAGES;
+      const { won, lost } = classifyStages(stages);
+
+      if (won.has(updates.stage)) {
+        updates.dealStatus = "won";
+        // Only stamp a fresh win time on the transition INTO a won stage —
+        // moving between two different won-classified stages (a tenant with
+        // more than one) shouldn't overwrite when the deal actually closed.
+        if (!won.has(current.stage)) updates.wonAt = new Date();
+      } else if (lost.has(updates.stage)) {
+        updates.dealStatus = "lost";
+        updates.wonAt = null;
+      } else {
+        updates.dealStatus = "open";
+        updates.wonAt = null;
+      }
+    }
+
+    // The deal-resolution summary, submitted by the closure modal alongside
+    // the stage change. Validated here rather than trusted: `amount` becomes
+    // revenue in the closed-deals log, and `closedAt` decides which month it
+    // lands in.
+    if (body.closure !== undefined) {
+      let clean;
+      try {
+        clean = normalizeClosure(body.closure, {
+          // Falls back to the live figure when the modal's amount is left
+          // blank, so a closure recorded without one still reconciles with
+          // what the lead was already worth.
+          fallbackAmount: updates.dealValue ?? current.dealValue,
+        });
+      } catch (err) {
+        return NextResponse.json(
+          { error: t(`api.leads.${err.code === "FUTURE_DATE" ? "closureFutureDate" : "closureInvalidAmount"}`) },
+          { status: 400 }
+        );
+      }
+
+      updates.closure = {
+        ...clean,
+        recordedBy: session.user.id,
+        recordedAt: new Date(),
+      };
+      // The live figure follows the closing amount, so the lead's own detail
+      // page and the closed-deals log can't disagree the moment it's saved.
+      updates.dealValue = clean.amount;
+    }
+
+    // A closed deal is finished business — it must never sit in the
+    // follow-up queue. Cheaper and more reliable than waiting for the nightly
+    // job's housekeeping pass to notice.
+    if (updates.dealStatus && updates.dealStatus !== "open") {
+      updates.needsFollowUp = false;
+      updates.followUpFlaggedAt = null;
+    }
+
+    // Restart the quiet-period clock when this edit represents actually
+    // working the lead.
+    const isActivity = ACTIVITY_FIELDS.some(
+      (field) => updates[field] !== undefined && updates[field] !== current[field]
+    );
+    if (isActivity) Object.assign(updates, activityUpdate());
 
     // customFields is edited as a whole array by LeadDetailEditor, but only
     // the value of each entry is ever actually changed there — re-derive key
@@ -118,6 +216,22 @@ export async function PATCH(request, { params }) {
           note: updates.notes.slice(0, 2000),
           ...actor,
         });
+      }
+      if (updates.dealStatus !== undefined && updates.dealStatus !== current.dealStatus) {
+        if (updates.dealStatus === "won") {
+          entries.push({
+            tenantId,
+            leadId: id,
+            type: "deal_won",
+            // The value as of this save — dealValue may have arrived in the
+            // same request (LeadDetailEditor submits both together) or be
+            // whatever was already on the lead.
+            dealValue: updates.dealValue !== undefined ? updates.dealValue : current.dealValue,
+            ...actor,
+          });
+        } else if (updates.dealStatus === "lost") {
+          entries.push({ tenantId, leadId: id, type: "deal_lost", ...actor });
+        }
       }
       if (entries.length) await LeadActivity.insertMany(entries);
     } catch (logErr) {

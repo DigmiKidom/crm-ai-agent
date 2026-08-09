@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Lead from "@/lib/models/Lead";
 import Tenant from "@/lib/models/Tenant";
 import AgentSession from "@/lib/models/AgentSession";
+import LeadActivity from "@/lib/models/LeadActivity";
 import { draftLeadReply } from "@/lib/leadAgent";
 import { requireTenantSession } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
@@ -15,7 +16,7 @@ import { tenantScoped } from "@/lib/tenantScope";
 export async function POST(request, { params }) {
   const ctx = await requireTenantSession();
   if (ctx.res) return ctx.res;
-  const { t, tenantId } = ctx;
+  const { session, t, tenantId } = ctx;
 
   const { id } = await params;
 
@@ -45,6 +46,21 @@ export async function POST(request, { params }) {
     } catch (logErr) {
       // Never fail the request because the audit write failed.
       console.error("Logging lead-reply agent session failed:", logErr);
+    }
+
+    // Same event, but on the LEAD's own timeline (LeadActivityTimeline) —
+    // AgentSession above is the tenant-wide AI activity feed, this is what
+    // makes it show up on this specific lead's detail page too.
+    try {
+      await LeadActivity.create({
+        tenantId,
+        leadId: lead._id,
+        type: "ai_reply_drafted",
+        actorId: session.user.id,
+        actorName: session.user.name || "",
+      });
+    } catch (logErr) {
+      console.error("Logging ai-reply-drafted activity failed:", logErr);
     }
 
     return NextResponse.json({ ok: true, draft });

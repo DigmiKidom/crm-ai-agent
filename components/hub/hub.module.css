@@ -1,0 +1,97 @@
+/* Services & Tools Hub — same token set as everywhere else (DESIGN_TOKENS.md),
+   no new colors, so it picks up dark mode and every tenant's own theme
+   context (this only renders inside the dashboard shell) automatically. */
+
+.intro {
+  color: var(--muted);
+  margin: 0 0 24px;
+  max-width: 640px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  background: var(--surface);
+  transition: border-color var(--dur-fast, 0.14s) ease, box-shadow var(--dur-fast, 0.14s) ease;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px -16px var(--shadow-color);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface-accent);
+  color: var(--primary);
+}
+
+.cardTitle {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cardDescription {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-block-start: 1px solid var(--border);
+}
+
+.cardStat {
+  font-size: 0.78rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cardCta:hover {
+  text-decoration: underline;
+}

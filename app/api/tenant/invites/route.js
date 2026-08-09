@@ -32,7 +32,7 @@ export async function GET() {
 export async function POST(request) {
   const ctx = await requireTenantRole("admin");
   if (ctx.res) return ctx.res;
-  const { session, t, tenantId } = ctx;
+  const { session, t, locale, tenantId } = ctx;
 
   const body = (await request.json().catch(() => null)) ?? {};
   const email = String(body.email || "").trim().toLowerCase();
@@ -71,12 +71,16 @@ export async function POST(request) {
     const acceptUrl = `${getAppUrl()}/accept-invite?token=${rawToken}`;
 
     try {
-      await sendTeamInviteEmail(email, {
-        tenantName: tenant.name,
-        inviterName: session.user.name || session.user.email,
-        role,
-        acceptUrl,
-      });
+      await sendTeamInviteEmail(
+        email,
+        {
+          tenantName: tenant.name,
+          inviterName: session.user.name || session.user.email,
+          role,
+          acceptUrl,
+        },
+        locale
+      );
     } catch (emailErr) {
       console.error("Sending team invite email failed:", emailErr);
       // Unlike signup's verification email, there's no separate "resend

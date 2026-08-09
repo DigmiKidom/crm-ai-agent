@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SignOutButton from "./SignOutButton";
 import VerifyEmailBanner from "./VerifyEmailBanner";
 import DashboardNav from "./DashboardNav";
@@ -32,6 +32,7 @@ export default function DashboardShell({
 }) {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const drawerRef = useRef(null);
 
   useEffect(() => {
     // Prevents the page behind the drawer from scrolling while it's open.
@@ -50,6 +51,17 @@ export default function DashboardShell({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  // Move focus into the drawer when it opens, and back to the trigger when it
+  // closes. Without this a keyboard or screen-reader user opens the menu and
+  // their focus is still behind it, on the page they were trying to leave —
+  // the nav is visible but unreachable, which is the same trap as not having
+  // a menu at all.
+  useEffect(() => {
+    if (!open) return;
+    const firstLink = drawerRef.current?.querySelector("a, button");
+    firstLink?.focus();
   }, [open]);
 
   const brandMark = logoMediaId ? (
@@ -78,7 +90,18 @@ export default function DashboardShell({
           />
         )}
 
-        <aside className={styles.sidebar} data-open={open}>
+        <aside
+          id="dashboard-drawer"
+          className={styles.sidebar}
+          data-open={open}
+          ref={drawerRef}
+          // Only a dialog while it IS one. Above the breakpoint this is a
+          // permanent sidebar, and announcing it as a modal dialog there
+          // would be a lie to a screen reader.
+          role={open ? "dialog" : undefined}
+          aria-modal={open ? "true" : undefined}
+          aria-label={open ? t("sidebar.navigation") : undefined}
+        >
           <div className={styles.sidebarCloseRow}>
             <button
               type="button"

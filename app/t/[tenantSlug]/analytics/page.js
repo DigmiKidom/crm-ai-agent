@@ -3,7 +3,9 @@ import { auth } from "@/auth";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
 import { getServerT } from "@/lib/i18n/server";
-import { getAnalytics, RANGES, DEFAULT_RANGE } from "@/lib/analytics";
+import { getAnalytics, RANGES, DEFAULT_RANGE, PRO_ONLY_RANGES } from "@/lib/analytics";
+import { formatMoney } from "@/lib/money";
+import { getRecentAgentActivity } from "@/lib/agentActivity";
 import RangePicker from "@/components/RangePicker";
 import DeltaBadge from "@/components/DeltaBadge";
 import Sparkline from "@/components/charts/Sparkline";
@@ -26,6 +28,7 @@ import {
   IconAlert,
   IconInfo,
   IconTrendUp,
+  IconSparkles,
 } from "@/components/icons";
 import styles from "@/components/analytics.module.css";
 import dash from "@/components/dashboard.module.css";
@@ -48,13 +51,31 @@ export default async function AnalyticsPage({ params, searchParams }) {
 
   // Unknown values in the URL fall back rather than 404 — a hand-edited or
   // stale bookmarked ?range= shouldn't break the page.
-  const range = RANGES[rangeParam] ? rangeParam : DEFAULT_RANGE;
+  const requestedRange = RANGES[rangeParam] ? rangeParam : DEFAULT_RANGE;
 
   await connectDB();
-  const tenant = await Tenant.findOne({ slug: tenantSlug }).select("name").lean();
-  const data = await getAnalytics({ tenantId: session.user.tenantId, range, t, locale });
+  const tenant = await Tenant.findOne({ slug: tenantSlug }).select("name plan currency").lean();
+  const isPro = tenant?.plan === "pro";
+
+  // The actual billing gate — RangePicker's "locked" styling is only a UI
+  // hint; a free tenant hand-editing ?range=year in the URL has to be
+  // clamped here too, or the hint would be the only thing stopping them.
+  const rangeWasLocked = !isPro && PRO_ONLY_RANGES.includes(requestedRange);
+  const range = rangeWasLocked ? DEFAULT_RANGE : requestedRange;
+
+  const [data, agentActivity] = await Promise.all([
+    getAnalytics({
+      tenantId: session.user.tenantId,
+      range,
+      t,
+      locale,
+      currency: tenant?.currency || "USD",
+    }),
+    getRecentAgentActivity({ tenantId: session.user.tenantId, t }),
+  ]);
 
   const basePath = `/t/${tenantSlug}/analytics`;
+  const settingsPath = `/t/${tenantSlug}/settings`;
   const { totals, timing, formStats } = data;
 
   return (
@@ -72,8 +93,21 @@ export default async function AnalyticsPage({ params, searchParams }) {
             })}
           </p>
         </div>
-        <RangePicker basePath={basePath} active={range} t={t} />
+        <RangePicker
+          basePath={basePath}
+          active={range}
+          t={t}
+          isPro={isPro}
+          settingsPath={settingsPath}
+        />
       </div>
+
+      {rangeWasLocked && (
+        <p className={styles.upgradeBanner} role="status">
+          {t("analytics.range.lockedBanner")}{" "}
+          <a href={settingsPath}>{t("settings.billing.upgrade")}</a>
+        </p>
+      )}
 
       {totals.leadsAllTime === 0 ? (
         <div className={styles.emptyState}>
@@ -101,6 +135,33 @@ export default async function AnalyticsPage({ params, searchParams }) {
             ))}
           </div>
 
+          {/* ---------------------------------------------- visitor traffic */}
+          <div className={styles.panelGridWide}>
+            <section className={styles.panel}>
+              <div className={styles.panelHeader}>
+                <h2 className={styles.panelTitle}>
+                  <IconUsers size={16} />
+                  {t("analytics.panel.visitorTraffic")}
+                </h2>
+                <span className={styles.panelNote}>
+                  {totals.hasVisitData
+                    ? t("analytics.panel.conversionNote", {
+                        visits: totals.visitsInRange,
+                        leads: totals.leadsInRange,
+                        pct: totals.conversionRate ?? 0,
+                      })
+                    : t("analytics.panel.noVisitDataYet")}
+                </span>
+              </div>
+              <TimeSeriesChart
+                points={data.visitsOverTime}
+                valueLabel={t("analytics.panel.visitsUnit")}
+                emptyMessage={t("analytics.panel.noVisitDataYet")}
+              />
+              <div className={styles.panelFooter}>{t("analytics.panel.visitorTrafficNote")}</div>
+            </section>
+          </div>
+
           {/* ------------------------------------------------ leads over time */}
           <div className={styles.panelGridWide}>
             <section className={styles.panel}>
@@ -117,6 +178,32 @@ export default async function AnalyticsPage({ params, searchParams }) {
                 </span>
               </div>
               <TimeSeriesChart points={data.leadsOverTime} valueLabel={t("analytics.panel.leadsUnit")} />
+            </section>
+          </div>
+
+          {/* ----------------------------------------------------- revenue */}
+          <div className={styles.panelGridWide}>
+            <section className={styles.panel}>
+              <div className={styles.panelHeader}>
+                <h2 className={styles.panelTitle}>
+                  <IconTrendUp size={16} />
+                  {t("analytics.panel.revenue")}
+                </h2>
+                <span className={styles.panelNote}>
+                  {totals.valuedWonCount
+                    ? t("analytics.panel.revenueNote", {
+                        amount: formatMoney(totals.revenueInRange, tenant?.currency, locale),
+                        count: totals.valuedWonCount,
+                      })
+                    : t("analytics.panel.noRevenueYet")}
+                </span>
+              </div>
+              <TimeSeriesChart
+                points={data.revenueOverTime}
+                valueLabel={tenant?.currency || "USD"}
+                emptyMessage={t("analytics.panel.noRevenueYet")}
+              />
+              <div className={styles.panelFooter}>{t("analytics.panel.revenueNote2")}</div>
             </section>
           </div>
 
@@ -345,9 +432,51 @@ export default async function AnalyticsPage({ params, searchParams }) {
               />
             </section>
           </div>
+
+          {/* ------------------------------------------------ AI activity */}
+          <div className={styles.panelGridWide}>
+            <section className={styles.panel}>
+              <div className={styles.panelHeader}>
+                <h2 className={styles.panelTitle}>
+                  <IconSparkles size={16} />
+                  {t("analytics.panel.aiActivity")}
+                </h2>
+                <span className={styles.panelNote}>{t("analytics.panel.aiActivityNote")}</span>
+              </div>
+              <AgentActivityFeed activity={agentActivity} locale={locale} t={t} />
+            </section>
+          </div>
         </>
       )}
     </div>
+  );
+}
+
+/** A tenant-wide feed of every recent AI agent action — site generation, CV
+ * polish/summarize, lead-reply drafting — normalized by lib/agentActivity.js
+ * into one chronological list. */
+function AgentActivityFeed({ activity, locale, t }) {
+  if (!activity.length) {
+    return <p className={styles.emptyState}>{t("analytics.panel.noAiActivity")}</p>;
+  }
+
+  return (
+    <ul className={styles.activityFeed}>
+      {activity.map((entry) => (
+        <li key={entry.id} className={styles.activityFeedItem}>
+          <span className={styles.activityFeedDot} data-kind={entry.kind} aria-hidden="true" />
+          <span className={styles.activityFeedText}>{entry.summary}</span>
+          <span className={styles.activityFeedTime}>
+            {new Date(entry.createdAt).toLocaleString(locale, {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

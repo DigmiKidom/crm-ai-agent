@@ -1,4 +1,8 @@
 import styles from "./shared.module.css";
+import { getAppUrl } from "@/lib/email";
+import { resolveSocialLinks } from "@/lib/socialLinks";
+import SocialBar from "./SocialBar";
+import ReportPageLink from "./ReportPageLink";
 
 /* eslint-disable @next/next/no-img-element */
 // Plain <img> throughout: these point at our own /api/media route, which already
@@ -48,21 +52,20 @@ export function cardAccent(feature, templateStyles) {
   return { className, style: { "--card-accent": color } };
 }
 
-const SOCIAL_LABELS = {
-  facebook: "Facebook",
-  instagram: "Instagram",
-  linkedin: "LinkedIn",
-  x: "X",
-};
-
 /**
  * Footer block: logo, contact details, social links, and the legal line —
  * all driven by whatever the tenant filled in under Settings. Anything left
  * blank is simply omitted.
+ *
+ * `socialLabel` is passed in rather than hardcoded: the footer renders on a
+ * page whose copy may be in any language, so the landmark's accessible name
+ * has to come from the same place that copy does (lib/landingCopy.js).
  */
-export function BrandFooter({ tenant }) {
+export function BrandFooter({ tenant, poweredByLabel, socialLabel, reportLabels }) {
   const p = tenant?.profile || {};
-  const social = Object.entries(p.social || {}).filter(([, url]) => url?.trim());
+  // Resolved rather than read raw — this turns handles into URLs and builds
+  // the WhatsApp deep link, and drops anything the tenant left blank.
+  const social = resolveSocialLinks(p.social);
 
   const location = [p.addressLine, p.city, p.country].filter(Boolean).join(", ");
   const hasContact = p.contactEmail || p.contactPhone || location || p.website;
@@ -90,19 +93,29 @@ export function BrandFooter({ tenant }) {
         </div>
       )}
 
-      {social.length > 0 && (
-        <div className={styles.footerSocial}>
-          {social.map(([key, url]) => (
-            <a key={key} href={url} target="_blank" rel="noreferrer noopener">
-              {SOCIAL_LABELS[key] || key}
-            </a>
-          ))}
-        </div>
-      )}
+      <SocialBar links={social} variant="footer" label={socialLabel} />
 
       <span className={styles.footerLegal}>
-        © {new Date().getFullYear()} {p.legalName || tenant?.name} — powered by CRM AI Agent
+        © {new Date().getFullYear()} {p.legalName || tenant?.name}
       </span>
+
+      {/* Absolute, not relative: this footer renders identically on a
+          tenant's own custom domain (app/custom-domain/page.js), where a
+          relative href would point back at the tenant's own site instead of
+          ours. */}
+      <a
+        href={getAppUrl()}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={styles.footerPoweredBy}
+      >
+        {poweredByLabel}
+      </a>
+
+      {/* Every generated page carries this. Quiet by design — it's a safety
+          valve, not a call to action — but present without exception, because
+          a reporting route that some pages lack isn't a reporting route. */}
+      {reportLabels && <ReportPageLink tenantSlug={tenant?.slug} labels={reportLabels} />}
     </div>
   );
 }

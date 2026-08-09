@@ -17,9 +17,21 @@ import {
   TECH_VALUES,
   DEFAULT_AGENT_PREFERENCES,
 } from "@/lib/agentPreferences";
+import {
+  DEFAULT_OUTREACH_TEMPLATE,
+  MAX_OUTREACH_TEMPLATE,
+  fillOutreachTemplate,
+} from "@/lib/socialLinks";
+import { FOLLOW_UP_INTERVALS, normalizeInterval } from "@/lib/followUp";
 
 // Values are real CSS font stacks written to the tenant; only the label is
 // translated, so switching UI language can't change a tenant's chosen font.
+// A short, common-currency list rather than the full ISO 4217 set — this
+// only ever labels dealValue figures (Intl.NumberFormat handles the actual
+// symbol/formatting), it doesn't drive any conversion, so completeness
+// matters less than not overwhelming a small-business owner with 150 options.
+const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "ILS", "CAD", "AUD"];
+
 const FONT_OPTIONS = [
   { value: "system-ui, sans-serif", key: "system" },
   { value: "Georgia, 'Times New Roman', serif", key: "serif" },
@@ -45,6 +57,7 @@ export default function SettingsForm({ tenant }) {
   const [form, setForm] = useState({
     name: tenant.name || "",
     logoMediaId: tenant.logoMediaId || null,
+    currency: tenant.currency || "USD",
     profile: {
       legalName: tenant.profile?.legalName || "",
       tagline: tenant.profile?.tagline || "",
@@ -69,6 +82,12 @@ export default function SettingsForm({ tenant }) {
     },
     notifications: {
       emailOnNewLead: Boolean(tenant.notifications?.emailOnNewLead),
+      webhookUrl: tenant.notifications?.webhookUrl || "",
+    },
+    outreach: {
+      whatsappTemplate: tenant.outreach?.whatsappTemplate || DEFAULT_OUTREACH_TEMPLATE,
+      followUpInterval: normalizeInterval(tenant.outreach?.followUpInterval),
+      followUpTemplate: tenant.outreach?.followUpTemplate || "",
     },
     agentPreferences: {
       tone: tenant.agentPreferences?.tone || DEFAULT_AGENT_PREFERENCES.tone,
@@ -162,9 +181,21 @@ export default function SettingsForm({ tenant }) {
         <h2 className={styles.sectionTitle}>{t("settings.companyProfile")}</h2>
         <p className={styles.sectionHint}>{t("settings.companyProfileHint")}</p>
 
-        <div className={styles.detailField}>
-          <label htmlFor="name">{t("settings.companyName")}</label>
-          <input id="name" value={form.name} onChange={(e) => setTop("name", e.target.value)} />
+        <div className={styles.fieldRow}>
+          <div className={styles.detailField}>
+            <label htmlFor="name">{t("settings.companyName")}</label>
+            <input id="name" value={form.name} onChange={(e) => setTop("name", e.target.value)} />
+          </div>
+          <div className={styles.detailField}>
+            <label htmlFor="currency">{t("settings.currency")}</label>
+            <select id="currency" value={form.currency} onChange={(e) => setTop("currency", e.target.value)}>
+              {CURRENCY_OPTIONS.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className={styles.fieldRow}>
@@ -455,6 +486,113 @@ export default function SettingsForm({ tenant }) {
           <span>{t("settings.emailOnNewLead")}</span>
         </label>
         <p className={styles.sectionHint}>{t("settings.emailOnNewLeadHint")}</p>
+
+        <div className={styles.detailField} style={{ marginTop: 14 }}>
+          <label htmlFor="webhook-url">{t("settings.webhookUrl")}</label>
+          <input
+            id="webhook-url"
+            type="url"
+            dir="ltr"
+            placeholder="https://"
+            value={form.notifications.webhookUrl}
+            onChange={(e) => {
+              touch();
+              setForm((f) => ({
+                ...f,
+                notifications: { ...f.notifications, webhookUrl: e.target.value },
+              }));
+            }}
+          />
+          <span className={styles.sectionHint}>{t("settings.webhookUrlHint")}</span>
+        </div>
+      </section>
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>{t("settings.outreachTitle")}</h2>
+        <p className={styles.sectionHint}>{t("settings.outreachHint")}</p>
+
+        <div className={styles.detailField}>
+          <label htmlFor="whatsapp-template">{t("settings.outreachTemplate")}</label>
+          <textarea
+            id="whatsapp-template"
+            rows={3}
+            maxLength={MAX_OUTREACH_TEMPLATE}
+            placeholder={DEFAULT_OUTREACH_TEMPLATE}
+            value={form.outreach.whatsappTemplate}
+            onChange={(e) => {
+              touch();
+              setForm((f) => ({
+                ...f,
+                outreach: { ...f.outreach, whatsappTemplate: e.target.value },
+              }));
+            }}
+          />
+          <span className={styles.sectionHint}>{t("settings.outreachTemplateHint")}</span>
+        </div>
+
+        {/* Filled with a stand-in lead so the owner sees the actual sentence,
+            including what happens to {service} when there's nothing to fill
+            it with. */}
+        <p className={styles.sectionHint}>
+          <strong>{t("settings.outreachPreview")}</strong>{" "}
+          {fillOutreachTemplate(form.outreach.whatsappTemplate, {
+            name: t("settings.outreachSampleName"),
+            company: form.name,
+            service: t("settings.outreachSampleService"),
+          })}
+        </p>
+      </section>
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>{t("settings.followUpTitle")}</h2>
+        <p className={styles.sectionHint}>{t("settings.followUpHint")}</p>
+
+        <div className={styles.detailField}>
+          <label htmlFor="follow-up-interval">{t("settings.followUpInterval")}</label>
+          <select
+            id="follow-up-interval"
+            value={form.outreach.followUpInterval}
+            onChange={(e) => {
+              touch();
+              setForm((f) => ({
+                ...f,
+                outreach: { ...f.outreach, followUpInterval: e.target.value },
+              }));
+            }}
+          >
+            {FOLLOW_UP_INTERVALS.map((value) => (
+              <option key={value} value={value}>
+                {t(`settings.followUpIntervals.${value}`)}
+              </option>
+            ))}
+          </select>
+          <span className={styles.sectionHint}>
+            {form.outreach.followUpInterval === "never"
+              ? t("settings.followUpIntervalOffHint")
+              : t("settings.followUpIntervalHint")}
+          </span>
+        </div>
+
+        {form.outreach.followUpInterval !== "never" && (
+          <div className={styles.detailField}>
+            <label htmlFor="follow-up-template">{t("settings.followUpTemplate")}</label>
+            <textarea
+              id="follow-up-template"
+              rows={2}
+              maxLength={MAX_OUTREACH_TEMPLATE}
+              placeholder={t("leads.followUpDefaultMessage")}
+              value={form.outreach.followUpTemplate}
+              onChange={(e) => {
+                touch();
+                setForm((f) => ({
+                  ...f,
+                  outreach: { ...f.outreach, followUpTemplate: e.target.value },
+                }));
+              }}
+            />
+            <span className={styles.sectionHint}>{t("settings.followUpTemplateHint")}</span>
+          </div>
+        )}
       </section>
 
       <div className={styles.actionsRow}>

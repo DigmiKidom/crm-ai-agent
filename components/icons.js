@@ -33,6 +33,17 @@ export function IconOverview(props) {
   );
 }
 
+// A 3x3 dot grid (the conventional "app launcher" mark) — deliberately
+// distinct from IconOverview's 2x2 rounded squares so the Hub and Overview
+// nav entries don't read as the same icon.
+export function IconGrid(props) {
+  return (
+    <Base {...props} fill="currentColor" stroke="none">
+      {[4, 12, 20].flatMap((cy) => [4, 12, 20].map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.6" />))}
+    </Base>
+  );
+}
+
 export function IconInbox(props) {
   return (
     <Base {...props}>
@@ -305,6 +316,15 @@ export function IconForm(props) {
     <Base {...props}>
       <rect x="4" y="3.5" width="16" height="17" rx="2" />
       <path d="M8 8.5h8M8 12.5h8M8 16.5h4" />
+    </Base>
+  );
+}
+
+export function IconLock(props) {
+  return (
+    <Base {...props}>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V7.5a4 4 0 0 1 8 0V11" />
     </Base>
   );
 }

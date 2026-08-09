@@ -85,9 +85,15 @@ export default function Header({
           {isApp ? (
             <button
               type="button"
-              className={styles.menuTrigger}
+              // `menuTriggerDrawerOnly` hides this above the drawer
+              // breakpoint. Without it the button rendered at every width,
+              // including desktop — where the sidebar is permanently visible
+              // and toggling `data-open` does nothing, so it was a control
+              // that looked live and did nothing when pressed.
+              className={`${styles.menuTrigger} ${styles.menuTriggerDrawerOnly}`}
               onClick={onMenuToggle}
               aria-expanded={menuOpen}
+              aria-controls="dashboard-drawer"
               aria-label={menuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
             >
               {menuOpen ? <IconClose size={19} /> : <IconMenu size={19} />}

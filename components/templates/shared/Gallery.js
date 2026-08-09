@@ -10,12 +10,15 @@ import styles from "./shared.module.css";
  * variable so every template gets the same grid behaviour for free.
  *
  * `label` (the gallery's own heading, e.g. "Our work") seeds each photo's alt
- * text as "{label} — photo {n} of {total}". There's no per-photo caption
- * collected from the tenant, so this can't describe what's actually in each
- * image — but a numbered, labelled alt is a real improvement over `alt=""`
- * on what is tenant-chosen content (a portfolio, past work), not decoration.
+ * text via `altPattern(label, n, total)` — a locale-aware formatter from
+ * lib/landingCopy.js's resolveLandingCopy(), so the "photo X of Y" wording
+ * renders in the tenant's own content language rather than always English.
+ * There's no per-photo caption collected from the tenant, so this can't
+ * describe what's actually in each image — but a numbered, labelled alt is a
+ * real improvement over `alt=""` on what is tenant-chosen content (a
+ * portfolio, past work), not decoration.
  */
-export default function Gallery({ mediaIds = [], columns = 3, label = "" }) {
+export default function Gallery({ mediaIds = [], columns = 3, label = "", altPattern }) {
   if (!mediaIds.length) return null;
 
   return (
@@ -24,7 +27,7 @@ export default function Gallery({ mediaIds = [], columns = 3, label = "" }) {
         <div className={styles.galleryItem} key={id}>
           <img
             src={`/api/media/${id}`}
-            alt={label ? `${label} — photo ${i + 1} of ${mediaIds.length}` : ""}
+            alt={label && altPattern ? altPattern(label, i + 1, mediaIds.length) : ""}
             loading="lazy"
           />
         </div>

@@ -1,32 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import Tenant from "@/lib/models/Tenant";
-import User from "@/lib/models/User";
-import Resume from "@/lib/models/Resume";
-import { getTemplate, TEMPLATES } from "@/lib/templates";
 import { resolveLandingCopy } from "@/lib/landingCopy";
-
-// Team members, only fetched when the tenant has actually switched the
-// section on — every other landing page pays nothing for this. A team
-// member's CV link is only ever included if THEY made it public (see
-// Resume.isPublic) — inviting someone onto the team never publishes their
-// CV for them.
-async function loadTeamMembers(tenantId) {
-  const [users, resumes] = await Promise.all([
-    User.find({ tenantId }).select("name title avatarMediaId").sort({ createdAt: 1 }).lean(),
-    Resume.find({ tenantId, isPublic: true }).select("userId").lean(),
-  ]);
-
-  const publicResumeByUser = new Map(resumes.map((r) => [r.userId.toString(), r._id.toString()]));
-
-  return users.map((u) => ({
-    id: u._id.toString(),
-    name: u.name || "",
-    title: u.title || "",
-    avatarMediaId: u.avatarMediaId ? u.avatarMediaId.toString() : null,
-    publicResumeId: publicResumeByUser.get(u._id.toString()) || null,
-  }));
-}
+import TenantLandingView from "@/components/templates/TenantLandingView";
 
 export const revalidate = 60; // ISR: re-check the tenant config once a minute
 
@@ -65,22 +41,12 @@ export default async function TenantLandingPage({ params, searchParams }) {
 
   if (!tenant) notFound();
 
-  const templateId =
-    previewTemplateId && TEMPLATES[previewTemplateId] ? previewTemplateId : tenant.templateId;
-  const { Component } = getTemplate(templateId);
-  const copy = resolveLandingCopy(tenant);
+  // Blocked by a platform admin — see app/suspended/route.js, which serves the
+  // notice with a real 451. Checked before anything renders, so no part of the
+  // suspended content reaches the response. The ISR cache for this path is
+  // dropped at block time (revalidatePath in the admin route), so a takedown
+  // is immediate rather than up to `revalidate` seconds later.
+  if (tenant.moderation?.pageBlocked) redirect("/suspended");
 
-  const teamMembers = tenant.landingPage?.showTeamSection
-    ? await loadTeamMembers(tenant._id)
-    : [];
-
-  // dir/lang come from the tenant's content language, NOT from the viewer's
-  // UI preference. A Hebrew business's page must render right-to-left for
-  // every visitor, including one whose own dashboard is in English — so this
-  // deliberately overrides the <html dir> the root layout set.
-  return (
-    <div dir={copy.language.dir} lang={copy.language.code}>
-      <Component tenant={{ ...JSON.parse(JSON.stringify(tenant)), teamMembers }} />
-    </div>
-  );
+  return <TenantLandingView tenant={tenant} previewTemplateId={previewTemplateId} />;
 }

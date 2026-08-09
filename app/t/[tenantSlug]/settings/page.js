@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getServerT } from "@/lib/i18n/server";
@@ -7,6 +8,8 @@ import User from "@/lib/models/User";
 import Invite from "@/lib/models/Invite";
 import SettingsForm from "@/components/SettingsForm";
 import TeamSettings from "@/components/TeamSettings";
+import BillingSettings from "@/components/BillingSettings";
+import DomainSettings from "@/components/DomainSettings";
 import { hasRole } from "@/lib/roles";
 import { IconExternalLink } from "@/components/icons";
 import styles from "@/components/dashboard.module.css";
@@ -75,6 +78,16 @@ export default async function SettingsPage({ params }) {
           members={JSON.parse(JSON.stringify(members))}
           initialInvites={JSON.parse(JSON.stringify(invites))}
         />
+      </div>
+
+      <div style={{ marginTop: 24 }}>
+        <Suspense fallback={null}>
+          <BillingSettings plan={tenant.plan} hasSubscription={Boolean(tenant.stripeCustomerId)} />
+        </Suspense>
+      </div>
+
+      <div style={{ marginTop: 24 }}>
+        <DomainSettings initialDomain={tenant.customDomain?.hostname ? JSON.parse(JSON.stringify(tenant.customDomain)) : null} />
       </div>
     </div>
   );

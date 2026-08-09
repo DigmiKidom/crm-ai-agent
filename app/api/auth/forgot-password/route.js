@@ -9,7 +9,7 @@ import { getServerT } from "@/lib/i18n/server";
 // exists — otherwise this endpoint becomes a way to enumerate registered
 // accounts by email address.
 export async function POST(request) {
-  const { t } = await getServerT();
+  const { t, locale } = await getServerT();
   const { email } = (await request.json()) ?? {};
   const genericResponse = NextResponse.json({
     ok: true,
@@ -27,7 +27,7 @@ export async function POST(request) {
     const resetUrl = `${getAppUrl()}/reset-password?token=${rawToken}`;
 
     try {
-      await sendPasswordResetEmail(user.email, resetUrl);
+      await sendPasswordResetEmail(user.email, resetUrl, locale);
     } catch (emailErr) {
       console.error("Sending password reset email failed:", emailErr);
       // Don't leak email-provider failures to the client — same generic

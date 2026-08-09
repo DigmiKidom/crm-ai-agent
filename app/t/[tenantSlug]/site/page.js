@@ -42,6 +42,7 @@ export default async function SiteEditorPage({ params }) {
         templates={templateList()}
         templateId={tenant.templateId}
         variantCounts={variantCounts}
+        social={JSON.parse(JSON.stringify(tenant.profile?.social || {}))}
       />
     </div>
   );

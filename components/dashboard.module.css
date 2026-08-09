@@ -24,6 +24,21 @@
    Custom properties cascade to every descendant regardless of CSS Module
    scoping, so this one block is enough to re-theme every card, input, and
    chip in the dashboard, workspace, analytics, and chart components. */
+/* Belt-and-suspenders against a first-paint flash: `body` in globals.css
+   only ever paints the light `--background` — the dark override below has
+   always been scoped to `.shell`, a descendant, which can't retroactively
+   darken its own ancestor. Under normal conditions `.shell`'s own opaque,
+   min-height:100vh background covers body entirely, so this never shows —
+   but on a route where .shell's background is established even a frame
+   later than body's, body's light default was what showed through in that
+   gap. `:has(.shell)` keeps this scoped to actual dashboard routes, so the
+   public marketing/auth screens — which deliberately ignore theme — are
+   untouched. */
+:global([data-theme="dark"] body):has(.shell) {
+  background: #14161b;
+  color: #e7e9ec;
+}
+
 :global([data-theme="dark"]) .shell {
   --background: #14161b;
   --foreground: #e7e9ec;
@@ -372,6 +387,34 @@
   border-radius: 6px;
 }
 
+.pipelineSearchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pipelineSearchInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--muted);
+}
+
+.pipelineSearchInput input {
+  border: none;
+  outline: none;
+  background: none;
+  flex: 1;
+  font: inherit;
+  color: var(--foreground);
+}
+
 .pipelineBoard {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -417,8 +460,36 @@
   margin-bottom: 6px;
 }
 
+.wonBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  margin-inline-start: 6px;
+  border-radius: 50%;
+  background: var(--success-bg);
+  color: var(--success-strong);
+  vertical-align: middle;
+}
+
+/* The stage select takes the room it needs; the WhatsApp button sits beside
+   it at its natural size rather than stretching the card. */
+.pipelineCardActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pipelineCardActions .whatsappIconLink {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+}
+
 .pipelineCardMoveSelect {
   width: 100%;
+  min-width: 0;
   font-size: 0.78rem;
   padding: 3px 6px;
   border: 1px solid var(--border);
@@ -674,6 +745,407 @@
   cursor: not-allowed;
 }
 
+/* ── Closed deals ────────────────────────────────────────────────────────
+   Outcome pills in the ledger, and the print rules that make "save as PDF"
+   produce the table on its own — the on-screen page IS the printed page, so
+   there's no second layout to maintain. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pillWon {
+  background: rgba(22, 163, 74, 0.13);
+  color: #15803d;
+}
+
+.pillLost {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+@media print {
+  .noPrint {
+    display: none !important;
+  }
+
+  /* Ink, and the table needs the width. */
+  .statCard {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .table tr {
+    break-inside: avoid;
+  }
+
+  .linkButton {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* ── Lead status badges ──────────────────────────────────────────────────
+   Two small, quiet markers on a lead: "not in your phone yet" and "gone
+   quiet". Both are prompts, not alarms — an inbox where every row shouts is
+   an inbox nobody reads. */
+.leadBadges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: 8px;
+  vertical-align: middle;
+}
+
+.unsavedBadge,
+.followUpBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.unsavedBadge {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.followUpBadge {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+}
+
+/* On a pipeline card the badge sits on its own line under the email. */
+.pipelineCardLink .followUpBadge {
+  margin-top: 5px;
+}
+
+.followUpNotice {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #92400e;
+  font-size: 0.86rem;
+}
+
+/* Icon-only variants of the two lead actions, for table rows where a full
+   labelled button would push the row too wide. */
+.contactChip,
+.followUpChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.contactChip:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.followUpChip:hover {
+  border-color: #25d366;
+  background: #25d366;
+  color: #fff;
+}
+
+/* ── Modal ───────────────────────────────────────────────────────────────
+   Used by the deal-closure summary. Deliberately plain: it appears at the
+   moment someone is closing a deal, which is not a moment to be clever. */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--surface);
+  color: inherit;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.leadTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Keeps the number and its WhatsApp button on one line in the leads table
+   without the button stretching the row height. */
+.phoneCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── One-click WhatsApp (CRM) ────────────────────────────────────────────
+   WhatsApp green rather than the product's primary colour: this is the one
+   control on the row that leaves the app for another one, and it's worth
+   being unmistakable. */
+.whatsappIconLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #25d366;
+  /* Solid fallback first: a browser without color-mix() still gets a tinted
+     chip rather than an untinted one. */
+  background: rgba(37, 211, 102, 0.12);
+  background: color-mix(in srgb, #25d366 12%, transparent);
+  text-decoration: none;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.whatsappIconLink:hover {
+  background: #25d366;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.whatsappIconLink:focus-visible {
+  outline: 2px solid #25d366;
+  outline-offset: 2px;
+}
+
+.whatsappButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #25d366;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: filter 0.16s ease, transform 0.16s ease;
+}
+
+.whatsappButton:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.whatsappButton:focus-visible {
+  outline: 2px solid #25d366;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsappIconLink,
+  .whatsappButton {
+    transition: none;
+  }
+
+  .whatsappIconLink:hover,
+  .whatsappButton:hover {
+    transform: none;
+  }
+}
+
+/* ── Choice-field options ────────────────────────────────────────────────
+   The answer list under a "dropdown" or "checkboxes" field in the landing
+   page editor. Indented and rule-marked so it reads as belonging to the
+   field row above it rather than as another field. */
+.fieldOptions {
+  margin: 0 0 14px;
+  padding-inline-start: 12px;
+  border-inline-start: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.fieldOptionsLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fieldOptionRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.fieldOptionRow input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.88rem;
+  background: var(--surface);
+  color: inherit;
+}
+
+/* ── Social links & quick messaging ──────────────────────────────────────
+   Each row pairs the platform's own glyph, tinted with its brand colour
+   through --social-brand, with a single URL input. WhatsApp gets a raised
+   callout instead — it's two fields and a test link, not one input. */
+.socialInputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.socialInputIcon,
+.socialCalloutIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  color: var(--social-brand, var(--muted));
+  background: var(--surface-sunken);
+  background: color-mix(in srgb, var(--social-brand, #888) 12%, transparent);
+}
+
+.socialCallout {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  background: color-mix(in srgb, var(--social-brand, #25d366) 6%, var(--surface));
+}
+
+.socialCalloutBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.socialCalloutBody strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* ── FAQ editor rows ─────────────────────────────────────────────────────
+   Mirrors .featureRow: one bordered block per entry, question above answer. */
+.faqRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.faqRow input,
+.faqRow textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  background: var(--bg, transparent);
+  color: inherit;
+}
+
+.faqRow textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.faqRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.faqRowNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .formSection {
   margin-bottom: 22px;
   padding-bottom: 22px;
@@ -899,6 +1371,43 @@
   align-self: flex-end;
   font-size: 0.72rem;
   color: var(--muted);
+}
+
+/* ── Deal status badge — same three-part tone shape DESIGN_TOKENS.md
+   documents for danger/success/warning/info, mirroring
+   components/calendar/EventStatusBadge.js's pattern for consistency. ── */
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-bottom: 14px;
+}
+
+.statusSuccess {
+  background: var(--success-bg);
+  color: var(--success-strong);
+}
+
+.statusDanger {
+  background: var(--danger-bg);
+  color: var(--danger-strong);
+}
+
+.statusMuted {
+  background: var(--surface-hover);
+  color: var(--muted);
+}
+
+.wonPrompt {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--success-strong);
 }
 
 .formError {
@@ -1399,6 +1908,28 @@
 
   :global([dir="rtl"]) .sidebar[data-open="true"] {
     transform: translateX(0);
+  }
+
+  /* Touch targets. 36px is comfortable with a mouse and cramped with a
+     thumb — Apple and Google both put the minimum at 44px, and a nav row
+     that's hard to hit accurately is a nav row people stop using. Scoped to
+     the drawer, so the desktop sidebar keeps its denser rhythm. */
+  .navRow {
+    min-height: 44px;
+    padding: 11px 14px;
+    font-size: 0.95rem;
+  }
+
+  .navRowIcon {
+    flex-shrink: 0;
+  }
+
+  .brandTenant {
+    font-size: 1rem;
+  }
+
+  .signOutButton {
+    min-height: 44px;
   }
 
   .main {

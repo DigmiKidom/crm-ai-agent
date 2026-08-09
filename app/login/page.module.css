@@ -43,6 +43,24 @@
   border-radius: 8px;
 }
 
+.hint {
+  font-size: 0.78rem;
+  color: var(--muted, #6b7280);
+  line-height: 1.5;
+}
+
+/* A <button> that reads as a link — "back to password" is an action, not a
+   destination, so it must not be an <a> with no href. */
+.linkLike {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .error {
   color: #b91c1c;
   font-size: 0.85rem;

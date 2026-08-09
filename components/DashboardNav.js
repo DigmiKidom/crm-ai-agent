@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useT } from "@/components/i18n/LocaleProvider";
 import {
   IconOverview,
+  IconGrid,
   IconInbox,
   IconPipeline,
   IconContacts,
@@ -15,10 +16,12 @@ import {
   IconFileText,
   IconExternalLink,
   IconChart,
+  IconCalendar,
   IconDocument,
   IconTable,
   IconPlus,
   IconClose,
+  IconTarget,
 } from "@/components/icons";
 import { hasRole } from "@/lib/roles";
 import styles from "./dashboard.module.css";
@@ -36,9 +39,12 @@ export default function DashboardNav({ tenantSlug, unreadLeads = 0, workspaceIte
 
   const items = [
     { href: `/t/${tenantSlug}`, label: t("sidebar.overview"), Icon: IconOverview, exact: true },
+    { href: `/t/${tenantSlug}/hub`, label: t("sidebar.hub"), Icon: IconGrid },
     { href: `/t/${tenantSlug}/leads`, label: t("sidebar.leads"), Icon: IconInbox, badge: unreadLeads },
+    { href: `/t/${tenantSlug}/calendar`, label: t("sidebar.calendar"), Icon: IconCalendar },
     { href: `/t/${tenantSlug}/analytics`, label: t("sidebar.analytics"), Icon: IconChart },
     { href: `/t/${tenantSlug}/pipeline`, label: t("sidebar.pipeline"), Icon: IconPipeline },
+    { href: `/t/${tenantSlug}/closed-deals`, label: t("sidebar.closedDeals"), Icon: IconTarget },
     { href: `/t/${tenantSlug}/contacts`, label: t("sidebar.contacts"), Icon: IconContacts },
     { href: `/t/${tenantSlug}/site`, label: t("sidebar.editLandingPage"), Icon: IconEdit },
     { href: `/t/${tenantSlug}/cv`, label: t("cv.title"), Icon: IconFileText },

@@ -21,7 +21,8 @@ const HTML_TYPE = {
   tel: "tel",
   number: "number",
   date: "date",
-  // textarea isn't a real <input type>; handled as its own element below.
+  // textarea, select and checkbox aren't <input type>s; each is handled as
+  // its own element below.
 };
 
 // Email/phone/number/date all read left-to-right regardless of page
@@ -36,11 +37,28 @@ export default function LeadForm({
   fields = [],
   styles = defaultStyles,
 }) {
-  const [form, setForm] = useState(() => Object.fromEntries(fields.map((f) => [f.key, ""])));
+  // A checkbox group holds an array (any number of answers); everything else
+  // holds a string. Both are serialized as-is and normalized server-side.
+  const emptyState = () =>
+    Object.fromEntries(fields.map((f) => [f.key, f.type === "checkbox" ? [] : ""]));
+
+  const [form, setForm] = useState(emptyState);
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
 
   function setValue(key, value) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function toggleOption(key, option, checked) {
+    setForm((f) => {
+      const current = Array.isArray(f[key]) ? f[key] : [];
+      return {
+        ...f,
+        // Filter-then-append rather than push, so the stored order follows
+        // the tenant's option order instead of click order.
+        [key]: checked ? [...current, option] : current.filter((v) => v !== option),
+      };
+    });
   }
 
   async function handleSubmit(e) {
@@ -58,7 +76,7 @@ export default function LeadForm({
 
       if (res.ok) {
         setStatus("success");
-        setForm(Object.fromEntries(fields.map((f) => [f.key, ""])));
+        setForm(emptyState());
       } else {
         setStatus("error");
       }
@@ -77,29 +95,73 @@ export default function LeadForm({
     <form onSubmit={handleSubmit}>
       {status === "error" && <p className={styles.error}>{labels.error}</p>}
 
-      {fields.map((field) => (
-        <div className={styles.field} key={field.key}>
-          <label htmlFor={field.key}>{field.label}</label>
-          {field.type === "textarea" ? (
-            <textarea
-              id={field.key}
-              rows={3}
-              required={field.required}
-              value={form[field.key] || ""}
-              onChange={(e) => setValue(field.key, e.target.value)}
-            />
-          ) : (
-            <input
-              id={field.key}
-              type={HTML_TYPE[field.type] || "text"}
-              required={field.required}
-              dir={LTR_TYPES.has(field.type) ? "ltr" : undefined}
-              value={form[field.key] || ""}
-              onChange={(e) => setValue(field.key, e.target.value)}
-            />
-          )}
-        </div>
-      ))}
+      {fields.map((field) => {
+        // A checkbox group has no single control to point a <label for> at,
+        // so it's a <fieldset>/<legend> instead — the group's own name is
+        // what a screen reader needs to announce, not one box's.
+        if (field.type === "checkbox") {
+          const selected = Array.isArray(form[field.key]) ? form[field.key] : [];
+          return (
+            <fieldset className={styles.field} key={field.key} style={{ border: 0, padding: 0, margin: "0 0 14px" }}>
+              <legend>{field.label}</legend>
+              {field.options.map((option) => (
+                <label key={option} className={styles.checkboxOption}>
+                  <input
+                    type="checkbox"
+                    value={option}
+                    checked={selected.includes(option)}
+                    onChange={(e) => toggleOption(field.key, option, e.target.checked)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </fieldset>
+          );
+        }
+
+        return (
+          <div className={styles.field} key={field.key}>
+            <label htmlFor={field.key}>{field.label}</label>
+            {field.type === "textarea" ? (
+              <textarea
+                id={field.key}
+                rows={3}
+                required={field.required}
+                value={form[field.key] || ""}
+                onChange={(e) => setValue(field.key, e.target.value)}
+              />
+            ) : field.type === "select" ? (
+              <select
+                id={field.key}
+                required={field.required}
+                value={form[field.key] || ""}
+                onChange={(e) => setValue(field.key, e.target.value)}
+              >
+                {/* Empty first option so a required dropdown starts
+                    genuinely unanswered rather than silently defaulting to
+                    the tenant's first choice. Its label is the field's own,
+                    which keeps this in the page's language with no extra
+                    string to translate. */}
+                <option value="">{field.label}</option>
+                {field.options.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id={field.key}
+                type={HTML_TYPE[field.type] || "text"}
+                required={field.required}
+                dir={LTR_TYPES.has(field.type) ? "ltr" : undefined}
+                value={form[field.key] || ""}
+                onChange={(e) => setValue(field.key, e.target.value)}
+              />
+            )}
+          </div>
+        );
+      })}
 
       <button className={styles.submitButton} type="submit" disabled={status === "loading"}>
         {status === "loading" ? labels.sending : ctaLabel}

@@ -120,11 +120,44 @@
   font-weight: 600;
 }
 
-.field input,
+/* Tick boxes are excluded: the input rules below size a text control, and
+   applying them to a checkbox turns it into a large empty square. */
+.field input:not([type="checkbox"]),
+.field select,
 .field textarea {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
+}
+
+.field select {
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+
+.field legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.checkboxOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 400;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.checkboxOption input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--tenant-primary, #2563eb);
+  flex: 0 0 auto;
 }
 
 

@@ -155,7 +155,10 @@
   color: #6b7280;
 }
 
-.field input,
+/* Tick boxes are excluded: the underline treatment below is for text
+   controls, and applied to a checkbox it just erases the box. */
+.field input:not([type="checkbox"]),
+.field select,
 .field textarea {
   padding: 10px 0;
   border: none;
@@ -163,10 +166,40 @@
   background: transparent;
 }
 
-.field input:focus,
+.field input:not([type="checkbox"]):focus,
+.field select:focus,
 .field textarea:focus {
   outline: none;
   border-bottom-color: var(--tenant-primary, #2563eb);
+}
+
+.field select {
+  color: inherit;
+  font: inherit;
+  border-radius: 0;
+}
+
+.field legend {
+  font-size: 0.8rem;
+  color: #6b7280;
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.checkboxOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.checkboxOption input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--tenant-primary, #2563eb);
+  flex: 0 0 auto;
 }
 
 

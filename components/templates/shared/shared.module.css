@@ -82,26 +82,366 @@
   text-decoration: underline;
 }
 
-.footerSocial {
+/* ── Social links & quick messaging ──────────────────────────────────────
+   Two variants of the same links (see SocialBar.js): solid brand-coloured
+   pills in the hero, quiet monochrome circles in the footer. Both take the
+   platform's colour through --social-brand, set inline per link. */
+
+.socialHero {
   display: flex;
-  gap: 14px;
-  font-size: 0.85rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
 }
 
-.footerSocial a {
-  color: inherit;
+.socialHeroLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--social-brand, #111827);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1;
   text-decoration: none;
-  opacity: 0.8;
+  /* Brand colours sit on photo heroes as often as on flat ones; the ring and
+     shadow keep a dark mark (GitHub, X) legible against a dark photo. */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
-.footerSocial a:hover {
+.socialHeroLink:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.socialHeroLink:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.socialHeroLabel {
+  /* The icon alone is the whole button on a phone, where a row of six
+     labelled pills would wrap into a wall. aria-label still names each one. */
+  display: none;
+}
+
+@media (min-width: 560px) {
+  .socialHeroLabel {
+    display: inline;
+  }
+}
+
+.socialFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.socialFooterLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: inherit;
+  opacity: 0.75;
+  border: 1px solid currentColor;
+  text-decoration: none;
+  transition: opacity 0.18s ease, background 0.18s ease, color 0.18s ease,
+    border-color 0.18s ease, transform 0.18s ease;
+}
+
+.socialFooterLink:hover {
   opacity: 1;
+  transform: translateY(-1px);
+  background: var(--social-brand, currentColor);
+  border-color: var(--social-brand, currentColor);
+  color: #fff;
+}
+
+.socialFooterLink:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .socialHeroLink,
+  .socialFooterLink {
+    transition: none;
+  }
+
+  .socialHeroLink:hover,
+  .socialFooterLink:hover {
+    transform: none;
+  }
+}
+
+/* ── Report this page ────────────────────────────────────────────────────
+   The footer's safety valve. Styled to sit below the legal line and read as
+   quietly as it does — deliberately the least prominent thing on the page,
+   but present on every one of them. */
+
+.reportLink {
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.76rem;
+  opacity: 0.5;
   text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.reportLink:hover {
+  opacity: 0.85;
+}
+
+.reportBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.reportModal {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 26px;
+  border-radius: 18px;
+  /* Fixed light palette, not the tenant's theme variables: this is
+     Ceramony's dialog on the tenant's page, and it has to stay legible on a
+     page whose brand colours we don't control. */
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  text-align: start;
+}
+
+.reportModal:focus {
+  outline: none;
+}
+
+.reportTitle {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.reportBody {
+  margin: 0 0 18px;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.reportError {
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  font-size: 0.83rem;
+}
+
+.reportField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.reportField label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.reportField input,
+.reportField select,
+.reportField textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.reportField textarea {
+  resize: vertical;
+  min-height: 76px;
+}
+
+/* Honeypot — hidden from people, present in the DOM for bots. Not
+   display:none: some form-fillers skip those, and the whole point is that it
+   gets filled. */
+.reportHoneypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.reportActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.reportSubmit,
+.reportCancel {
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.reportSubmit {
+  background: #0f172a;
+  color: #fff;
+}
+
+.reportSubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reportCancel {
+  background: transparent;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+/* ── FAQ accordion ───────────────────────────────────────────────────────
+   <details>/<summary> based (see FaqSection.js) — open/close needs no
+   JavaScript, so this works inside an ISR-cached server-rendered page. */
+
+.faqSection {
+  padding: 64px 24px;
+}
+
+.faqSection h2 {
+  margin: 0 0 28px;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.faqList {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faqItem {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 12px;
+  background: rgba(127, 127, 127, 0.04);
+  overflow: hidden;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.faqItem[open] {
+  border-color: var(--tenant-primary, #2563eb);
+  background: rgba(127, 127, 127, 0.07);
+}
+
+.faqQuestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  font-weight: 600;
+  font-size: 0.98rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari draws its own disclosure triangle next to ours without this. */
+.faqQuestion::-webkit-details-marker {
+  display: none;
+}
+
+.faqQuestion:focus-visible {
+  outline: 2px solid var(--tenant-primary, #2563eb);
+  outline-offset: -2px;
+}
+
+.faqChevron {
+  flex: 0 0 auto;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+
+.faqItem[open] .faqChevron {
+  transform: rotate(180deg);
+  opacity: 1;
+  color: var(--tenant-primary, #2563eb);
+}
+
+.faqAnswer {
+  margin: 0;
+  padding: 0 20px 18px;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  opacity: 0.85;
+  white-space: pre-line;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faqChevron,
+  .faqItem {
+    transition: none;
+  }
 }
 
 .footerLegal {
   font-size: 0.8rem;
   opacity: 0.7;
+}
+
+.footerPoweredBy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: inherit;
+  opacity: 0.7;
+  text-decoration: none;
+}
+
+.footerPoweredBy:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 /* ── Photo gallery ───────────────────────────────────────────────────────

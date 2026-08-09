@@ -6,6 +6,9 @@ import Media from "@/lib/models/Media";
 import { requireTenantRole } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
 import { normalizeAgentPreferences } from "@/lib/agentPreferences";
+import { isAllowedWebhookUrl } from "@/lib/webhooks";
+import { DEFAULT_OUTREACH_TEMPLATE, MAX_OUTREACH_TEMPLATE } from "@/lib/socialLinks";
+import { normalizeInterval } from "@/lib/followUp";
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
@@ -19,16 +22,42 @@ export async function PATCH(request) {
   const { t, tenantId } = ctx;
 
   const body = (await request.json().catch(() => null)) ?? {};
-  const { name, profile = {}, theme = {}, logoMediaId, notifications = {}, agentPreferences } = body;
+  const {
+    name,
+    profile = {},
+    theme = {},
+    logoMediaId,
+    notifications = {},
+    outreach = {},
+    agentPreferences,
+    currency,
+  } = body;
 
   const companyName = str(name, 120);
   if (!companyName) {
     return NextResponse.json({ error: t("api.tenantSettings.companyNameRequired") }, { status: 400 });
   }
 
+  // A 3-letter code, not a strict ISO 4217 membership check — this only
+  // ever labels dealValue figures via Intl.NumberFormat, which throws its
+  // own clear error for a code it doesn't recognize, so there's no need to
+  // duplicate its currency list here.
+  const currencyCode = str(currency, 3).toUpperCase() || "USD";
+  if (!/^[A-Z]{3}$/.test(currencyCode)) {
+    return NextResponse.json({ error: t("api.tenantSettings.invalidCurrency") }, { status: 400 });
+  }
+
   const contactEmail = str(profile.contactEmail, 160);
   if (contactEmail && !/^\S+@\S+\.\S+$/.test(contactEmail)) {
     return NextResponse.json({ error: t("api.tenantSettings.invalidContactEmail") }, { status: 400 });
+  }
+
+  // Rejected rather than silently ignored: a tenant who pastes an http:// or
+  // internal URL here would otherwise believe their leads are being delivered
+  // somewhere they never arrive. See lib/webhooks.js for what's allowed.
+  const webhookUrl = str(notifications.webhookUrl, 500);
+  if (webhookUrl && !isAllowedWebhookUrl(webhookUrl)) {
+    return NextResponse.json({ error: t("api.tenantSettings.invalidWebhookUrl") }, { status: 400 });
   }
 
   for (const [key, value] of [
@@ -67,6 +96,7 @@ export async function PATCH(request) {
 
     const $set = {
       name: companyName,
+      currency: currencyCode,
       "profile.legalName": str(profile.legalName, 160),
       "profile.tagline": str(profile.tagline, 160),
       "profile.about": str(profile.about, 600),
@@ -82,6 +112,13 @@ export async function PATCH(request) {
       "profile.social.x": str(profile.social?.x, 200),
       logoMediaId: logoId,
       "notifications.emailOnNewLead": Boolean(notifications.emailOnNewLead),
+      "notifications.webhookUrl": webhookUrl,
+      "outreach.whatsappTemplate": str(outreach.whatsappTemplate, MAX_OUTREACH_TEMPLATE) || DEFAULT_OUTREACH_TEMPLATE,
+      "outreach.followUpInterval": normalizeInterval(outreach.followUpInterval),
+      // Empty is meaningful here, unlike the outreach template: it means
+      // "use the translated default", so a tenant who clears the box gets
+      // the message in their own language rather than a blank one.
+      "outreach.followUpTemplate": str(outreach.followUpTemplate, MAX_OUTREACH_TEMPLATE),
       // Same brand-voice knobs onboarding sets, editable here without a full
       // "AI Setup" regenerate — see lib/agentPreferences.js.
       agentPreferences: normalizeAgentPreferences(agentPreferences),

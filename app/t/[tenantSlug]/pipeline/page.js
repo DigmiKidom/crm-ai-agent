@@ -28,6 +28,9 @@ export default async function PipelinePage({ params }) {
         initialLeads={JSON.parse(JSON.stringify(leads))}
         stages={stages}
         tenantSlug={tenantSlug}
+        whatsappTemplate={tenant.outreach?.whatsappTemplate || ""}
+        companyName={tenant.name}
+        currency={tenant.currency}
       />
     </div>
   );

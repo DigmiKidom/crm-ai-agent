@@ -7,7 +7,7 @@ import { sendVerificationEmail, getAppUrl } from "@/lib/email";
 import { getServerT } from "@/lib/i18n/server";
 
 export async function POST() {
-  const { t } = await getServerT();
+  const { t, locale } = await getServerT();
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: t("api.common.notAuthenticated") }, { status: 401 });
@@ -25,7 +25,7 @@ export async function POST() {
 
     const rawToken = await createToken(user._id, "verify");
     const verifyUrl = `${getAppUrl()}/api/auth/verify-email?token=${rawToken}`;
-    await sendVerificationEmail(user.email, verifyUrl);
+    await sendVerificationEmail(user.email, verifyUrl, locale);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

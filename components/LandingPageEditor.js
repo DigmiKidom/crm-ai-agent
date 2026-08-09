@@ -5,10 +5,29 @@ import ImageUpload from "./ImageUpload";
 import IconPicker from "./IconPicker";
 import TemplateThumbnail from "./TemplateThumbnail";
 import styles from "./dashboard.module.css";
-import { IconCheck, IconClose, IconPlus, IconExternalLink, IconChevronUp, IconChevronDown, IconGlobe } from "./icons";
+import { IconCheck, IconClose, IconPlus, IconExternalLink, IconChevronUp, IconChevronDown, IconGlobe, IconSparkles } from "./icons";
 import { useT } from "@/components/i18n/LocaleProvider";
 import { CONTENT_LANGUAGES } from "@/lib/i18n/languages";
-import { MAX_FORM_FIELDS, FIELD_TYPES, CORE_FIELDS, isCoreKey, blankCustomField, defaultFormFields } from "@/lib/formFields";
+import {
+  MAX_FORM_FIELDS,
+  FIELD_TYPES,
+  CORE_FIELDS,
+  isCoreKey,
+  isChoiceType,
+  blankCustomField,
+  defaultFormFields,
+  MAX_FIELD_OPTIONS,
+} from "@/lib/formFields";
+import {
+  SOCIAL_PLATFORMS,
+  SOCIAL_URL_KEYS,
+  DEFAULT_WHATSAPP_MESSAGE,
+  MAX_WHATSAPP_MESSAGE,
+  isValidPhone,
+  whatsappUrl,
+} from "@/lib/socialLinks";
+import { MAX_FAQ_ITEMS, MAX_FAQ_ANSWER, blankFaqItem } from "@/lib/faq";
+import { SocialIcon } from "./SocialIcons";
 
 const MAX_FEATURES = 3;
 const MAX_BACKGROUNDS = 3;
@@ -28,6 +47,10 @@ export default function LandingPageEditor({
   templates = [],
   templateId,
   variantCounts = null,
+  // Lives on tenant.profile.social (it's business contact information, not
+  // page content), but is edited here because this is where an owner thinks
+  // about what visitors see. Settings still edits the same four URL fields.
+  social = null,
 }) {
   const t = useT();
   const [form, setForm] = useState({
@@ -66,14 +89,36 @@ export default function LandingPageEditor({
     // The visitor-facing lead form. Falls back to the four core fields so a
     // tenant who's never touched this still sees something sensible to edit,
     // rather than a blank list.
+    // Social profiles and the WhatsApp quick-message setup. Stored flat here
+    // (one key per platform) and reassembled on save.
+    social: {
+      ...Object.fromEntries(SOCIAL_URL_KEYS.map((key) => [key, social?.[key] || ""])),
+      whatsapp: {
+        number: social?.whatsapp?.number || "",
+        message: social?.whatsapp?.message || "",
+      },
+    },
+    showSocialInHero: landingPage.showSocialInHero !== false,
+    faqHeading: landingPage.faqHeading || "",
+    // One empty row when there's nothing saved, so there's somewhere to type
+    // — normalizeFaq() on the server drops it again if it stays empty.
+    faq: landingPage.faq?.length
+      ? landingPage.faq.map((item) => ({ question: item.question || "", answer: item.answer || "" }))
+      : [blankFaqItem()],
     formFields: landingPage.formFields?.length
       ? landingPage.formFields.map((f) => ({
           key: f.key,
           label: f.label || "",
           type: isCoreKey(f.key) ? CORE_FIELDS[f.key].type : FIELD_TYPES.includes(f.type) ? f.type : "text",
           required: f.key === "name" ? true : Boolean(f.required),
+          options: Array.isArray(f.options) ? f.options : [],
         }))
-      : defaultFormFields(),
+      : defaultFormFields({
+          name: t("editor.defaultFieldName"),
+          email: t("editor.defaultFieldEmail"),
+          phone: t("editor.defaultFieldPhone"),
+          message: t("editor.defaultFieldMessage"),
+        }),
     statusMessages: {
       sending: landingPage.formLabels?.sending || "",
       success: landingPage.formLabels?.success || "",
@@ -83,6 +128,7 @@ export default function LandingPageEditor({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [faqGenerating, setFaqGenerating] = useState(false);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -172,6 +218,140 @@ export default function LandingPageEditor({
   function removeFormField(key) {
     setForm((f) => ({ ...f, formFields: f.formFields.filter((field) => field.key !== key) }));
     setSaved(false);
+  }
+
+  function updateSocial(key, value) {
+    setForm((f) => ({ ...f, social: { ...f.social, [key]: value } }));
+    setSaved(false);
+  }
+
+  function updateWhatsapp(key, value) {
+    setForm((f) => ({ ...f, social: { ...f.social, whatsapp: { ...f.social.whatsapp, [key]: value } } }));
+    setSaved(false);
+  }
+
+  // ── Choice fields ────────────────────────────────────────────────────────
+  // "select" and "checkbox" carry their own list of answers. Switching a
+  // field to one of them seeds a single empty option so there's a box to
+  // type into; switching away leaves the list in state (harmless — the
+  // server drops options for non-choice types) so a mis-click doesn't
+  // destroy what was typed.
+  function changeFieldType(key, type) {
+    setForm((f) => ({
+      ...f,
+      formFields: f.formFields.map((field) =>
+        field.key === key
+          ? {
+              ...field,
+              type,
+              options: isChoiceType(type) && field.options.length === 0 ? [""] : field.options,
+            }
+          : field
+      ),
+    }));
+    setSaved(false);
+  }
+
+  function updateFieldOption(key, index, value) {
+    setForm((f) => ({
+      ...f,
+      formFields: f.formFields.map((field) =>
+        field.key === key
+          ? { ...field, options: field.options.map((o, i) => (i === index ? value : o)) }
+          : field
+      ),
+    }));
+    setSaved(false);
+  }
+
+  function addFieldOption(key) {
+    setForm((f) => ({
+      ...f,
+      formFields: f.formFields.map((field) =>
+        field.key === key && field.options.length < MAX_FIELD_OPTIONS
+          ? { ...field, options: [...field.options, ""] }
+          : field
+      ),
+    }));
+    setSaved(false);
+  }
+
+  function removeFieldOption(key, index) {
+    setForm((f) => ({
+      ...f,
+      formFields: f.formFields.map((field) =>
+        field.key === key ? { ...field, options: field.options.filter((_, i) => i !== index) } : field
+      ),
+    }));
+    setSaved(false);
+  }
+
+  // ── FAQ ──────────────────────────────────────────────────────────────────
+  function updateFaq(index, key, value) {
+    setForm((f) => ({
+      ...f,
+      faq: f.faq.map((item, i) => (i === index ? { ...item, [key]: value } : item)),
+    }));
+    setSaved(false);
+  }
+
+  function addFaqItem() {
+    setForm((f) => (f.faq.length >= MAX_FAQ_ITEMS ? f : { ...f, faq: [...f.faq, blankFaqItem()] }));
+    setSaved(false);
+  }
+
+  function removeFaqItem(index) {
+    setForm((f) => {
+      const next = f.faq.filter((_, i) => i !== index);
+      // Never leave the section with nothing to type into.
+      return { ...f, faq: next.length ? next : [blankFaqItem()] };
+    });
+    setSaved(false);
+  }
+
+  function moveFaqItem(index, direction) {
+    setForm((f) => {
+      const next = [...f.faq];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return f;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...f, faq: next };
+    });
+    setSaved(false);
+  }
+
+  /**
+   * Asks the agent for a starter FAQ based on what's already on the page.
+   * Replaces the list wholesale rather than appending — this is a "write me
+   * one" button, not a "add more" one, and the result is fully editable
+   * afterward like any other content.
+   */
+  async function generateFaq() {
+    setFaqGenerating(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/agent/faq", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !Array.isArray(data.faq) || data.faq.length === 0) {
+        setError(data.error || t("editor.faqGenerateFailed"));
+        return;
+      }
+
+      setForm((f) => ({
+        ...f,
+        faq: data.faq.slice(0, MAX_FAQ_ITEMS).map((item) => ({
+          question: item.question || "",
+          answer: item.answer || "",
+        })),
+      }));
+      setSaved(false);
+    } catch {
+      setError(t("editor.faqGenerateFailed"));
+    } finally {
+      setFaqGenerating(false);
+    }
   }
 
   function updateStatusMessage(key, value) {
@@ -371,6 +551,105 @@ export default function LandingPageEditor({
         <p className={styles.sectionHint}>{t("editor.showTeamSectionHint")}</p>
       </section>
 
+      {/* ── Social links & quick messaging ──────────────────────────────
+          Placed directly after the hero copy because that's where these
+          render: a row of buttons under the CTA, mirrored in the footer. */}
+      <section className={styles.detailCard} style={{ maxWidth: 760 }}>
+        <h2 className={styles.sectionTitle}>{t("editor.socialTitle")}</h2>
+        <p className={styles.sectionHint}>{t("editor.socialHint")}</p>
+
+        <div className={styles.socialCallout}>
+          <span className={styles.socialCalloutIcon} style={{ "--social-brand": "#25D366" }}>
+            <SocialIcon platform="whatsapp" size={20} />
+          </span>
+          <div className={styles.socialCalloutBody}>
+            <strong>{t("editor.whatsappTitle")}</strong>
+            <p className={styles.sectionHint}>{t("editor.whatsappHint")}</p>
+
+            <div className={styles.fieldRow}>
+              <div className={styles.detailField}>
+                <label htmlFor="whatsapp-number">{t("editor.whatsappNumber")}</label>
+                <input
+                  id="whatsapp-number"
+                  type="tel"
+                  dir="ltr"
+                  inputMode="tel"
+                  placeholder={t("editor.whatsappNumberPlaceholder")}
+                  value={form.social.whatsapp.number}
+                  onChange={(e) => updateWhatsapp("number", e.target.value)}
+                />
+                <span className={styles.sectionHint}>{t("editor.whatsappNumberHint")}</span>
+              </div>
+
+              <div className={styles.detailField}>
+                <label htmlFor="whatsapp-message">{t("editor.whatsappMessage")}</label>
+                <textarea
+                  id="whatsapp-message"
+                  rows={2}
+                  maxLength={MAX_WHATSAPP_MESSAGE}
+                  placeholder={DEFAULT_WHATSAPP_MESSAGE}
+                  value={form.social.whatsapp.message}
+                  onChange={(e) => updateWhatsapp("message", e.target.value)}
+                />
+                <span className={styles.sectionHint}>{t("editor.whatsappMessageHint")}</span>
+              </div>
+            </div>
+
+            {/* Opens the real chat, pre-filled exactly as a visitor would
+                see it — the only way to be sure the number is right. */}
+            {isValidPhone(form.social.whatsapp.number) && (
+              <a
+                className={`${styles.linkButton} ${styles.iconLabel}`}
+                href={whatsappUrl(form.social.whatsapp.number, form.social.whatsapp.message)}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <IconExternalLink size={13} />
+                {t("editor.whatsappTest")}
+              </a>
+            )}
+            {form.social.whatsapp.number && !isValidPhone(form.social.whatsapp.number) && (
+              <p className={styles.sectionHint} style={{ color: "var(--danger-strong)" }}>
+                {t("editor.whatsappInvalid")}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {SOCIAL_PLATFORMS.filter((p) => p.kind === "url").map((platform) => (
+          <div className={styles.socialInputRow} key={platform.key}>
+            <span className={styles.socialInputIcon} style={{ "--social-brand": platform.brandColor }}>
+              <SocialIcon platform={platform.key} size={18} />
+            </span>
+            <div className={styles.detailField} style={{ marginBottom: 0, flex: 1 }}>
+              {/* The platform's own name — identical in every language, so
+                  it isn't a dictionary string. */}
+              <label htmlFor={`social-${platform.key}`}>{platform.label}</label>
+              <input
+                id={`social-${platform.key}`}
+                type="text"
+                dir="ltr"
+                placeholder={platform.prefix}
+                value={form.social[platform.key]}
+                onChange={(e) => updateSocial(platform.key, e.target.value)}
+              />
+            </div>
+          </div>
+        ))}
+
+        <p className={styles.sectionHint}>{t("editor.socialHandleHint")}</p>
+
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            checked={form.showSocialInHero}
+            onChange={(e) => update("showSocialInHero", e.target.checked)}
+          />
+          <span>{t("editor.showSocialInHero")}</span>
+        </label>
+        <p className={styles.sectionHint}>{t("editor.showSocialInHeroHint")}</p>
+      </section>
+
       <section className={styles.detailCard}>
         <h2 className={styles.sectionTitle}>{t("editor.backgroundPhotos")}</h2>
         <p className={styles.sectionHint}>
@@ -472,7 +751,8 @@ export default function LandingPageEditor({
           const core = isCoreKey(field.key);
           const locked = field.key === "name";
           return (
-            <div key={field.key} className={styles.formFieldRow}>
+            <div key={field.key}>
+            <div className={styles.formFieldRow}>
               <input
                 type="text"
                 value={field.label}
@@ -484,7 +764,7 @@ export default function LandingPageEditor({
                 className={styles.formFieldTypeSelect}
                 value={field.type}
                 disabled={core}
-                onChange={(e) => updateFormField(field.key, { type: e.target.value })}
+                onChange={(e) => changeFieldType(field.key, e.target.value)}
               >
                 {FIELD_TYPES.map((typeKey) => (
                   <option key={typeKey} value={typeKey}>
@@ -533,6 +813,48 @@ export default function LandingPageEditor({
                 </button>
               </div>
             </div>
+
+            {/* A dropdown or checkbox group needs its answers listed. Only
+                shown for those two types — every other field ignores them. */}
+            {isChoiceType(field.type) && (
+              <div className={styles.fieldOptions}>
+                <span className={styles.fieldOptionsLabel}>
+                  {field.type === "checkbox" ? t("editor.optionsCheckbox") : t("editor.optionsSelect")}
+                </span>
+
+                {field.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className={styles.fieldOptionRow}>
+                    <input
+                      type="text"
+                      value={option}
+                      placeholder={t("editor.optionPlaceholder")}
+                      onChange={(e) => updateFieldOption(field.key, optionIndex, e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className={styles.iconButton}
+                      onClick={() => removeFieldOption(field.key, optionIndex)}
+                      disabled={field.options.length <= 1}
+                      aria-label={t("editor.removeOption")}
+                    >
+                      <IconClose size={13} />
+                    </button>
+                  </div>
+                ))}
+
+                {field.options.length < MAX_FIELD_OPTIONS && (
+                  <button
+                    type="button"
+                    className={`${styles.linkButton} ${styles.iconLabel}`}
+                    onClick={() => addFieldOption(field.key)}
+                  >
+                    <IconPlus size={12} />
+                    {t("editor.addOption")}
+                  </button>
+                )}
+              </div>
+            )}
+            </div>
           );
         })}
 
@@ -578,6 +900,100 @@ export default function LandingPageEditor({
             </div>
           </div>
         </div>
+      </section>
+
+      <section className={styles.detailCard}>
+        <h2 className={styles.sectionTitle}>
+          {t("editor.faqTitle")}{" "}
+          <span className={styles.countPill}>
+            {form.faq.filter((i) => i.question.trim() || i.answer.trim()).length}/{MAX_FAQ_ITEMS}
+          </span>
+        </h2>
+        <p className={styles.sectionHint}>{t("editor.faqHint")}</p>
+
+        <div className={styles.detailField}>
+          <label htmlFor="faq-heading">{t("editor.faqHeading")}</label>
+          <input
+            id="faq-heading"
+            placeholder={t("editor.faqHeadingPlaceholder")}
+            value={form.faqHeading}
+            onChange={(e) => update("faqHeading", e.target.value)}
+          />
+        </div>
+
+        <button
+          type="button"
+          className={`${styles.linkButton} ${styles.iconLabel}`}
+          onClick={generateFaq}
+          disabled={faqGenerating}
+        >
+          <IconSparkles size={13} />
+          {faqGenerating ? t("editor.faqGenerating") : t("editor.faqGenerate")}
+        </button>
+        <p className={styles.sectionHint}>{t("editor.faqGenerateHint")}</p>
+
+        {form.faq.map((item, index) => (
+          <div key={index} className={styles.faqRow}>
+            <div className={styles.faqRowHeader}>
+              <span className={styles.faqRowNumber}>{index + 1}</span>
+              <div className={styles.formFieldActions}>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => moveFaqItem(index, -1)}
+                  disabled={index === 0}
+                  aria-label={t("editor.moveFaqUp")}
+                >
+                  <IconChevronUp size={14} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => moveFaqItem(index, 1)}
+                  disabled={index === form.faq.length - 1}
+                  aria-label={t("editor.moveFaqDown")}
+                >
+                  <IconChevronDown size={14} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => removeFaqItem(index)}
+                  aria-label={t("editor.removeFaq")}
+                >
+                  <IconClose size={14} />
+                </button>
+              </div>
+            </div>
+
+            <input
+              placeholder={t("editor.faqQuestionPlaceholder")}
+              value={item.question}
+              onChange={(e) => updateFaq(index, "question", e.target.value)}
+            />
+            <textarea
+              rows={3}
+              maxLength={MAX_FAQ_ANSWER}
+              placeholder={t("editor.faqAnswerPlaceholder")}
+              value={item.answer}
+              onChange={(e) => updateFaq(index, "answer", e.target.value)}
+            />
+            <span className={styles.charCount}>
+              {item.answer.length}/{MAX_FAQ_ANSWER}
+            </span>
+          </div>
+        ))}
+
+        {form.faq.length < MAX_FAQ_ITEMS && (
+          <button
+            type="button"
+            className={`${styles.linkButton} ${styles.iconLabel}`}
+            onClick={addFaqItem}
+          >
+            <IconPlus size={13} />
+            {t("editor.addFaq")}
+          </button>
+        )}
       </section>
 
       <section className={styles.detailCard}>

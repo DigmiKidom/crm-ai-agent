@@ -1,13 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import { IconCheck, IconTrash, IconMail, IconSparkles } from "./icons";
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, useLocale } from "@/components/i18n/LocaleProvider";
+import { classifyStages } from "@/lib/stageClassifier";
 
-export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
+const STATUS_TONE_CLASS = {
+  won: "statusSuccess",
+  lost: "statusDanger",
+  open: "statusMuted",
+};
+
+export default function LeadDetailEditor({ lead, stages, tenantSlug, currency = "USD" }) {
   const t = useT();
+  // The app's own locale, not the browser's. Passing `undefined` to
+  // Intl.NumberFormat means "use the runtime default", which is the server's
+  // locale during SSR and the visitor's during hydration — so a Hebrew user
+  // got "$120" from the server and "‏120 ‏$" from the client, and React threw
+  // a hydration mismatch on every render of this field.
+  const { locale } = useLocale();
   const router = useRouter();
   const [form, setForm] = useState({
     name: lead.name || "",
@@ -16,7 +29,16 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
     message: lead.message || "",
     notes: lead.notes || "",
     stage: lead.stage || stages[0],
+    dealValue: lead.dealValue || 0,
   });
+  const [dealStatus, setDealStatus] = useState(lead.dealStatus || "open");
+  const dealValueRef = useRef(null);
+  const [showWonPrompt, setShowWonPrompt] = useState(false);
+
+  // Same classification Analytics and the server's own stage-change handler
+  // use (app/api/leads/[id]/route.js) — so the badge and the deal-value nudge
+  // below can never disagree with what actually gets saved.
+  const { won: wonStages, lost: lostStages } = useMemo(() => classifyStages(stages), [stages]);
   // Answers to any custom fields the tenant added to their landing page form
   // (see components/LandingPageEditor.js). Snapshotted at submission time —
   // editable here like everything else, PATCHed back as a whole array.
@@ -67,6 +89,20 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
     setSaved(false);
   }
 
+  function handleStageChange(newStage) {
+    // Nudge toward entering a deal value the moment a lead crosses INTO a won
+    // stage — not on every change to an already-won stage, which would just
+    // be noise for a tenant with more than one winning stage.
+    if (wonStages.has(newStage) && !wonStages.has(form.stage)) {
+      setShowWonPrompt(true);
+      // Deferred a tick so the input exists/is enabled by the time focus runs.
+      setTimeout(() => dealValueRef.current?.focus(), 0);
+    } else {
+      setShowWonPrompt(false);
+    }
+    update("stage", newStage);
+  }
+
   function updateCustomField(key, value) {
     setCustomFields((fields) => fields.map((f) => (f.key === key ? { ...f, value } : f)));
     setSaved(false);
@@ -83,12 +119,18 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
       body: JSON.stringify({ ...form, customFields }),
     });
 
+    const data = await res.json().catch(() => ({}));
     setSaving(false);
 
     if (!res.ok) {
       setError(t("leads.saveFailed"));
       return;
     }
+    // The server is the one source of truth for dealStatus (derived from
+    // stage, never trusted from the client) — sync the badge to what it
+    // actually saved rather than guessing locally.
+    if (data.lead?.dealStatus) setDealStatus(data.lead.dealStatus);
+    setShowWonPrompt(false);
     setSaved(true);
   }
 
@@ -114,6 +156,10 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
         </p>
       )}
 
+      <span className={`${styles.statusBadge} ${styles[STATUS_TONE_CLASS[dealStatus]]}`}>
+        {t(`leads.dealStatus.${dealStatus}`)}
+      </span>
+
       <div className={styles.detailField}>
         <label htmlFor="name">{t("leads.name")}</label>
         <input id="name" value={form.name} onChange={(e) => update("name", e.target.value)} />
@@ -129,15 +175,42 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug }) {
         <input id="phone" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
       </div>
 
-      <div className={styles.detailField}>
-        <label htmlFor="stage">{t("leads.stage")}</label>
-        <select id="stage" value={form.stage} onChange={(e) => update("stage", e.target.value)}>
-          {stages.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+      <div className={styles.fieldRow}>
+        <div className={styles.detailField}>
+          <label htmlFor="stage">{t("leads.stage")}</label>
+          <select id="stage" value={form.stage} onChange={(e) => handleStageChange(e.target.value)}>
+            {stages.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.detailField}>
+          <label htmlFor="dealValue">{t("leads.dealValue")}</label>
+          <input
+            id="dealValue"
+            ref={dealValueRef}
+            type="number"
+            min="0"
+            step="0.01"
+            inputMode="decimal"
+            value={form.dealValue}
+            onChange={(e) => update("dealValue", e.target.value === "" ? 0 : Number(e.target.value))}
+          />
+          {form.dealValue > 0 && (
+            <span className={styles.charCount}>
+              {new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format(
+                form.dealValue
+              )}
+            </span>
+          )}
+          {showWonPrompt && (
+            <span className={styles.wonPrompt} role="status">
+              {t("leads.wonDealValuePrompt")}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className={styles.detailField}>

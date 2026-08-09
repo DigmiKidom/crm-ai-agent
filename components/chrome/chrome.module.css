@@ -252,6 +252,17 @@
   display: none;
 }
 
+/* The dashboard's drawer trigger. Hidden above the width where the sidebar
+   becomes permanent — the breakpoint here MUST match the one in
+   dashboard.module.css that turns .sidebar into an off-canvas drawer (780px),
+   or there's a band of widths with either a dead button or no way to open the
+   nav at all. */
+@media (min-width: 781px) {
+  .menuTriggerDrawerOnly {
+    display: none;
+  }
+}
+
 /* ── Language menu ───────────────────────────────────────────────────────── */
 
 .langMenu {
@@ -796,4 +807,51 @@
 
 .skipLink:focus {
   inset-block-start: 8px;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────
+   Deliberately not the browser's native `title` attribute: title can't wrap
+   multi-line text sensibly, has an inconsistent (and often very long) show
+   delay across browsers, and isn't reliably reachable via keyboard. This
+   shows on hover AND focus, so it's usable without a mouse. */
+.tooltipWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: help;
+  padding: 2px;
+  border-radius: 999px;
+}
+
+.tooltipTrigger:hover,
+.tooltipTrigger:focus-visible {
+  color: var(--foreground);
+}
+
+.tooltipBubble {
+  position: absolute;
+  z-index: 50;
+  inset-block-end: calc(100% + 8px);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 220px;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  font-weight: 400;
+  text-align: start;
+  box-shadow: 0 8px 24px -12px var(--shadow-color);
+  pointer-events: none;
 }

@@ -24,6 +24,8 @@
   "sidebar": {
     "overview": "Resumen",
     "leads": "Leads",
+    "hub": "Centro de servicios",
+    "calendar": "Calendario",
     "analytics": "Analítica",
     "pipeline": "Pipeline",
     "contacts": "Contactos",
@@ -43,7 +45,9 @@
     "companySettings": "Configuración de la empresa",
     "emptyHint": "Agrega un documento o una tabla para llevar notas y listas junto a tu CRM.",
     "unreadOne": "{count} lead sin leer",
-    "unreadMany": "{count} leads sin leer"
+    "unreadMany": "{count} leads sin leer",
+    "closedDeals": "Negocios cerrados",
+    "navigation": "Navegación principal"
   },
   "account": {
     "menu": "Menú de la cuenta",
@@ -107,7 +111,13 @@
     "passwordUpdated": "Contraseña actualizada. Redirigiendo al inicio de sesión…",
     "signingIn": "Iniciando sesión…",
     "resetIntro": "Escribe tu correo electrónico y te enviaremos un enlace para establecer una nueva contraseña.",
-    "resetSent": "Si existe una cuenta con ese correo, un enlace de restablecimiento está en camino. Revisa tu bandeja de entrada."
+    "resetSent": "Si existe una cuenta con ese correo, un enlace de restablecimiento está en camino. Revisa tu bandeja de entrada.",
+    "twoFactorCode": "Código de autenticación",
+    "twoFactorCodeHint": "6 dígitos de tu app de autenticación — o uno de tus códigos de recuperación.",
+    "twoFactorStep": "Verificación en dos pasos",
+    "twoFactorStepHint": "Tu contraseña se aceptó. Introduce el código de tu app de autenticación para terminar.",
+    "twoFactorBack": "Usar otra cuenta",
+    "invalidCode": "Ese código no es correcto. Comprueba el actual en tu app e inténtalo de nuevo."
   },
   "invite": {
     "title": "Tienes una invitación",
@@ -152,6 +162,58 @@
     "privacy": "Privacidad",
     "rights": "Todos los derechos reservados.",
     "builtWith": "Creado para pequeñas empresas que se mueven rápido."
+  },
+  "email": {
+    "pasteLink": "O copia este enlace en tu navegador:",
+    "footerReceived": "Recibiste este correo porque tienes una cuenta de {productName}.",
+    "footerReceivedLead": "Recibiste esto porque las alertas de nuevos leads están activas para {tenantName}. Puedes desactivarlas cuando quieras en Configuración.",
+    "footerReceivedInvite": "Recibiste esto porque {inviterName} te invitó a unirte a un equipo en {productName}.",
+    "preheaderReset": "Restablece tu contraseña de {productName}.",
+    "preheaderVerify": "Confirma tu correo para terminar de configurar tu cuenta de {productName}.",
+    "preheaderNewLead": "{leadName} acaba de llegar a través de {tenantName}.",
+    "preheaderInvite": "{inviterName} te invitó a unirte a {tenantName} en {productName}.",
+    "preheaderMeetingReminder": "Recordatorio: {meetingTitle} a las {time}.",
+    "reset": {
+      "subject": "Restablece tu contraseña",
+      "heading": "Restablece tu contraseña",
+      "intro": "Alguien solicitó restablecer la contraseña de esta cuenta. Elige una nueva con el botón de abajo.",
+      "cta": "Establecer nueva contraseña",
+      "outro": "Este enlace vence en 1 hora y solo puede usarse una vez.",
+      "footnote": "Si no solicitaste esto, puedes ignorar este correo con tranquilidad — tu contraseña no cambiará."
+    },
+    "verify": {
+      "subject": "Verifica tu correo",
+      "heading": "Confirma tu dirección de correo",
+      "intro": "Te damos la bienvenida. Confirma tu correo para terminar de configurar tu cuenta y empezar a recibir leads.",
+      "cta": "Verificar mi correo",
+      "outro": "Este enlace vence en 24 horas.",
+      "footnote": "Si no creaste una cuenta, puedes ignorar este correo con tranquilidad."
+    },
+    "newLead": {
+      "subject": "Nuevo lead: {leadName}",
+      "heading": "Tienes un nuevo lead",
+      "intro": "{leadName} acaba de llegar a través de la landing page de {tenantName}.",
+      "cta": "Ver lead",
+      "outro": "Puedes desactivar estas notificaciones por correo cuando quieras en Configuración."
+    },
+    "invite": {
+      "subject": "{inviterName} te invitó a unirte a {tenantName} en {productName}",
+      "heading": "Únete a {tenantName} en {productName}",
+      "introAdmin": "{inviterName} te invitó a unirte a su equipo como administrador. Crea tu cuenta para empezar.",
+      "introMember": "{inviterName} te invitó a unirte a su equipo como miembro. Crea tu cuenta para empezar.",
+      "cta": "Aceptar invitación",
+      "outro": "Este enlace vence en 7 días y solo puede usarse una vez.",
+      "footnote": "Si no esperabas esta invitación, puedes ignorarla con tranquilidad."
+    },
+    "meetingReminder": {
+      "subject": "Recordatorio: {meetingTitle} a las {time}",
+      "heading": "Recordatorio de reunión próxima",
+      "intro": "\"{meetingTitle}\" se acerca, el {date} a las {time}.",
+      "introWithLead": "Tu cita con {leadName} se acerca — \"{meetingTitle}\" el {date} a las {time}.",
+      "cta": "Ver en el calendario",
+      "outroLocation": "Ubicación: {location}",
+      "footnote": "¿Cambiaron los planes? Puedes actualizar o cancelar esta reunión desde tu calendario."
+    }
   },
   "common": {
     "loading": "Cargando…",
@@ -250,6 +312,7 @@
     "companyProfile": "Perfil de la empresa",
     "companyProfileHint": "Se usa en todo tu panel y se muestra en tu página de aterrizaje pública.",
     "companyName": "Nombre de la empresa",
+    "currency": "Moneda",
     "legalName": "Razón social",
     "tagline": "Eslogan",
     "about": "Acerca de",
@@ -315,7 +378,63 @@
       "sendInvite": "Enviar invitación",
       "sending": "Enviando…",
       "inviteFailed": "No se pudo enviar la invitación."
-    }
+    },
+    "billing": {
+      "title": "Facturación",
+      "hint": "El plan gratuito cubre lo esencial. El plan Pro desbloquea las ventanas de analítica de 1 y 3 años.",
+      "checkoutSuccess": "Ya tienes el plan Pro — ¡gracias! Puede tardar un momento en aparecer abajo.",
+      "checkoutCancelled": "Se canceló el pago — sigues en el plan gratuito.",
+      "failed": "Algo salió mal. Inténtalo de nuevo.",
+      "currentPlanFree": "Plan actual: Gratis",
+      "currentPlanPro": "Plan actual: Pro",
+      "upgrade": "Mejorar a Pro",
+      "manageSubscription": "Gestionar suscripción"
+    },
+    "domain": {
+      "title": "Dominio personalizado",
+      "hint": "Apunta tu propio dominio a tu página de aterrizaje en lugar de ceramony.co/pages/tu-empresa.",
+      "hostnameLabel": "Dominio",
+      "hostnamePlaceholder": "tuempresa.com",
+      "add": "Agregar dominio",
+      "addFailed": "No se pudo agregar ese dominio.",
+      "checkFailed": "No se pudo verificar el estado de ese dominio.",
+      "checkStatus": "Verificar estado",
+      "remove": "Eliminar",
+      "removeFailed": "No se pudo eliminar ese dominio.",
+      "confirmRemove": "¿Eliminar {hostname} de este sitio? Tu página de aterrizaje dejará de estar disponible ahí.",
+      "status": {
+        "verified": "Verificado — activo",
+        "pending": "Pendiente — DNS aún no verificado",
+        "error": "Mal configurado — revisa los registros abajo"
+      },
+      "dnsInstructions": "Agrega estos registros DNS en tu proveedor de dominios",
+      "recordType": "Tipo",
+      "recordName": "Nombre",
+      "recordValue": "Valor",
+      "dnsHint": "Los cambios de DNS pueden tardar desde unos minutos hasta unas horas en tener efecto. Haz clic en \"Verificar estado\" después de agregarlos."
+    },
+    "webhookUrl": "Enviar leads nuevos a un webhook",
+    "webhookUrlHint": "Opcional. Enviaremos cada lead nuevo a esta dirección en cuanto llegue — útil para Make, n8n o Zapier. Debe empezar por https://",
+    "outreachTitle": "Respuestas de WhatsApp desde tu CRM",
+    "outreachHint": "Cada lead con teléfono tiene un botón de WhatsApp. Al pulsarlo se abre tu propio WhatsApp con este mensaje listo — nunca se envía nada por ti.",
+    "outreachTemplate": "Mensaje de apertura",
+    "outreachTemplateHint": "Usa {name} para el nombre del lead, {service} para lo que preguntó y {company} para el nombre de tu negocio. Si no hay nada con que rellenar {service}, quitamos esa parte de la frase.",
+    "outreachPreview": "Vista previa:",
+    "outreachSampleName": "Ana",
+    "outreachSampleService": "una consulta",
+    "followUpTitle": "Recordatorios de seguimiento",
+    "followUpHint": "Marcamos los leads abiertos que se han quedado en silencio para que ninguno se pierda. No enviamos mensajes por ti — tú decides cuándo contactar.",
+    "followUpInterval": "Marcar un lead tras",
+    "followUpIntervals": {
+      "7_days": "7 días de silencio",
+      "14_days": "14 días de silencio",
+      "30_days": "30 días de silencio",
+      "never": "Nunca — desactivar recordatorios"
+    },
+    "followUpIntervalHint": "Cambiar la etapa, editar las notas o enviar un seguimiento reinician el contador.",
+    "followUpIntervalOffHint": "No se marcará nada. Las marcas existentes se limpian en la próxima comprobación.",
+    "followUpTemplate": "Mensaje de seguimiento",
+    "followUpTemplateHint": "Usa {name} para el nombre del lead. Déjalo en blanco para el predeterminado."
   },
   "cookies": {
     "notice": "Aviso de cookies",
@@ -329,9 +448,15 @@
     "searchByName": "Buscar por nombre",
     "searchPlaceholder": "Buscar leads…",
     "stage": "Etapa",
+    "dealValue": "Valor del trato",
     "allStages": "Todas las etapas",
     "from": "Desde",
+    "to": "Hasta",
+    "filter": "Filtrar",
+    "view": "Ver",
+    "backToLeads": "Volver a leads",
     "noMatch": "Ningún lead coincide con esos filtros.",
+    "noneYet": "Aún no hay leads. Comparte tu landing page (/pages/{slug}) para empezar a recibirlos.",
     "name": "Nombre",
     "email": "Correo electrónico",
     "phone": "Teléfono",
@@ -339,6 +464,12 @@
     "unreadLead": "Lead sin leer",
     "unread": "Sin leer",
     "noLeads": "Aún no hay leads.",
+    "dealStatus": {
+      "open": "Abierto",
+      "won": "Cerrado / Ganado",
+      "lost": "Cerrado / Perdido"
+    },
+    "wonDealValuePrompt": "Esto parece un trato ganado — agrega el valor del trato abajo.",
     "originalMessage": "Mensaje original",
     "notes": "Notas",
     "notesPlaceholder": "Agrega notas internas sobre este lead…",
@@ -364,10 +495,46 @@
     "activity": {
       "title": "Actividad",
       "empty": "Aún no hay actividad — los cambios de etapa o notas aparecerán aquí.",
+      "captured": "Lead captado a través de la página de aterrizaje",
       "stageChanged": "La etapa cambió de \"{from}\" a \"{to}\"",
       "notesUpdated": "Notas actualizadas",
+      "meetingScheduled": "Seguimiento programado: \"{title}\" el {date}",
+      "meetingCancelled": "Reunión cancelada: \"{title}\"",
+      "aiReplyDrafted": "La IA redactó una respuesta",
+      "dealWon": "Marcado como Cerrado/Ganado — {amount}",
+      "dealWonNoValue": "Marcado como Cerrado/Ganado",
+      "dealLost": "Marcado como Cerrado/Perdido",
       "unknownActor": "Alguien",
       "none": "ninguna"
+    },
+    "whatsapp": "Enviar un WhatsApp a {name}",
+    "whatsappReply": "Responder por WhatsApp",
+    "newContact": "Contacto nuevo",
+    "addToContacts": "Guardar en contactos",
+    "contactSaved": "Guardado",
+    "vcardCaptured": "Captado:",
+    "vcardVia": "Lead de",
+    "pendingFollowUp": "Seguimiento",
+    "quickFollowUp": "Seguimiento rápido",
+    "followUpNotice": "Este lead lleva tiempo en silencio. Un mensaje breve suele reactivarlo.",
+    "followUpDefaultMessage": "Hola {name}, solo doy seguimiento a nuestra conversación anterior.",
+    "closure": {
+      "titleWon": "Cerrar este negocio",
+      "titleLost": "Marcar como perdido",
+      "introWon": "Registra qué compró {name}, para tenerlo después.",
+      "introLost": "Una nota sobre por qué {name} no cerró vale más que la cifra.",
+      "amount": "Importe final ({currency})",
+      "amountHint": "Lo que vas a facturar realmente, antes de impuestos.",
+      "services": "¿Qué compraron?",
+      "servicesLost": "¿Qué buscaban?",
+      "servicesPlaceholder": "Paquete de 3 meses",
+      "notes": "Notas de cierre",
+      "notesLost": "¿Qué pasó?",
+      "notesPlaceholder": "Dividido en 2 pagos, empieza el mes que viene",
+      "notesLostPlaceholder": "Eligieron un presupuesto más barato",
+      "closedAt": "Fecha de cierre",
+      "save": "Guardar y cerrar",
+      "failed": "No se pudo guardar. Inténtalo de nuevo."
     }
   },
   "contacts": {
@@ -393,7 +560,63 @@
     "saveFailed": "No se pudieron guardar los cambios.",
     "serverError": "Error inesperado del servidor. Inténtalo de nuevo.",
     "editStages": "Editar etapas",
-    "moveToStage": "Mover {name} a la etapa"
+    "moveToStage": "Mover {name} a la etapa",
+    "searchPlaceholder": "Buscar leads por nombre o correo…",
+    "noMatch": "No hay coincidencias en esta etapa."
+  },
+  "calendar": {
+    "title": "Calendario",
+    "loadFailed": "No se pudo cargar tu calendario.",
+    "saveFailed": "No se pudo guardar ese evento.",
+    "deleteFailed": "No se pudo eliminar ese evento.",
+    "newEvent": "Nuevo evento",
+    "editEvent": "Editar evento",
+    "deleteEvent": "Eliminar evento",
+    "confirmDelete": "¿Eliminar \"{title}\"? Esta acción no se puede deshacer.",
+    "emptyState": "Aún no hay nada en el calendario para este rango.",
+    "today": "Hoy",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "viewLabel": "Vista del calendario",
+    "view": {
+      "month": "Mes",
+      "week": "Semana",
+      "day": "Día"
+    },
+    "addEvent": "Agregar",
+    "noEventsDay": "Nada programado.",
+    "allDay": "Todo el día",
+    "moreEvents": "+{count} más",
+    "eventTitle": "Título",
+    "eventTitlePlaceholder": "p. ej. Llamada de descubrimiento con Acme S.A.",
+    "eventType": "Tipo",
+    "eventStatus": "Estado",
+    "type": {
+      "meeting": "Reunión",
+      "call": "Llamada",
+      "demo": "Demostración",
+      "follow_up": "Seguimiento",
+      "other": "Otro"
+    },
+    "status": {
+      "confirmed": "Confirmado",
+      "pending": "Pendiente",
+      "ai_followup": "Seguimiento de IA pendiente",
+      "completed": "Completado",
+      "cancelled": "Cancelado"
+    },
+    "allDayEvent": "Evento de todo el día",
+    "startsAt": "Comienza",
+    "endsAt": "Termina",
+    "linkedRecord": "Lead o contacto vinculado",
+    "searchLeadsContacts": "Buscar leads y contactos…",
+    "kindLead": "Lead",
+    "kindContact": "Contacto",
+    "aiFollowupHint": "Marcado para un seguimiento redactado por IA.",
+    "aiFollowupLink": "Redactarlo en este lead →",
+    "location": "Ubicación",
+    "locationPlaceholder": "Oficina, enlace de video o dirección",
+    "notes": "Notas"
   },
   "site": {
     "title": "Editar página de aterrizaje",
@@ -426,7 +649,35 @@
     "galleryColumns": "Columnas de la galería",
     "featureTitle": "Título de la función",
     "featureDescription": "Descripción de la función",
+    "featureIcon": "Ícono",
     "cardStyling": "Estilo de la tarjeta",
+    "defaultFieldName": "Nombre",
+    "defaultFieldEmail": "Correo electrónico",
+    "defaultFieldPhone": "Teléfono",
+    "defaultFieldMessage": "Mensaje",
+    "icons": {
+      "noneSelected": "ninguno seleccionado",
+      "coin": "Buen precio",
+      "thumbsUp": "Honestidad / calidad",
+      "shield": "Confianza / garantía",
+      "star": "Mejor calificado",
+      "clock": "Entrega rápida",
+      "heart": "Atención al cliente",
+      "bolt": "Rápido / potente",
+      "chat": "Soporte",
+      "truck": "Entrega",
+      "award": "Premiado",
+      "lock": "Seguro / privado",
+      "chart": "Resultados / crecimiento",
+      "phone": "Llámanos",
+      "handshake": "Alianza",
+      "leaf": "Ecológico",
+      "target": "Precisión",
+      "tools": "Artesanía",
+      "globe": "Alcance global",
+      "calendar": "Horario flexible",
+      "gift": "Extras gratis"
+    },
     "colouredTopStrip": "Franja superior de color",
     "colouredBorder": "Borde de color",
     "cardColour": "Color de la tarjeta",
@@ -456,7 +707,9 @@
       "tel": "Teléfono",
       "textarea": "Párrafo",
       "number": "Número",
-      "date": "Fecha"
+      "date": "Fecha",
+      "select": "Desplegable",
+      "checkbox": "Casillas"
     },
     "fieldRequired": "Obligatorio",
     "moveFieldUp": "Subir campo",
@@ -473,7 +726,40 @@
     "colourPrimary": "Principal",
     "colourAccent": "Secundario",
     "removeFeature": "Eliminar",
-    "saveChanges": "Guardar cambios"
+    "saveChanges": "Guardar cambios",
+    "socialTitle": "Redes sociales y mensajería rápida",
+    "socialHint": "Se muestran como botones debajo de tu titular y otra vez en el pie de página. Rellena solo los que uses — el resto simplemente no aparece.",
+    "socialHandleHint": "Puedes pegar el enlace completo o solo tu nombre de usuario — nosotros construimos la dirección.",
+    "showSocialInHero": "Mostrar también estos botones en la parte superior de la página",
+    "showSocialInHeroHint": "Activado por defecto. Desactívalo si prefieres que los visitantes se centren primero en tu botón principal — igualmente los encontrarán en el pie de página.",
+    "whatsappTitle": "Chat rápido de WhatsApp",
+    "whatsappHint": "Al tocarlo se abre WhatsApp con tu mensaje ya escrito, así el visitante solo tiene que pulsar enviar.",
+    "whatsappNumber": "Número de WhatsApp",
+    "whatsappNumberPlaceholder": "+34 600 123 456",
+    "whatsappNumberHint": "Incluye el código de país. Los espacios, guiones y paréntesis no son problema.",
+    "whatsappMessage": "Mensaje que escribimos por ellos",
+    "whatsappMessageHint": "Escríbelo como lo haría el visitante. Déjalo en blanco para abrir un chat vacío.",
+    "whatsappTest": "Pruébalo tú mismo",
+    "whatsappInvalid": "Todavía no parece un número de teléfono completo.",
+    "optionsSelect": "Opciones del desplegable",
+    "optionsCheckbox": "Casillas que pueden marcar",
+    "optionPlaceholder": "p. ej. Corte de pelo",
+    "addOption": "Añadir opción",
+    "removeOption": "Eliminar opción",
+    "faqTitle": "Preguntas frecuentes",
+    "faqHint": "Responde lo que la gente pregunta antes de contactarte. Te ahorra la llamada y les quita una razón para dudar.",
+    "faqHeading": "Título de la sección",
+    "faqHeadingPlaceholder": "Preguntas frecuentes",
+    "faqQuestionPlaceholder": "¿Cuánto cuesta?",
+    "faqAnswerPlaceholder": "Responde en una o dos frases, como lo dirías por teléfono.",
+    "addFaq": "Añadir una pregunta",
+    "removeFaq": "Eliminar pregunta",
+    "moveFaqUp": "Subir la pregunta",
+    "moveFaqDown": "Bajar la pregunta",
+    "faqGenerate": "Escríbelas por mí",
+    "faqGenerating": "Escribiendo…",
+    "faqGenerateHint": "Redacta preguntas a partir de lo que ya hay en tu página. Nada se publica hasta que guardes.",
+    "faqGenerateFailed": "No pudimos escribir las preguntas ahora. Inténtalo de nuevo en un momento."
   },
   "workspace": {
     "deleteFailed": "No se pudo eliminar esta página.",
@@ -525,6 +811,11 @@
   "analytics": {
     "title": "Analítica",
     "noLeads": "Aún no hay leads",
+    "outcomes": {
+      "won": "Ganado",
+      "inProgress": "En curso",
+      "lost": "Perdido"
+    },
     "range": {
       "week": "Semana",
       "month": "Mes",
@@ -537,7 +828,9 @@
       "prevWeek": "7 días",
       "prevMonth": "30 días",
       "prevYear": "12 meses",
-      "prev3y": "36 meses"
+      "prev3y": "36 meses",
+      "proOnly": "Requiere el plan Pro — haz clic para mejorar tu plan",
+      "lockedBanner": "Ese rango requiere el plan Pro — mostrando los últimos 30 días en su lugar."
     },
     "kpi": {
       "leads": "Leads nuevos",
@@ -554,7 +847,18 @@
       "oldestWaiting": "El más antiguo lleva esperando {duration}",
       "allOpened": "Todo ha sido abierto",
       "filledEvery": "{percent}% completó todos los campos opcionales",
-      "totalContacts": "{count} contactos en total"
+      "totalContacts": "{count} contactos en total",
+      "visitors": "Visitantes",
+      "conversion": "Conversión de visitas a leads",
+      "noVisitData": "Aún no hay datos de visitantes",
+      "leadsOfVisitors": "{leads} leads de {visits} visitas",
+      "ctr": "CTR de la página de aterrizaje",
+      "clicksOfVisitors": "{clicks} hicieron clic de {visits} visitantes",
+      "revenue": "Ingresos",
+      "fromDeals": "De {count} trato(s) con valor",
+      "noValuedDeals": "Aún no hay tratos con valor",
+      "avgDealSize": "Valor promedio del trato",
+      "avgDealSizeHint": "Entre los leads ganados con un valor establecido"
     },
     "band": {
       "under1h": "Menos de 1 hora",
@@ -608,7 +912,19 @@
       "leadsUnit": "leads",
       "leadsTotalUnit": "leads en total",
       "winRateUnit": "tasa de conversión",
-      "gapsNote": "Los huecos son períodos en los que ningún lead se ganó ni se perdió — no una tasa de cierre del 0%."
+      "gapsNote": "Los huecos son períodos en los que ningún lead se ganó ni se perdió — no una tasa de cierre del 0%.",
+      "visitorTraffic": "Tráfico de visitantes",
+      "visitsUnit": "visitas",
+      "conversionNote": "{visits} visitas → {leads} leads ({pct}%)",
+      "noVisitDataYet": "Aún no hay datos de visitantes — empezarán a aparecer con la próxima visita a tu página de aterrizaje.",
+      "visitorTrafficNote": "Se cuenta a partir de una huella diaria sin cookies (IP + navegador, cifrada, nunca almacenada más de un día) — un visitante se cuenta una vez al día sin importar cuántas veces recargue la página. Los bots y rastreadores conocidos se filtran, aunque el filtro es una heurística, no exhaustivo.",
+      "revenue": "Ingresos",
+      "revenueNote": "{amount} de {count} trato(s) con valor",
+      "revenueNote2": "Se cuenta con el mismo método que la tasa de conversión — un lead en una etapa ganada, en el rango en que se captó, no en el que se cerró. Un lead ganado sin valor cuenta para la tasa de conversión pero no para los ingresos.",
+      "noRevenueYet": "Aún no hay tratos con valor en este rango — agrega un valor de trato a un lead ganado para empezar a registrar ingresos.",
+      "aiActivity": "Actividad del agente de IA",
+      "aiActivityNote": "Cada acción reciente asistida por IA en todo el producto",
+      "noAiActivity": "Aún no hay actividad del agente de IA."
     },
     "insights": {
       "heading": "Lo más destacado",
@@ -644,6 +960,90 @@
       "byHourOfDay": "Por hora del día",
       "leadSources": "Fuentes de leads",
       "thisPeriod": "Este período"
+    },
+    "activity": {
+      "leadReply": "Se redactó una respuesta para {name}",
+      "siteGeneration": "Se generó el contenido de la página de aterrizaje",
+      "unknownLead": "un lead",
+      "resumeSummarize": "Se escribió un resumen de CV",
+      "resumePolish": "Se mejoró el contenido del CV"
+    }
+  },
+  "hub": {
+    "title": "Centro de servicios",
+    "intro": "Todas las herramientas de Ceramony, en un solo lugar — qué hace cada una, cuánto has avanzado con ella, y un enlace directo para empezar.",
+    "aiGenerator": {
+      "title": "Generador de páginas con IA",
+      "description": "Responde algunas preguntas sobre tu negocio y la IA redacta el contenido de tu página de aterrizaje, elige una plantilla y configura un pipeline adaptado a tu forma de vender.",
+      "tooltip": "Volver a ejecutarlo nunca borra tus fotos subidas, ni sobrescribe contenido que ya editaste a mano sin preguntar antes.",
+      "statConfigured": "Configurado",
+      "statNotConfigured": "Aún no configurado",
+      "cta": "Abrir Configuración con IA"
+    },
+    "landingPage": {
+      "title": "Editor de página de aterrizaje",
+      "description": "Edita a mano tu titular, funciones, galería y plantilla — sin necesidad de volver a ejecutar la IA para un cambio pequeño.",
+      "tooltip": "Los cambios se publican en tu página pública en cuanto guardas.",
+      "stat": "4 plantillas disponibles",
+      "cta": "Editar página de aterrizaje"
+    },
+    "leads": {
+      "title": "Bandeja de leads",
+      "description": "Cada visitante que completa el formulario de tu página de aterrizaje llega aquí al instante, listo para trabajar.",
+      "tooltip": "El contador de no leídos te sigue por la barra lateral y este centro hasta que abras un lead.",
+      "statCaughtUp": "Todo al día",
+      "cta": "Ver leads"
+    },
+    "pipeline": {
+      "title": "Pipeline",
+      "description": "Un tablero de arrastrar y soltar con cada lead, organizado por la etapa en la que está en tu proceso de venta.",
+      "tooltip": "Las etapas son tuyas para renombrar, reordenar o agregar — la IA solo sugiere un punto de partida.",
+      "stat": "{count} leads en total",
+      "cta": "Abrir pipeline"
+    },
+    "contacts": {
+      "title": "Contactos",
+      "description": "Una libreta de direcciones simple para personas y empresas con las que trabajas, separada de tus leads entrantes.",
+      "tooltip": "Busca, edita y elimina directamente en la lista — sin navegar a una página de detalle aparte.",
+      "stat": "{count} contactos",
+      "cta": "Ver contactos"
+    },
+    "calendar": {
+      "title": "Calendario",
+      "description": "Programa reuniones, llamadas y demostraciones, y vincúlalas directamente al lead o contacto al que corresponden.",
+      "tooltip": "Vistas de mes, semana y día, además de un estado que tú controlas — incluyendo marcar uno para un seguimiento redactado por IA.",
+      "statUpcoming": "{count} próximos esta semana",
+      "statNone": "Nada programado esta semana",
+      "cta": "Abrir calendario"
+    },
+    "analytics": {
+      "title": "Analítica",
+      "description": "Conversión de visitas a leads, ingresos, tiempos de respuesta, y de dónde viene realmente tu tráfico.",
+      "tooltip": "Las ventanas de 1 y 3 años son una función del plan Pro — el plan gratuito cubre los últimos 30 días.",
+      "stat": "{count} leads captados en total",
+      "cta": "Abrir analítica"
+    },
+    "cv": {
+      "title": "Estudio de CV",
+      "description": "Crea un CV, deja que la IA lo mejore, y expórtalo en PDF — o compártelo con un enlace público.",
+      "tooltip": "Hacerlo público es opcional y está desactivado de forma predeterminada — nadie lo ve hasta que decides compartir el enlace.",
+      "statReady": "Tu CV está listo",
+      "statNotStarted": "Aún no empezado",
+      "cta": "Abrir estudio de CV"
+    },
+    "automation": {
+      "title": "Automatización",
+      "description": "Lo que Ceramony hace por ti sin que lo pidas: una alerta por correo cuando llega un lead nuevo, una respuesta redactada por IA que puedes enviar con un clic, y seguimientos que puedes marcar para ayuda de IA en tu calendario.",
+      "tooltip": "Cada acción de IA aquí es una sugerencia que tú apruebas — nunca algo que se envía en tu nombre automáticamente.",
+      "statOn": "Alertas por correo activadas",
+      "statOff": "Alertas por correo desactivadas",
+      "cta": "Gestionar notificaciones"
+    },
+    "billing": {
+      "title": "Equipo y facturación",
+      "description": "Invita a compañeros con un rol restringido, y gestiona tu plan.",
+      "tooltip": "Solo los propietarios y administradores ven esta tarjeta — la configuración de todo el equipo no estorba a un miembro normal.",
+      "cta": "Abrir configuración"
     }
   },
   "tutorial": {
@@ -767,7 +1167,7 @@
   "api": {
     "common": {
       "notAuthenticated": "No autenticado",
-      "notFound": "No encontrado",
+      "notFound": "No encontrado.",
       "nothingToUpdate": "Nada que actualizar.",
       "expectedJsonBody": "Se esperaba un cuerpo JSON.",
       "allFieldsRequired": "Todos los campos son obligatorios.",
@@ -806,8 +1206,11 @@
       "notFound": "Lead no encontrado",
       "loadFailed": "No se pudo cargar el lead.",
       "invalidCustomFields": "Campos personalizados no válidos.",
+      "invalidDealValue": "El valor del trato debe ser un número de 0 o más.",
       "updateFailed": "No se pudo actualizar el lead.",
-      "deleteFailed": "No se pudo eliminar el lead."
+      "deleteFailed": "No se pudo eliminar el lead.",
+      "closureInvalidAmount": "Introduce un importe de cero o más.",
+      "closureFutureDate": "Un negocio no puede cerrarse en el futuro."
     },
     "leadAgent": {
       "notConfigured": "El agente de IA todavía no está configurado — agrega GOOGLE_API_KEY a tu entorno.",
@@ -823,6 +1226,20 @@
       "revokeFailed": "No se pudo revocar la invitación.",
       "linkInvalid": "Este enlace de invitación no es válido o ha caducado.",
       "acceptFailed": "No se pudo crear tu cuenta en este momento. Inténtalo de nuevo."
+    },
+    "billing": {
+      "notConfigured": "La facturación aún no está configurada — agrega tus claves de Stripe a tu entorno.",
+      "checkoutFailed": "No se pudo iniciar el pago en este momento. Inténtalo de nuevo.",
+      "noSubscription": "No hay ninguna suscripción activa para gestionar.",
+      "portalFailed": "No se pudo abrir el portal de facturación en este momento. Inténtalo de nuevo."
+    },
+    "domain": {
+      "notConfigured": "Los dominios personalizados aún no están configurados — agrega tus credenciales de la API de Vercel a tu entorno.",
+      "invalidHostname": "Ingresa un dominio válido, como tuempresa.com.",
+      "addFailed": "No se pudo agregar ese dominio en este momento. Inténtalo de nuevo.",
+      "checkFailed": "No se pudo verificar el estado de ese dominio en este momento.",
+      "removeFailed": "No se pudo eliminar ese dominio en este momento.",
+      "noneConfigured": "No hay ningún dominio personalizado configurado."
     },
     "media": {
       "expectedFileUpload": "Se esperaba un archivo.",
@@ -853,13 +1270,15 @@
     },
     "tenantSettings": {
       "companyNameRequired": "El nombre de la empresa es obligatorio.",
+      "invalidCurrency": "Elige una moneda válida.",
       "invalidContactEmail": "Ese correo de contacto no parece válido.",
       "primaryColor": "Color principal",
       "accentColor": "Color secundario",
       "invalidHexColour": "{field} debe ser un color hexadecimal de 6 dígitos como #2563eb.",
       "invalidLogoReference": "Referencia de logotipo no válida.",
       "logoNotFound": "No se pudo encontrar ese logotipo.",
-      "saveFailed": "No se pudo guardar la configuración."
+      "saveFailed": "No se pudo guardar la configuración.",
+      "invalidWebhookUrl": "Esa dirección de webhook no es válida. Debe ser una dirección https:// pública."
     },
     "tenantPipeline": {
       "needOneStage": "Necesitas al menos una etapa.",
@@ -867,6 +1286,20 @@
       "stageNameDuplicate": "Los nombres de las etapas deben ser únicos.",
       "stageInUse": "Mueve todos los leads fuera de una etapa antes de eliminarla. Todavía hay {count} lead(s) en una etapa que intentas eliminar.",
       "saveFailed": "No se pudieron guardar los cambios."
+    },
+    "calendar": {
+      "invalidRange": "Rango de fechas no válido.",
+      "loadFailed": "No se pudieron cargar los eventos del calendario.",
+      "titleRequired": "Dale un título al evento.",
+      "invalidTimes": "La hora de finalización debe ser posterior a la de inicio.",
+      "onlyOneRelated": "Vincula un lead o un contacto, no ambos.",
+      "invalidType": "Tipo de evento desconocido.",
+      "invalidStatus": "Estado de evento desconocido.",
+      "invalidRelated": "Referencia de lead o contacto no válida.",
+      "relatedNotFound": "No se pudo encontrar ese lead o contacto.",
+      "saveFailed": "No se pudo guardar ese evento.",
+      "notFound": "Evento no encontrado.",
+      "deleteFailed": "No se pudo eliminar ese evento."
     },
     "tenantLandingPage": {
       "heroFieldsRequired": "El titular, el subtítulo y el texto del botón son obligatorios.",
@@ -891,7 +1324,11 @@
       "formFieldsMissingName": "El formulario debe incluir un campo de nombre.",
       "chooseLanguage": "Elige un idioma de contenido.",
       "imageNotFound": "No se pudo encontrar una de esas imágenes.",
-      "saveFailed": "No se pudieron guardar los cambios."
+      "saveFailed": "No se pudieron guardar los cambios.",
+      "formFieldsMissingOptions": "\"{label}\" necesita al menos una opción.",
+      "invalidWhatsappNumber": "Ese número de WhatsApp no parece completo. Incluye el código de país.",
+      "faqIncomplete": "Cada pregunta necesita una respuesta, y cada respuesta una pregunta.",
+      "faqTooMany": "Puedes tener como máximo {n} preguntas."
     },
     "agentGenerate": {
       "missingRequiredFields": "El sector y la definición de lead son obligatorios.",
@@ -922,6 +1359,213 @@
       "tableNotFound": "Tabla no encontrada.",
       "saveRowFailed": "No se pudo guardar ese cambio.",
       "deleteRowFailed": "No se pudo eliminar esa fila."
+    },
+    "agentFaq": {
+      "failed": "No pudimos escribir las preguntas ahora. Inténtalo de nuevo en un momento."
+    },
+    "admin": {
+      "twoFactorRequired": "Configura la autenticación en dos pasos para usar las herramientas de administración.",
+      "twoFactorAlreadyOn": "La autenticación en dos pasos ya está activa en esta cuenta.",
+      "twoFactorNoPending": "Empieza la configuración de nuevo — no hay nada pendiente por confirmar.",
+      "twoFactorBadCode": "Ese código no es correcto. Comprueba el actual en tu app e inténtalo de nuevo.",
+      "cannotSuspendSelf": "No puedes suspender tu propia cuenta.",
+      "cannotSuspendAdmin": "Los administradores de plataforma no se pueden suspender desde aquí.",
+      "unknownAction": "Acción desconocida."
+    },
+    "report": {
+      "chooseReason": "Elige un motivo para este reporte.",
+      "invalidEmail": "Esa dirección de correo no parece correcta.",
+      "notesRequired": "Cuéntanos brevemente qué pasa con esta página.",
+      "failed": "No pudimos enviarlo ahora. Inténtalo de nuevo en un momento."
+    }
+  },
+  "notFound": {
+    "title": "Esta página no existe",
+    "body": "Puede que el enlace esté roto o que la página se haya movido.",
+    "backHome": "Volver al inicio"
+  },
+  "suspended": {
+    "title": "Esta página ha sido suspendida",
+    "body": "Esta página ha sido suspendida por infringir nuestros Términos de servicio.",
+    "ownerNote": "Si esta es tu página, inicia sesión en tu cuenta de Ceramony para saber qué sigue.",
+    "readTerms": "Leer los Términos de uso"
+  },
+  "report": {
+    "reasons": {
+      "spam": "Spam o engañoso",
+      "harassment": "Acoso u odio",
+      "fraud": "Fraude o phishing",
+      "copyright": "Infracción de derechos de autor",
+      "abusive": "Contenido abusivo o explícito",
+      "other": "Otra cosa"
+    }
+  },
+  "admin": {
+    "platformBadge": "Admin de plataforma",
+    "actionFailed": "No se pudo completar. Inténtalo de nuevo.",
+    "nav": {
+      "label": "Secciones de administración",
+      "overview": "Resumen",
+      "users": "Usuarios y páginas",
+      "reports": "Moderación"
+    },
+    "twoFactor": {
+      "title": "Configura la autenticación en dos pasos",
+      "intro": "El acceso de administrador requiere un segundo factor. Tarda un minuto y solo se hace una vez.",
+      "start": "Empezar",
+      "step1": "Abre tu app de autenticación — Google Authenticator, 1Password, Authy o similar.",
+      "step2": "Añade una cuenta nueva e introduce la clave de abajo.",
+      "step3": "Escribe el código de 6 dígitos que aparece para confirmar.",
+      "openInApp": "Abrir en tu app de autenticación",
+      "codeLabel": "Código de 6 dígitos",
+      "confirm": "Confirmar y activar",
+      "savedIntro": "La autenticación en dos pasos está activa. Guarda estos códigos de recuperación en un lugar seguro — cada uno sirve una vez si pierdes el teléfono.",
+      "recoveryWarning": "Esta es la única vez que se muestran. Los guardamos con hash, así que no podemos volver a mostrarlos — solo reemplazarlos.",
+      "continue": "Continuar al panel de administración",
+      "failed": "No funcionó. Inténtalo de nuevo."
+    },
+    "dashboard": {
+      "title": "Resumen de la plataforma",
+      "subtitle": "Todo lo que ocurre en todas las cuentas de Ceramony.",
+      "needsAttention": "Requiere tu atención",
+      "needsAttentionBody": "{n} páginas reportadas esperan revisión.",
+      "openQueue": "Abrir la cola de moderación",
+      "signupsChart": "Registros, últimos 30 días",
+      "signupsLabel": "Registros",
+      "leadsChart": "Leads captados, últimos 30 días",
+      "leadsLabel": "Leads",
+      "noData": "Nada en este periodo todavía."
+    },
+    "stats": {
+      "users": "Usuarios registrados",
+      "usersSub": "{n} en los últimos 7 días",
+      "livePages": "Páginas activas",
+      "livePagesSub": "de {n} negocios",
+      "leads": "Leads captados",
+      "leadsSub": "{n} en los últimos 7 días",
+      "activeTenants": "Negocios activos",
+      "activeTenantsSub": "captaron un lead en los últimos 30 días",
+      "openReports": "Reportes abiertos",
+      "openReportsSub": "esperando revisión",
+      "blockedPages": "Páginas bloqueadas",
+      "blockedPagesSub": "{n} cuentas suspendidas"
+    },
+    "users": {
+      "title": "Usuarios y páginas",
+      "subtitle": "Busca cualquier negocio de la plataforma, revisa lo que publicó y actúa.",
+      "search": "Buscar",
+      "searchPlaceholder": "Negocio, slug, dominio o correo",
+      "filter": "Mostrar",
+      "filterAll": "Todos",
+      "filterReported": "Reportados",
+      "filterBlocked": "Bloqueados",
+      "apply": "Aplicar",
+      "business": "Negocio",
+      "owner": "Propietario",
+      "leads": "Leads",
+      "joined": "Se unió",
+      "status": "Estado",
+      "actions": "Acciones",
+      "statusLive": "Activo",
+      "statusBlocked": "Página bloqueada",
+      "statusReported": "{n} reportes",
+      "statusSuspended": "Cuenta suspendida",
+      "inspect": "Inspeccionar",
+      "viewPage": "Ver página",
+      "blockPage": "Bloquear página",
+      "unblockPage": "Desbloquear página",
+      "suspendAccount": "Suspender cuenta",
+      "restoreAccount": "Restaurar cuenta",
+      "blockReasonPrompt": "¿Por qué se bloquea esta página? Queda registrado para la auditoría.",
+      "suspendConfirm": "¿Suspender a {email}? No podrá iniciar sesión.",
+      "noResults": "Ningún negocio coincide con esa búsqueda.",
+      "showing": "Mostrando {shown} de {total}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "detail": {
+      "back": "Volver a usuarios y páginas",
+      "business": "Negocio",
+      "industry": "Sector",
+      "plan": "Plan",
+      "template": "Plantilla",
+      "created": "Creado",
+      "customDomain": "Dominio propio",
+      "publicPage": "Página pública",
+      "pageContent": "Contenido publicado",
+      "headline": "Titular",
+      "subheadline": "Subtítulo",
+      "blockedNote": "Bloqueada el {date}. Motivo: {reason}",
+      "noReason": "sin motivo registrado",
+      "crmActivity": "Actividad del CRM",
+      "totalLeads": "Leads totales",
+      "leads30": "Últimos 30 días",
+      "lastLead": "Lead más reciente",
+      "privacyNote": "Solo recuentos. Los nombres, correos y mensajes de los leads pertenecen a los clientes de este negocio y no se muestran aquí.",
+      "people": "Personas",
+      "person": "Persona",
+      "role": "Rol",
+      "verified": "Correo verificado",
+      "status": "Estado",
+      "active": "Activo",
+      "yes": "Sí",
+      "no": "No",
+      "reportHistory": "Historial de reportes",
+      "noReports": "Nadie ha reportado esta página."
+    },
+    "reports": {
+      "title": "Cola de moderación",
+      "subtitle": "Reportes enviados por visitantes. Un reporte no cambia nada por sí solo — tú decides.",
+      "show": "Mostrar",
+      "showAll": "Todo",
+      "filed": "Enviado",
+      "page": "Página",
+      "reason": "Motivo",
+      "notes": "Notas",
+      "reporter": "Denunciante",
+      "status": "Estado",
+      "dismiss": "Descartar",
+      "ban": "Banear página",
+      "banConfirm": "¿Bloquear la página de {name}? Los visitantes verán un aviso de suspensión.",
+      "banNotePrompt": "¿Cuál es el motivo? Queda registrado para la auditoría.",
+      "dismissNotePrompt": "¿Por qué se descarta? (opcional)",
+      "empty": "Nada que revisar.",
+      "statuses": {
+        "open": "Abierto",
+        "dismissed": "Descartado",
+        "actioned": "Aplicado"
+      }
+    }
+  },
+  "closedDeals": {
+    "title": "Negocios cerrados",
+    "subtitle": "Cada negocio ganado o perdido, con lo que se vendió y cuánto valió.",
+    "revenue": "Ingresos totales",
+    "revenueSub": "de {n} negocios ganados",
+    "avgDeal": "Tamaño medio",
+    "avgDealSub": "en {n} negocios con importe",
+    "avgDealNone": "Ningún negocio ganado tiene importe aún",
+    "winRate": "Tasa de cierre",
+    "winRateSub": "{won} ganados de {decided} decididos",
+    "avgDays": "Días hasta cerrar",
+    "avgDaysSub": "promedio, de consulta a ganado",
+    "outcome": "Resultado",
+    "outcomeAll": "Ganados y perdidos",
+    "exportCsv": "Exportar CSV",
+    "exportPdf": "Guardar como PDF",
+    "empty": "Aún no se ha cerrado ningún negocio. Aparecerán aquí a medida que los ganes o pierdas.",
+    "csv": {
+      "name": "Lead",
+      "outcome": "Resultado",
+      "amount": "Importe",
+      "services": "Comprado",
+      "notes": "Notas",
+      "closedAt": "Cerrado",
+      "capturedAt": "Captado",
+      "daysToClose": "Días",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "stage": "Etapa"
     }
   }
 }

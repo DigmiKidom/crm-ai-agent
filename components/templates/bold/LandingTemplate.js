@@ -7,10 +7,13 @@ import Gallery from "../shared/Gallery";
 import { TenantLogo, BrandFooter, cardAccent } from "../shared/Branding";
 import { LandingIcon } from "@/lib/landingIcons";
 import ABHeadline from "../shared/ABHeadline";
+import CtaLink from "../shared/CtaLink";
 import TeamSection from "../shared/TeamSection";
+import SocialBar from "../shared/SocialBar";
+import FaqSection from "../shared/FaqSection";
 
 export default function LandingTemplate({ tenant }) {
-  const { name, slug, theme, landingPage } = tenant;
+  const { slug, theme, landingPage } = tenant;
   // Language, direction, and every visitor-facing string in one place.
   const copy = resolveLandingCopy(tenant);
 
@@ -36,16 +39,20 @@ export default function LandingTemplate({ tenant }) {
           <TenantLogo tenant={tenant} />
           <ABHeadline
             tenantSlug={slug}
-            headlineA={landingPage?.headline || `Grow ${name}`}
+            headlineA={landingPage?.headline || copy.headlineFallback}
             headlineB={landingPage?.headlineVariantB || ""}
             className={styles.headline}
           />
           <p className={styles.subheadline}>
             {copy.subheadline}
           </p>
-          <a className={styles.ctaButton} href="#lead-form">
+          <CtaLink tenantSlug={slug} className={styles.ctaButton} href="#lead-form">
             {copy.ctaLabel}
-          </a>
+          </CtaLink>
+
+          {copy.showSocialInHero && (
+            <SocialBar links={copy.socialLinks} variant="hero" label={copy.socialLabel} />
+          )}
         </div>
       </section>
 
@@ -75,7 +82,12 @@ export default function LandingTemplate({ tenant }) {
       {gallery.length > 0 && (
         <section className={styles.gallerySection}>
           <h2>{copy.galleryHeading}</h2>
-          <Gallery mediaIds={gallery} columns={landingPage?.galleryColumns || 3} label={copy.galleryHeading} />
+          <Gallery
+            mediaIds={gallery}
+            columns={landingPage?.galleryColumns || 3}
+            label={copy.galleryHeading}
+            altPattern={copy.galleryPhotoAlt}
+          />
         </section>
       )}
 
@@ -86,6 +98,8 @@ export default function LandingTemplate({ tenant }) {
           viewCvLabel={copy.viewCvLabel}
         />
       )}
+
+      <FaqSection items={copy.faq} heading={copy.faqHeading} />
 
       <section className={styles.formSection} id="lead-form">
         <div className={styles.formCard}>
@@ -101,7 +115,12 @@ export default function LandingTemplate({ tenant }) {
       </section>
 
       <footer className={styles.footer}>
-        <BrandFooter tenant={tenant} />
+        <BrandFooter
+          tenant={tenant}
+          poweredByLabel={copy.poweredByLabel}
+          socialLabel={copy.socialLabel}
+          reportLabels={copy.report}
+        />
       </footer>
     </main>
   );

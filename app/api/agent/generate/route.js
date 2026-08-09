@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Tenant, { MAX_FEATURES } from "@/lib/models/Tenant";
+import Tenant, { MAX_FEATURES, MAX_FAQ_ITEMS } from "@/lib/models/Tenant";
 import Pipeline from "@/lib/models/Pipeline";
 import AgentSession from "@/lib/models/AgentSession";
 import { generateSiteConfig } from "@/lib/agent";
@@ -83,7 +83,20 @@ export async function POST(request) {
       "landingPage.language": resolveContentLanguage(config.languageCode, config.languageName),
       "landingPage.galleryHeading": config.galleryHeading || "",
       "landingPage.contactHeading": config.contactHeading || "",
+      "landingPage.faqHeading": config.faqHeading || "",
     };
+
+    // Only written when the agent actually produced usable entries — a
+    // partial or empty response must not wipe an FAQ the tenant has already
+    // edited by hand.
+    const faq = (config.faq || [])
+      .filter((item) => item?.question?.trim() && item?.answer?.trim())
+      .slice(0, MAX_FAQ_ITEMS)
+      .map((item) => ({
+        question: item.question.trim().slice(0, 160),
+        answer: item.answer.trim().slice(0, 600),
+      }));
+    if (faq.length) update["landingPage.faq"] = faq;
 
     // Written field-by-field so a partial response can't blank out labels the
     // tenant already had. lib/landingCopy.js fills any remaining gaps.

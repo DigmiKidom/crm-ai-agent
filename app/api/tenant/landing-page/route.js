@@ -6,6 +6,8 @@ import Media from "@/lib/models/Media";
 import { isValidIconKey } from "@/lib/landingIcons";
 import { templateIds } from "@/lib/templates";
 import { normalizeFormFields, MAX_FORM_FIELDS } from "@/lib/formFields";
+import { normalizeSocial, isValidPhone } from "@/lib/socialLinks";
+import { normalizeFaq, MAX_FAQ_ITEMS } from "@/lib/faq";
 import { resolveContentLanguage } from "@/lib/i18n/languages";
 import { requireTenantRole } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
@@ -28,8 +30,22 @@ function formFieldsErrorMessage(t, err) {
       return t("api.tenantLandingPage.formFieldsDuplicateKey");
     case "UNKNOWN_TYPE":
       return t("api.tenantLandingPage.formFieldsUnknownType", { label: err.label });
+    case "MISSING_OPTIONS":
+      return t("api.tenantLandingPage.formFieldsMissingOptions", { label: err.label });
     case "MISSING_NAME":
       return t("api.tenantLandingPage.formFieldsMissingName");
+    default:
+      return t("api.common.somethingWentWrong");
+  }
+}
+
+/** Same pattern as above, for lib/faq.js's error codes. */
+function faqErrorMessage(t, err) {
+  switch (err.code) {
+    case "INCOMPLETE":
+      return t("api.tenantLandingPage.faqIncomplete");
+    case "TOO_MANY":
+      return t("api.tenantLandingPage.faqTooMany", { n: MAX_FAQ_ITEMS });
     default:
       return t("api.common.somethingWentWrong");
   }
@@ -57,6 +73,10 @@ export async function PATCH(request) {
     language,
     formFields,
     statusMessages,
+    social,
+    showSocialInHero = true,
+    faq,
+    faqHeading = "",
   } = body;
 
   if (!headline?.trim() || !subheadline?.trim() || !ctaLabel?.trim()) {
@@ -163,6 +183,29 @@ export async function PATCH(request) {
     }
   }
 
+  let cleanSocial;
+  if (social !== undefined) {
+    cleanSocial = normalizeSocial(social);
+    // A number that survived normalization but is too short to dial produces
+    // a wa.me link that 404s for every visitor — better to reject the save
+    // than to publish a dead button.
+    if (cleanSocial.whatsapp.number && !isValidPhone(cleanSocial.whatsapp.number)) {
+      return NextResponse.json(
+        { error: t("api.tenantLandingPage.invalidWhatsappNumber") },
+        { status: 400 }
+      );
+    }
+  }
+
+  let cleanFaq;
+  if (faq !== undefined) {
+    try {
+      cleanFaq = normalizeFaq(faq);
+    } catch (err) {
+      return NextResponse.json({ error: faqErrorMessage(t, err) }, { status: 400 });
+    }
+  }
+
   let cleanLanguage;
   if (language !== undefined) {
     const code = String(language?.code || "").trim();
@@ -216,7 +259,27 @@ export async function PATCH(request) {
       "landingPage.showTeamSection": Boolean(showTeamSection),
       "landingPage.galleryMediaIds": cleanGalleryIds,
       "landingPage.galleryColumns": columns,
+      "landingPage.showSocialInHero": Boolean(showSocialInHero),
+      "landingPage.faqHeading": String(faqHeading || "").trim().slice(0, 120),
     };
+
+    // Dotted paths, one per platform, rather than replacing the whole
+    // `profile.social` subdocument — Settings edits the same four URL fields
+    // from its own screen, and a whole-object $set from either side would
+    // silently blank out whatever the other one owns.
+    if (cleanSocial) {
+      for (const [key, value] of Object.entries(cleanSocial)) {
+        if (key === "whatsapp") {
+          setFields["profile.social.whatsapp.number"] = value.number;
+          setFields["profile.social.whatsapp.message"] = value.message;
+        } else {
+          setFields[`profile.social.${key}`] = value;
+        }
+      }
+    }
+    // Unconditional when present, including an empty array: clearing every
+    // entry is how a tenant removes the FAQ section from their page.
+    if (cleanFaq) setFields["landingPage.faq"] = cleanFaq;
     if (templateId !== undefined) setFields.templateId = templateId;
     if (cleanFormFields) setFields["landingPage.formFields"] = cleanFormFields;
     if (cleanLanguage) setFields["landingPage.language"] = cleanLanguage;
@@ -239,7 +302,12 @@ export async function PATCH(request) {
       return NextResponse.json({ error: t("api.common.tenantNotFound") }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: true, landingPage: tenant.landingPage, templateId: tenant.templateId });
+    return NextResponse.json({
+      ok: true,
+      landingPage: tenant.landingPage,
+      templateId: tenant.templateId,
+      social: tenant.profile?.social,
+    });
   } catch (err) {
     console.error("Updating landing page failed:", err);
     return NextResponse.json({ error: t("api.tenantLandingPage.saveFailed") }, { status: 503 });

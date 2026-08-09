@@ -24,6 +24,8 @@
   "sidebar": {
     "overview": "Overview",
     "leads": "Leads",
+    "hub": "Services Hub",
+    "calendar": "Calendar",
     "analytics": "Analytics",
     "pipeline": "Pipeline",
     "contacts": "Contacts",
@@ -43,7 +45,9 @@
     "companySettings": "Company settings",
     "emptyHint": "Add a document or table to keep notes and lists alongside your CRM.",
     "unreadOne": "{count} unread lead",
-    "unreadMany": "{count} unread leads"
+    "unreadMany": "{count} unread leads",
+    "closedDeals": "Closed deals",
+    "navigation": "Main navigation"
   },
   "account": {
     "menu": "Account menu",
@@ -107,7 +111,13 @@
     "passwordUpdated": "Password updated. Redirecting to log in…",
     "signingIn": "Signing you in…",
     "resetIntro": "Enter your email and we'll send you a link to set a new password.",
-    "resetSent": "If an account exists for that email, a reset link is on its way. Check your inbox."
+    "resetSent": "If an account exists for that email, a reset link is on its way. Check your inbox.",
+    "twoFactorCode": "Authentication code",
+    "twoFactorCodeHint": "6 digits from your authenticator app — or one of your recovery codes.",
+    "twoFactorStep": "Two-step verification",
+    "twoFactorStepHint": "Your password was accepted. Enter the code from your authenticator app to finish.",
+    "twoFactorBack": "Use a different account",
+    "invalidCode": "That code isn't right. Check the current one in your app and try again."
   },
   "invite": {
     "title": "You're invited",
@@ -152,6 +162,58 @@
     "privacy": "Privacy",
     "rights": "All rights reserved.",
     "builtWith": "Built for small businesses that move fast."
+  },
+  "email": {
+    "pasteLink": "Or paste this link into your browser:",
+    "footerReceived": "You're receiving this email because you have a {productName} account.",
+    "footerReceivedLead": "You're receiving this because new-lead alerts are on for {tenantName}. Turn them off anytime in Settings.",
+    "footerReceivedInvite": "You're receiving this because {inviterName} invited you to join a team on {productName}.",
+    "preheaderReset": "Reset your {productName} password.",
+    "preheaderVerify": "Confirm your email to finish setting up your {productName} account.",
+    "preheaderNewLead": "{leadName} just came in through {tenantName}.",
+    "preheaderInvite": "{inviterName} invited you to join {tenantName} on {productName}.",
+    "preheaderMeetingReminder": "Reminder: {meetingTitle} at {time}.",
+    "reset": {
+      "subject": "Reset your password",
+      "heading": "Reset your password",
+      "intro": "Someone asked to reset the password for this account. Choose a new one using the button below.",
+      "cta": "Set a new password",
+      "outro": "This link expires in 1 hour and can only be used once.",
+      "footnote": "If you didn't request this, you can safely ignore this email — your password won't change."
+    },
+    "verify": {
+      "subject": "Verify your email",
+      "heading": "Confirm your email address",
+      "intro": "Welcome aboard. Confirm your email address to finish setting up your account and start collecting leads.",
+      "cta": "Verify my email",
+      "outro": "This link expires in 24 hours.",
+      "footnote": "If you didn't create an account, you can safely ignore this email."
+    },
+    "newLead": {
+      "subject": "New lead: {leadName}",
+      "heading": "You have a new lead",
+      "intro": "{leadName} just came in through {tenantName}'s landing page.",
+      "cta": "View lead",
+      "outro": "You can turn these email notifications off anytime in Settings."
+    },
+    "invite": {
+      "subject": "{inviterName} invited you to join {tenantName} on {productName}",
+      "heading": "Join {tenantName} on {productName}",
+      "introAdmin": "{inviterName} invited you to join their team as an admin. Create your account to get started.",
+      "introMember": "{inviterName} invited you to join their team as a member. Create your account to get started.",
+      "cta": "Accept invite",
+      "outro": "This link expires in 7 days and can only be used once.",
+      "footnote": "If you weren't expecting this, you can safely ignore this email."
+    },
+    "meetingReminder": {
+      "subject": "Reminder: {meetingTitle} at {time}",
+      "heading": "Upcoming meeting reminder",
+      "intro": "\"{meetingTitle}\" is coming up on {date} at {time}.",
+      "introWithLead": "Your {type} with {leadName} is coming up — \"{meetingTitle}\" on {date} at {time}.",
+      "cta": "View in calendar",
+      "outroLocation": "Location: {location}",
+      "footnote": "Plans changed? You can update or cancel this meeting from your calendar."
+    }
   },
   "common": {
     "loading": "Loading…",
@@ -250,6 +312,7 @@
     "companyProfile": "Company profile",
     "companyProfileHint": "Used across your dashboard and shown on your public landing page.",
     "companyName": "Company name",
+    "currency": "Currency",
     "legalName": "Legal name",
     "tagline": "Tagline",
     "about": "About",
@@ -315,7 +378,63 @@
       "sendInvite": "Send invite",
       "sending": "Sending…",
       "inviteFailed": "Could not send that invite."
-    }
+    },
+    "billing": {
+      "title": "Billing",
+      "hint": "Free covers the essentials. Pro unlocks the year and 3-year analytics windows.",
+      "checkoutSuccess": "You're on Pro — thanks! It may take a moment to show up below.",
+      "checkoutCancelled": "Checkout was cancelled — you're still on the Free plan.",
+      "failed": "Something went wrong. Please try again.",
+      "currentPlanFree": "Current plan: Free",
+      "currentPlanPro": "Current plan: Pro",
+      "upgrade": "Upgrade to Pro",
+      "manageSubscription": "Manage subscription"
+    },
+    "domain": {
+      "title": "Custom domain",
+      "hint": "Point your own domain at your landing page instead of ceramony.co/pages/your-company.",
+      "hostnameLabel": "Domain",
+      "hostnamePlaceholder": "yourcompany.com",
+      "add": "Add domain",
+      "addFailed": "Could not add that domain.",
+      "checkFailed": "Could not check that domain's status.",
+      "checkStatus": "Check status",
+      "remove": "Remove",
+      "removeFailed": "Could not remove that domain.",
+      "confirmRemove": "Remove {hostname} from this site? Your landing page will stop being reachable there.",
+      "status": {
+        "verified": "Verified — live",
+        "pending": "Pending — DNS not verified yet",
+        "error": "Misconfigured — check the records below"
+      },
+      "dnsInstructions": "Add these DNS records at your domain registrar",
+      "recordType": "Type",
+      "recordName": "Name",
+      "recordValue": "Value",
+      "dnsHint": "DNS changes can take anywhere from a few minutes to a few hours to take effect. Click \"Check status\" once you've added these."
+    },
+    "webhookUrl": "Send new leads to a webhook",
+    "webhookUrlHint": "Optional. We'll POST each new lead to this address the moment it arrives — useful for Make, n8n or Zapier. Must start with https://",
+    "outreachTitle": "WhatsApp replies from your CRM",
+    "outreachHint": "Every lead with a phone number gets a WhatsApp button. Pressing it opens your own WhatsApp with this message ready — nothing is ever sent for you.",
+    "outreachTemplate": "Opening message",
+    "outreachTemplateHint": "Use {name} for the lead's name, {service} for what they asked about, and {company} for your business name. If there's nothing to fill {service} with, we drop that part of the sentence.",
+    "outreachPreview": "Preview:",
+    "outreachSampleName": "Dana",
+    "outreachSampleService": "a consultation",
+    "followUpTitle": "Follow-up reminders",
+    "followUpHint": "We'll flag open leads that have gone quiet, so none of them slip. No messages are sent for you — you decide when to reach out.",
+    "followUpInterval": "Flag a lead after",
+    "followUpIntervals": {
+      "7_days": "7 days of silence",
+      "14_days": "14 days of silence",
+      "30_days": "30 days of silence",
+      "never": "Never — turn reminders off"
+    },
+    "followUpIntervalHint": "Moving a lead's stage, editing its notes, or sending a follow-up all restart the clock.",
+    "followUpIntervalOffHint": "Nothing will be flagged. Existing flags clear on the next check.",
+    "followUpTemplate": "Follow-up message",
+    "followUpTemplateHint": "Use {name} for the lead's name. Leave blank for the default."
   },
   "cookies": {
     "notice": "Cookie notice",
@@ -329,9 +448,15 @@
     "searchByName": "Search by name",
     "searchPlaceholder": "Search leads…",
     "stage": "Stage",
+    "dealValue": "Deal value",
     "allStages": "All stages",
     "from": "From",
+    "to": "To",
+    "filter": "Filter",
+    "view": "View",
+    "backToLeads": "Back to leads",
     "noMatch": "No leads match those filters.",
+    "noneYet": "No leads yet. Share your landing page (/pages/{slug}) to start collecting them.",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
@@ -339,6 +464,12 @@
     "unreadLead": "Unread lead",
     "unread": "Unread",
     "noLeads": "No leads yet.",
+    "dealStatus": {
+      "open": "Open",
+      "won": "Closed / Won",
+      "lost": "Closed / Lost"
+    },
+    "wonDealValuePrompt": "This looks like a won deal — add the deal value below.",
     "originalMessage": "Original message",
     "notes": "Notes",
     "notesPlaceholder": "Add internal notes about this lead…",
@@ -364,10 +495,46 @@
     "activity": {
       "title": "Activity",
       "empty": "No activity yet — changes to stage or notes will show up here.",
+      "captured": "Lead captured via landing page",
       "stageChanged": "Stage changed from \"{from}\" to \"{to}\"",
       "notesUpdated": "Notes updated",
+      "meetingScheduled": "Follow-up scheduled: \"{title}\" on {date}",
+      "meetingCancelled": "Meeting cancelled: \"{title}\"",
+      "aiReplyDrafted": "AI drafted a reply",
+      "dealWon": "Marked Closed/Won — {amount}",
+      "dealWonNoValue": "Marked Closed/Won",
+      "dealLost": "Marked Closed/Lost",
       "unknownActor": "Someone",
       "none": "none"
+    },
+    "whatsapp": "Message {name} on WhatsApp",
+    "whatsappReply": "Reply on WhatsApp",
+    "newContact": "New contact",
+    "addToContacts": "Add to contacts",
+    "contactSaved": "Saved",
+    "vcardCaptured": "Captured:",
+    "vcardVia": "Lead from",
+    "pendingFollowUp": "Follow up",
+    "quickFollowUp": "Quick follow-up",
+    "followUpNotice": "This lead has gone quiet. A quick message often brings them back.",
+    "followUpDefaultMessage": "Hi {name}, just following up on our previous conversation!",
+    "closure": {
+      "titleWon": "Close this deal",
+      "titleLost": "Mark as lost",
+      "introWon": "Record what {name} bought, so it's in your books later.",
+      "introLost": "A note on why {name} didn't close is worth more than the number.",
+      "amount": "Final deal amount ({currency})",
+      "amountHint": "What you'll actually invoice, before tax.",
+      "services": "What did they buy?",
+      "servicesLost": "What were they after?",
+      "servicesPlaceholder": "3-month package",
+      "notes": "Resolution notes",
+      "notesLost": "What happened?",
+      "notesPlaceholder": "Split into 2 payments, starts next month",
+      "notesLostPlaceholder": "Went with a cheaper quote",
+      "closedAt": "Date closed",
+      "save": "Save and close",
+      "failed": "Couldn't save that. Try again."
     }
   },
   "contacts": {
@@ -393,7 +560,63 @@
     "saveFailed": "Could not save changes.",
     "serverError": "Unexpected server error. Please try again.",
     "editStages": "Edit stages",
-    "moveToStage": "Move {name} to stage"
+    "moveToStage": "Move {name} to stage",
+    "searchPlaceholder": "Search leads by name or email…",
+    "noMatch": "No matches in this stage."
+  },
+  "calendar": {
+    "title": "Calendar",
+    "loadFailed": "Could not load your calendar.",
+    "saveFailed": "Could not save that event.",
+    "deleteFailed": "Could not delete that event.",
+    "newEvent": "New event",
+    "editEvent": "Edit event",
+    "deleteEvent": "Delete event",
+    "confirmDelete": "Delete \"{title}\"? This can't be undone.",
+    "emptyState": "Nothing on the calendar for this range yet.",
+    "today": "Today",
+    "previous": "Previous",
+    "next": "Next",
+    "viewLabel": "Calendar view",
+    "view": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    },
+    "addEvent": "Add",
+    "noEventsDay": "Nothing scheduled.",
+    "allDay": "All day",
+    "moreEvents": "+{count} more",
+    "eventTitle": "Title",
+    "eventTitlePlaceholder": "e.g. Discovery call with Acme Co.",
+    "eventType": "Type",
+    "eventStatus": "Status",
+    "type": {
+      "meeting": "Meeting",
+      "call": "Call",
+      "demo": "Demo",
+      "follow_up": "Follow-up",
+      "other": "Other"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "ai_followup": "Pending AI follow-up",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "allDayEvent": "All-day event",
+    "startsAt": "Starts",
+    "endsAt": "Ends",
+    "linkedRecord": "Linked lead or contact",
+    "searchLeadsContacts": "Search leads and contacts…",
+    "kindLead": "Lead",
+    "kindContact": "Contact",
+    "aiFollowupHint": "Marked for an AI-drafted follow-up.",
+    "aiFollowupLink": "Draft it on this lead →",
+    "location": "Location",
+    "locationPlaceholder": "Office, video link, or address",
+    "notes": "Notes"
   },
   "site": {
     "title": "Edit landing page",
@@ -426,7 +649,35 @@
     "galleryColumns": "Gallery columns",
     "featureTitle": "Feature title",
     "featureDescription": "Feature description",
+    "featureIcon": "Icon",
     "cardStyling": "Card styling",
+    "defaultFieldName": "Name",
+    "defaultFieldEmail": "Email",
+    "defaultFieldPhone": "Phone",
+    "defaultFieldMessage": "Message",
+    "icons": {
+      "noneSelected": "none selected",
+      "coin": "Great price",
+      "thumbsUp": "Honesty / quality",
+      "shield": "Trust / warranty",
+      "star": "Top rated",
+      "clock": "Fast turnaround",
+      "heart": "Customer care",
+      "bolt": "Fast / powerful",
+      "chat": "Support",
+      "truck": "Delivery",
+      "award": "Award winning",
+      "lock": "Secure / private",
+      "chart": "Results / growth",
+      "phone": "Call us",
+      "handshake": "Partnership",
+      "leaf": "Eco friendly",
+      "target": "Precision",
+      "tools": "Craftsmanship",
+      "globe": "Global reach",
+      "calendar": "Flexible scheduling",
+      "gift": "Free extras"
+    },
     "colouredTopStrip": "Coloured top strip",
     "colouredBorder": "Coloured border",
     "cardColour": "Card colour",
@@ -456,7 +707,9 @@
       "tel": "Phone",
       "textarea": "Paragraph",
       "number": "Number",
-      "date": "Date"
+      "date": "Date",
+      "select": "Dropdown",
+      "checkbox": "Checkboxes"
     },
     "fieldRequired": "Required",
     "moveFieldUp": "Move field up",
@@ -473,7 +726,40 @@
     "colourPrimary": "Primary",
     "colourAccent": "Accent",
     "removeFeature": "Remove",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "socialTitle": "Social links & quick messaging",
+    "socialHint": "These render as buttons under your headline and again in your page footer. Fill in only the ones you use — the rest simply don't appear.",
+    "socialHandleHint": "You can paste a full link or just your username — we'll build the address.",
+    "showSocialInHero": "Also show these buttons at the top of the page",
+    "showSocialInHeroHint": "On by default. Turn it off if you'd rather visitors focus on your main button first — they'll still find these in the footer.",
+    "whatsappTitle": "WhatsApp quick chat",
+    "whatsappHint": "Tapping this opens WhatsApp with your message already typed, so the visitor only has to press send.",
+    "whatsappNumber": "WhatsApp number",
+    "whatsappNumberPlaceholder": "+972 50 123 4567",
+    "whatsappNumberHint": "Include your country code. Spaces, dashes and brackets are fine.",
+    "whatsappMessage": "Message we type for them",
+    "whatsappMessageHint": "Write it as the visitor would. Leave blank to open an empty chat.",
+    "whatsappTest": "Try it yourself",
+    "whatsappInvalid": "That doesn't look like a full phone number yet.",
+    "optionsSelect": "Choices in the dropdown",
+    "optionsCheckbox": "Boxes visitors can tick",
+    "optionPlaceholder": "e.g. Haircut",
+    "addOption": "Add choice",
+    "removeOption": "Remove choice",
+    "faqTitle": "Frequently asked questions",
+    "faqHint": "Answer what people ask before they get in touch. It saves you the phone call and gives visitors one less reason to hesitate.",
+    "faqHeading": "Section heading",
+    "faqHeadingPlaceholder": "Frequently asked questions",
+    "faqQuestionPlaceholder": "What does it cost?",
+    "faqAnswerPlaceholder": "Answer in a sentence or two, the way you'd say it on the phone.",
+    "addFaq": "Add a question",
+    "removeFaq": "Remove question",
+    "moveFaqUp": "Move question up",
+    "moveFaqDown": "Move question down",
+    "faqGenerate": "Write these for me",
+    "faqGenerating": "Writing…",
+    "faqGenerateHint": "Drafts questions from what's already on your page. Nothing is published until you save.",
+    "faqGenerateFailed": "Couldn't write the questions right now. Try again in a moment."
   },
   "workspace": {
     "deleteFailed": "Could not delete this page.",
@@ -525,6 +811,11 @@
   "analytics": {
     "title": "Analytics",
     "noLeads": "No leads yet",
+    "outcomes": {
+      "won": "Won",
+      "inProgress": "In progress",
+      "lost": "Lost"
+    },
     "range": {
       "week": "Week",
       "month": "Month",
@@ -537,7 +828,9 @@
       "prevWeek": "7 days",
       "prevMonth": "30 days",
       "prevYear": "12 months",
-      "prev3y": "36 months"
+      "prev3y": "36 months",
+      "proOnly": "Pro plan required — click to upgrade",
+      "lockedBanner": "That range needs the Pro plan — showing the last 30 days instead."
     },
     "kpi": {
       "leads": "New leads",
@@ -554,7 +847,18 @@
       "oldestWaiting": "Oldest has been waiting {duration}",
       "allOpened": "Everything has been opened",
       "filledEvery": "{percent}% filled every optional field",
-      "totalContacts": "{count} contacts in total"
+      "totalContacts": "{count} contacts in total",
+      "visitors": "Visitors",
+      "conversion": "Visit-to-lead conversion",
+      "noVisitData": "No visitor data yet",
+      "leadsOfVisitors": "{leads} leads from {visits} visits",
+      "ctr": "Landing page CTR",
+      "clicksOfVisitors": "{clicks} clicked of {visits} visitors",
+      "revenue": "Revenue",
+      "fromDeals": "From {count} valued deal(s)",
+      "noValuedDeals": "No valued deals yet",
+      "avgDealSize": "Avg. deal size",
+      "avgDealSizeHint": "Across won leads with a value set"
     },
     "band": {
       "under1h": "Under 1 hour",
@@ -608,7 +912,19 @@
       "leadsUnit": "leads",
       "leadsTotalUnit": "leads total",
       "winRateUnit": "win rate",
-      "gapsNote": "Gaps are periods where no lead was won or lost — not a 0% close rate."
+      "gapsNote": "Gaps are periods where no lead was won or lost — not a 0% close rate.",
+      "visitorTraffic": "Visitor traffic",
+      "visitsUnit": "visits",
+      "conversionNote": "{visits} visits → {leads} leads ({pct}%)",
+      "noVisitDataYet": "No visitor data yet — this starts filling in from your next landing-page visit.",
+      "visitorTrafficNote": "Counted from a cookieless daily fingerprint (IP + browser, hashed, never stored beyond one day) — a visitor is counted once per day regardless of how many times they reload. Known bots and crawlers are filtered out, though the filter is a heuristic, not exhaustive.",
+      "revenue": "Revenue",
+      "revenueNote": "{amount} from {count} valued deal(s)",
+      "revenueNote2": "Counted the same way win rate is — a lead in a won stage, in the range it was captured, not the range it closed. An unvalued won lead counts toward win rate but not toward revenue.",
+      "noRevenueYet": "No valued deals in this range yet — add a deal value on a won lead to start tracking revenue.",
+      "aiActivity": "AI agent activity",
+      "aiActivityNote": "Every recent AI-assisted action across the product",
+      "noAiActivity": "No AI agent activity yet."
     },
     "insights": {
       "heading": "What stands out",
@@ -644,6 +960,90 @@
       "byHourOfDay": "By hour of day",
       "leadSources": "Lead sources",
       "thisPeriod": "This period"
+    },
+    "activity": {
+      "leadReply": "Drafted a reply for {name}",
+      "siteGeneration": "Generated landing page copy",
+      "unknownLead": "a lead",
+      "resumeSummarize": "Wrote a CV summary",
+      "resumePolish": "Polished CV content"
+    }
+  },
+  "hub": {
+    "title": "Services Hub",
+    "intro": "Every tool in Ceramony, in one place — what each one does, how far along you are with it, and a direct link to jump in.",
+    "aiGenerator": {
+      "title": "AI Page Generator",
+      "description": "Answer a few questions about your business and the AI writes your landing page copy, picks a template, and sets up a pipeline that fits how you sell.",
+      "tooltip": "Rerunning this never wipes your uploaded photos, or overrides copy you've since hand-edited without asking first.",
+      "statConfigured": "Configured",
+      "statNotConfigured": "Not set up yet",
+      "cta": "Open AI Setup"
+    },
+    "landingPage": {
+      "title": "Landing Page Editor",
+      "description": "Hand-edit your headline, features, gallery, and template — no need to rerun the AI for a small change.",
+      "tooltip": "Changes go live on your public page as soon as you save.",
+      "stat": "4 templates available",
+      "cta": "Edit landing page"
+    },
+    "leads": {
+      "title": "Leads Inbox",
+      "description": "Every visitor who fills out your landing page form lands here instantly, ready to work.",
+      "tooltip": "The unread count follows you across the sidebar and this hub until you open a lead.",
+      "statCaughtUp": "All caught up",
+      "cta": "View leads"
+    },
+    "pipeline": {
+      "title": "Pipeline",
+      "description": "A drag-and-drop board of every lead, organized by the stage they're at in your sales process.",
+      "tooltip": "Stages are yours to rename, reorder, or add — the AI only suggests a starting set.",
+      "stat": "{count} leads total",
+      "cta": "Open pipeline"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "A simple address book for people and companies you work with, separate from your incoming leads.",
+      "tooltip": "Search, edit, and delete inline — no separate detail page to navigate to.",
+      "stat": "{count} contacts",
+      "cta": "View contacts"
+    },
+    "calendar": {
+      "title": "Calendar",
+      "description": "Schedule meetings, calls, and demos, and link them straight to the lead or contact they're about.",
+      "tooltip": "Month, week, and day views, plus a status you control — including flagging one for an AI-drafted follow-up.",
+      "statUpcoming": "{count} upcoming this week",
+      "statNone": "Nothing scheduled this week",
+      "cta": "Open calendar"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Visit-to-lead conversion, revenue, response times, and where your traffic actually comes from.",
+      "tooltip": "The 1-year and 3-year windows are a Pro-plan feature — Free covers the last 30 days.",
+      "stat": "{count} leads captured all-time",
+      "cta": "Open analytics"
+    },
+    "cv": {
+      "title": "Resume / CV Studio",
+      "description": "Build a CV, let the AI polish it, and export a PDF — or share it with a public link.",
+      "tooltip": "Making it public is opt-in and off by default — no one sees it until you choose to share the link.",
+      "statReady": "Your CV is ready",
+      "statNotStarted": "Not started yet",
+      "cta": "Open CV studio"
+    },
+    "automation": {
+      "title": "Automation",
+      "description": "What Ceramony does for you without being asked: an email alert on a new lead, an AI-drafted reply you can send in one click, and follow-ups you can flag for AI help on your calendar.",
+      "tooltip": "Every AI action here is a suggestion you approve — never something sent on your behalf automatically.",
+      "statOn": "Email alerts on",
+      "statOff": "Email alerts off",
+      "cta": "Manage notifications"
+    },
+    "billing": {
+      "title": "Team & Billing",
+      "description": "Invite teammates with a restricted role, and manage your plan.",
+      "tooltip": "Only owners and admins see this card — team-wide settings stay out of a member's way.",
+      "cta": "Open settings"
     }
   },
   "tutorial": {
@@ -767,7 +1167,7 @@
   "api": {
     "common": {
       "notAuthenticated": "Not authenticated",
-      "notFound": "Not found",
+      "notFound": "Not found.",
       "nothingToUpdate": "Nothing to update.",
       "expectedJsonBody": "Expected a JSON body.",
       "allFieldsRequired": "All fields are required.",
@@ -806,8 +1206,11 @@
       "notFound": "Lead not found",
       "loadFailed": "Could not load lead.",
       "invalidCustomFields": "Invalid custom fields.",
+      "invalidDealValue": "Deal value must be a number of 0 or more.",
       "updateFailed": "Could not update lead.",
-      "deleteFailed": "Could not delete lead."
+      "deleteFailed": "Could not delete lead.",
+      "closureInvalidAmount": "Enter a deal amount of zero or more.",
+      "closureFutureDate": "A deal can't close in the future."
     },
     "leadAgent": {
       "notConfigured": "The AI agent isn't configured yet — add GOOGLE_API_KEY to your environment.",
@@ -823,6 +1226,20 @@
       "revokeFailed": "Could not revoke that invite.",
       "linkInvalid": "This invite link is invalid or has expired.",
       "acceptFailed": "Could not create your account right now. Please try again."
+    },
+    "billing": {
+      "notConfigured": "Billing isn't configured yet — add your Stripe keys to your environment.",
+      "checkoutFailed": "Could not start checkout right now. Please try again.",
+      "noSubscription": "No active subscription to manage.",
+      "portalFailed": "Could not open the billing portal right now. Please try again."
+    },
+    "domain": {
+      "notConfigured": "Custom domains aren't configured yet — add your Vercel API credentials to your environment.",
+      "invalidHostname": "Enter a valid domain, like yourcompany.com.",
+      "addFailed": "Could not add that domain right now. Please try again.",
+      "checkFailed": "Could not check that domain's status right now.",
+      "removeFailed": "Could not remove that domain right now.",
+      "noneConfigured": "No custom domain configured."
     },
     "media": {
       "expectedFileUpload": "Expected a file upload.",
@@ -853,13 +1270,15 @@
     },
     "tenantSettings": {
       "companyNameRequired": "Company name is required.",
+      "invalidCurrency": "Choose a valid currency.",
       "invalidContactEmail": "That contact email doesn't look valid.",
       "primaryColor": "Primary colour",
       "accentColor": "Accent colour",
       "invalidHexColour": "{field} must be a 6-digit hex colour like #2563eb.",
       "invalidLogoReference": "Invalid logo reference.",
       "logoNotFound": "That logo could not be found.",
-      "saveFailed": "Could not save settings."
+      "saveFailed": "Could not save settings.",
+      "invalidWebhookUrl": "That webhook address isn't valid. It must be a public https:// address."
     },
     "tenantPipeline": {
       "needOneStage": "You need at least one stage.",
@@ -867,6 +1286,20 @@
       "stageNameDuplicate": "Stage names must be unique.",
       "stageInUse": "Move every lead out of a stage before removing it. {count} lead(s) are still in a stage you're trying to remove.",
       "saveFailed": "Could not save changes."
+    },
+    "calendar": {
+      "invalidRange": "Invalid date range.",
+      "loadFailed": "Could not load calendar events.",
+      "titleRequired": "Give the event a title.",
+      "invalidTimes": "The end time must be after the start time.",
+      "onlyOneRelated": "Link to either a lead or a contact, not both.",
+      "invalidType": "Unknown event type.",
+      "invalidStatus": "Unknown event status.",
+      "invalidRelated": "Invalid lead or contact reference.",
+      "relatedNotFound": "That lead or contact could not be found.",
+      "saveFailed": "Could not save that event.",
+      "notFound": "Event not found.",
+      "deleteFailed": "Could not delete that event."
     },
     "tenantLandingPage": {
       "heroFieldsRequired": "Headline, subheadline, and CTA label are all required.",
@@ -891,7 +1324,11 @@
       "formFieldsMissingName": "The form must include a name field.",
       "chooseLanguage": "Choose a content language.",
       "imageNotFound": "One of those images could not be found.",
-      "saveFailed": "Could not save changes."
+      "saveFailed": "Could not save changes.",
+      "formFieldsMissingOptions": "\"{label}\" needs at least one choice.",
+      "invalidWhatsappNumber": "That WhatsApp number doesn't look complete. Include the country code.",
+      "faqIncomplete": "Every question needs an answer, and every answer needs a question.",
+      "faqTooMany": "You can have at most {n} questions."
     },
     "agentGenerate": {
       "missingRequiredFields": "Industry and lead definition are required.",
@@ -922,6 +1359,213 @@
       "tableNotFound": "Table not found.",
       "saveRowFailed": "Could not save that change.",
       "deleteRowFailed": "Could not delete that row."
+    },
+    "agentFaq": {
+      "failed": "Couldn't write the questions right now. Try again in a moment."
+    },
+    "admin": {
+      "twoFactorRequired": "Set up two-factor authentication to use admin tools.",
+      "twoFactorAlreadyOn": "Two-factor authentication is already enabled on this account.",
+      "twoFactorNoPending": "Start the setup again — there's nothing pending to confirm.",
+      "twoFactorBadCode": "That code isn't right. Check the current one in your app and try again.",
+      "cannotSuspendSelf": "You can't suspend your own account.",
+      "cannotSuspendAdmin": "Platform admins can't be suspended from here.",
+      "unknownAction": "Unknown action."
+    },
+    "report": {
+      "chooseReason": "Choose a reason for this report.",
+      "invalidEmail": "That email address doesn't look right.",
+      "notesRequired": "Tell us briefly what's wrong with this page.",
+      "failed": "We couldn't send that just now. Please try again shortly."
+    }
+  },
+  "notFound": {
+    "title": "This page doesn't exist",
+    "body": "The link may be broken, or the page may have moved.",
+    "backHome": "Back to home"
+  },
+  "suspended": {
+    "title": "This page has been suspended",
+    "body": "This page has been suspended for violating our Terms of Service.",
+    "ownerNote": "If this is your page, sign in to your Ceramony account for details on what happens next.",
+    "readTerms": "Read the Terms of Use"
+  },
+  "report": {
+    "reasons": {
+      "spam": "Spam or misleading",
+      "harassment": "Harassment or hate",
+      "fraud": "Fraud or phishing",
+      "copyright": "Copyright infringement",
+      "abusive": "Abusive or explicit content",
+      "other": "Something else"
+    }
+  },
+  "admin": {
+    "platformBadge": "Platform admin",
+    "actionFailed": "That didn't go through. Try again.",
+    "nav": {
+      "label": "Admin sections",
+      "overview": "Overview",
+      "users": "Users & pages",
+      "reports": "Moderation"
+    },
+    "twoFactor": {
+      "title": "Set up two-factor authentication",
+      "intro": "Platform admin access needs a second factor. It takes about a minute and only has to be done once.",
+      "start": "Start setup",
+      "step1": "Open your authenticator app — Google Authenticator, 1Password, Authy, or similar.",
+      "step2": "Add a new account and enter the key below.",
+      "step3": "Type the 6-digit code it shows to confirm.",
+      "openInApp": "Open in your authenticator app",
+      "codeLabel": "6-digit code",
+      "confirm": "Confirm and enable",
+      "savedIntro": "Two-factor authentication is on. Save these recovery codes somewhere safe — each one can be used once if you lose your phone.",
+      "recoveryWarning": "This is the only time these codes are shown. We store them hashed, so we can't show them again — only replace them.",
+      "continue": "Continue to the admin dashboard",
+      "failed": "That didn't work. Try again."
+    },
+    "dashboard": {
+      "title": "Platform overview",
+      "subtitle": "Everything across every account on Ceramony.",
+      "needsAttention": "Needs your attention",
+      "needsAttentionBody": "{n} reported pages are waiting for review.",
+      "openQueue": "Open the moderation queue",
+      "signupsChart": "Sign-ups, last 30 days",
+      "signupsLabel": "Sign-ups",
+      "leadsChart": "Leads captured, last 30 days",
+      "leadsLabel": "Leads",
+      "noData": "Nothing in this period yet."
+    },
+    "stats": {
+      "users": "Registered users",
+      "usersSub": "{n} in the last 7 days",
+      "livePages": "Live landing pages",
+      "livePagesSub": "of {n} businesses",
+      "leads": "Leads captured",
+      "leadsSub": "{n} in the last 7 days",
+      "activeTenants": "Active businesses",
+      "activeTenantsSub": "captured a lead in the last 30 days",
+      "openReports": "Open reports",
+      "openReportsSub": "waiting for review",
+      "blockedPages": "Blocked pages",
+      "blockedPagesSub": "{n} suspended accounts"
+    },
+    "users": {
+      "title": "Users & pages",
+      "subtitle": "Search every business on the platform, inspect what they've published, and act on it.",
+      "search": "Search",
+      "searchPlaceholder": "Business, slug, domain, or email",
+      "filter": "Show",
+      "filterAll": "Everyone",
+      "filterReported": "Reported",
+      "filterBlocked": "Blocked",
+      "apply": "Apply",
+      "business": "Business",
+      "owner": "Owner",
+      "leads": "Leads",
+      "joined": "Joined",
+      "status": "Status",
+      "actions": "Actions",
+      "statusLive": "Live",
+      "statusBlocked": "Page blocked",
+      "statusReported": "{n} reports",
+      "statusSuspended": "Account suspended",
+      "inspect": "Inspect",
+      "viewPage": "View page",
+      "blockPage": "Block page",
+      "unblockPage": "Unblock page",
+      "suspendAccount": "Suspend account",
+      "restoreAccount": "Restore account",
+      "blockReasonPrompt": "Why is this page being blocked? This is recorded for the audit trail.",
+      "suspendConfirm": "Suspend {email}? They won't be able to sign in.",
+      "noResults": "No businesses match that search.",
+      "showing": "Showing {shown} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "detail": {
+      "back": "Back to users & pages",
+      "business": "Business",
+      "industry": "Industry",
+      "plan": "Plan",
+      "template": "Template",
+      "created": "Created",
+      "customDomain": "Custom domain",
+      "publicPage": "Public page",
+      "pageContent": "Published content",
+      "headline": "Headline",
+      "subheadline": "Subheadline",
+      "blockedNote": "Blocked on {date}. Reason: {reason}",
+      "noReason": "no reason recorded",
+      "crmActivity": "CRM activity",
+      "totalLeads": "Total leads",
+      "leads30": "Last 30 days",
+      "lastLead": "Most recent lead",
+      "privacyNote": "Counts only. Lead names, emails, and messages belong to this business's customers and aren't shown here.",
+      "people": "People",
+      "person": "Person",
+      "role": "Role",
+      "verified": "Email verified",
+      "status": "Status",
+      "active": "Active",
+      "yes": "Yes",
+      "no": "No",
+      "reportHistory": "Report history",
+      "noReports": "Nobody has reported this page."
+    },
+    "reports": {
+      "title": "Moderation queue",
+      "subtitle": "Reports filed by visitors. A report changes nothing on its own — you decide.",
+      "show": "Show",
+      "showAll": "Everything",
+      "filed": "Filed",
+      "page": "Page",
+      "reason": "Reason",
+      "notes": "Notes",
+      "reporter": "Reporter",
+      "status": "Status",
+      "dismiss": "Dismiss",
+      "ban": "Ban page",
+      "banConfirm": "Block {name}'s page? Visitors will see a suspension notice instead.",
+      "banNotePrompt": "What's the reason? This is recorded for the audit trail.",
+      "dismissNotePrompt": "Why is this being dismissed? (optional)",
+      "empty": "Nothing to review. ",
+      "statuses": {
+        "open": "Open",
+        "dismissed": "Dismissed",
+        "actioned": "Actioned"
+      }
+    }
+  },
+  "closedDeals": {
+    "title": "Closed deals",
+    "subtitle": "Every deal you've won or lost, with what was sold and what it was worth.",
+    "revenue": "Total revenue",
+    "revenueSub": "from {n} won deals",
+    "avgDeal": "Average deal size",
+    "avgDealSub": "across {n} valued deals",
+    "avgDealNone": "No won deal has an amount yet",
+    "winRate": "Win rate",
+    "winRateSub": "{won} won of {decided} decided",
+    "avgDays": "Days to close",
+    "avgDaysSub": "average, from enquiry to won",
+    "outcome": "Outcome",
+    "outcomeAll": "Won and lost",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Save as PDF",
+    "empty": "No deals have closed yet. They'll appear here as you win or lose them.",
+    "csv": {
+      "name": "Lead",
+      "outcome": "Outcome",
+      "amount": "Amount",
+      "services": "Purchased",
+      "notes": "Notes",
+      "closedAt": "Closed",
+      "capturedAt": "Captured",
+      "daysToClose": "Days",
+      "email": "Email",
+      "phone": "Phone",
+      "stage": "Stage"
     }
   }
 }

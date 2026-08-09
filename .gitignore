@@ -41,3 +41,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Build/tool output that keeps landing in the working tree.
+build.log
+.preview/
+
+# Scratch files. `.write-test` and `.rmtest` were created while checking
+# filesystem permissions and serve no purpose — safe to delete.
+.write-test
+.rmtest
+
+# FUSE leftovers: created when a file is deleted while still open, which is
+# what a network/virtual mount does instead of unlinking. Never source.
+.fuse_hidden*
+
+# Loose media and documents at the repo root. The outro video that the app
+# actually serves lives at public/video/ceramony-outro.mp4 (see
+# components/LoginTransition.js); the 1.2 MB copy at the root is a duplicate
+# nothing references, and git is the wrong place for either it or the
+# roadmap PDF.
+/*.mp4
+/*.pdf

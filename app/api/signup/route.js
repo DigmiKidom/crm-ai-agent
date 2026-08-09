@@ -12,7 +12,7 @@ import { getServerT } from "@/lib/i18n/server";
 // MVP signup: creates a brand-new tenant and makes the signing-up user its
 // owner. Joining an existing tenant via an invite link is a Phase 2 addition.
 export async function POST(request) {
-  const { t } = await getServerT();
+  const { t, locale } = await getServerT();
   const body = await request.json();
   const { companyName, name, email, password } = body ?? {};
 
@@ -58,7 +58,7 @@ export async function POST(request) {
     try {
       const rawToken = await createToken(user._id, "verify");
       const verifyUrl = `${getAppUrl()}/api/auth/verify-email?token=${rawToken}`;
-      await sendVerificationEmail(user.email, verifyUrl);
+      await sendVerificationEmail(user.email, verifyUrl, locale);
     } catch (emailErr) {
       console.error("Sending verification email failed:", emailErr);
     }

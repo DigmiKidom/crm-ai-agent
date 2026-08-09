@@ -16,7 +16,7 @@ export default function TermsPage() {
         <Logo href={null} markSize={26} />
       </div>
       <h1 className={styles.title}>Terms of Use</h1>
-      <p className={styles.updated}>Last updated: August 4, 2026</p>
+      <p className={styles.updated}>Last updated: August 8, 2026</p>
 
       <div className={styles.disclaimer}>
         This is a standard SaaS terms-of-use template, not legal advice. Placeholders like
@@ -55,8 +55,94 @@ export default function TermsPage() {
           <li>Collect, store, or send data you don&apos;t have the right to collect (e.g. leads gathered without consent where required by law);</li>
           <li>Send unsolicited communications (spam) to people captured through your landing page;</li>
           <li>Attempt to access another tenant&apos;s data, disrupt the Service, or circumvent its security;</li>
+          <li>Publish content that is unlawful, fraudulent, deceptive, defamatory, harassing, hateful, sexually explicit, or that infringes anyone else&apos;s intellectual property or privacy rights;</li>
+          <li>Impersonate another person or business, or misrepresent your affiliation with one;</li>
+          <li>Publish links, downloads, scripts, or embedded media that distribute malware, run phishing pages, or mislead visitors about where a link leads;</li>
           <li>Use the Service for anything unlawful, fraudulent, or harmful to others.</li>
         </ul>
+
+        <h2>4a. Your content, your responsibility</h2>
+        <p>
+          Everything published through your account — all text, images, video, links,
+          embedded media, downloadable files, form fields, FAQ answers, phone numbers,
+          social profiles, and WhatsApp messages — is <strong>your content</strong>, and you
+          are <strong>solely responsible</strong> for it. That responsibility is yours
+          regardless of who or what produced the material: content drafted by the AI agent,
+          suggested by a template, written by a colleague on your team, or supplied by a
+          contractor becomes yours the moment you publish it.
+        </p>
+        <p>Specifically, you represent and warrant that, for everything you publish:</p>
+        <ul>
+          <li>You own it or otherwise hold every right and licence needed to publish it, including for any image, logo, font, or media you upload;</li>
+          <li>It is accurate and not misleading about your business, your prices, your qualifications, your licensing, or your affiliations;</li>
+          <li>It complies with every law and regulation that applies to you and to your industry — including advertising, consumer-protection, professional-licensing, health-claim, and data-protection rules;</li>
+          <li>You have obtained any consent required to collect, store, and contact the people who submit your lead forms, and you will honour their requests to stop.</li>
+        </ul>
+        <p>
+          You are also responsible for the outbound messages you send through features the
+          Service provides — including WhatsApp messages composed from a lead&apos;s details
+          and any webhook you configure to receive lead data. The Service opens those
+          conversations on your behalf; what you send in them, and to whom, is your decision
+          and your legal responsibility.
+        </p>
+
+        <h2>4b. Our role — no monitoring, no endorsement</h2>
+        <p>
+          We host and display what you publish. We do not create, verify, endorse, or
+          routinely monitor it, and we are not a publisher, author, or guarantor of any
+          user-generated content on the Service. Nothing published on a landing page hosted
+          here should be understood as reviewed or approved by us.
+        </p>
+        <p>
+          To the maximum extent permitted by law, we disclaim all liability arising from
+          user-generated content, including any loss or damage suffered by a visitor to a
+          landing page, by a person whose details were submitted through one, or by any
+          third party whose rights that content infringes. If someone brings a claim against
+          us because of content published through your account, you agree to indemnify and
+          hold us harmless against that claim, including reasonable legal costs.
+        </p>
+        <p>
+          The fact that we <em>can</em> remove content (see section 4c) does not create an
+          obligation to look for it, and choosing to act on one report does not commit us to
+          reviewing anything else.
+        </p>
+
+        <h2>4c. Reporting, suspension, and termination</h2>
+        <p>
+          Every landing page published through the Service carries a &quot;Report this
+          page&quot; link. Anyone — visitor, competitor, rights holder, or member of the
+          public — may use it to bring content to our attention. Reports are reviewed by a
+          person; filing one does not by itself remove anything.
+        </p>
+        <p>
+          We reserve the right, at our sole discretion and{" "}
+          <strong>without prior notice</strong>, to:
+        </p>
+        <ul>
+          <li>Take down a landing page, so that visitors see a suspension notice in place of it;</li>
+          <li>Suspend or terminate any account;</li>
+          <li>Remove or disable specific content, media, or links.</li>
+        </ul>
+        <p>
+          We may do so where we believe in good faith that content or conduct violates these
+          terms, breaks the law, infringes someone&apos;s rights, endangers visitors or other
+          customers, or exposes us to legal or reputational risk — and we may act on that
+          belief before completing any investigation. We are not obliged to disclose who
+          reported a page, and we will not share a reporter&apos;s identity with the account
+          being reported.
+        </p>
+        <p>
+          Taking a page down does not delete your account or your CRM data: unless we also
+          suspend the account itself, you keep access to your leads and contacts and may
+          correct the content and ask us to review the decision. Where we suspend an entire
+          account, we will make reasonable efforts to give you a route to export your
+          Customer Data, except where the law or the nature of the violation prevents it.
+        </p>
+        <p>
+          We retain abuse reports — including the reason given, any notes, and the reporting
+          IP address — for as long as needed to operate moderation, investigate repeat abuse,
+          and defend against legal claims.
+        </p>
 
         <h2>5. Your data</h2>
         <p>
@@ -95,7 +181,8 @@ export default function TermsPage() {
         <p>
           You may stop using the Service and request deletion of your account at any time. We
           may suspend or terminate accounts that violate these terms or pose a security risk to
-          the Service or other tenants.
+          the Service or other tenants — immediately and without prior notice, on the grounds
+          and by the means set out in section 4c.
         </p>
 
         <h2>10. Disclaimer of warranties</h2>
@@ -110,8 +197,11 @@ export default function TermsPage() {
         <p>
           To the maximum extent permitted by law, [Company Name] will not be liable for any
           indirect, incidental, special, consequential, or punitive damages, or any loss of
-          profits or data, arising from your use of the Service. [Placeholder — a lawyer should
-          tailor this section, including any liability cap, to your jurisdiction and business.]
+          profits or data, arising from your use of the Service. This includes any loss
+          arising from content published by you or by any other customer, from a landing page
+          being taken down under section 4c, or from a third party&apos;s dealings with a
+          business whose page is hosted here. [Placeholder — a lawyer should tailor this
+          section, including any liability cap, to your jurisdiction and business.]
         </p>
 
         <h2>12. Governing law</h2>

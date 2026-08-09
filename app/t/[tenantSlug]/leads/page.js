@@ -4,7 +4,11 @@ import Tenant from "@/lib/models/Tenant";
 import Lead from "@/lib/models/Lead";
 import Pipeline from "@/lib/models/Pipeline";
 import StageSelect from "@/components/StageSelect";
-import { IconFilter, IconClose } from "@/components/icons";
+import LeadWhatsAppLink from "@/components/LeadWhatsAppLink";
+import AddToContactsButton from "@/components/AddToContactsButton";
+import QuickFollowUpButton from "@/components/QuickFollowUpButton";
+import { IconFilter, IconClose, IconCheck } from "@/components/icons";
+import { DEFAULT_PIPELINE_STAGES } from "@/lib/pipelineDefaults";
 import styles from "@/components/dashboard.module.css";
 
 function escapeRegex(str) {
@@ -37,7 +41,7 @@ export default async function LeadsInboxPage({ params, searchParams }) {
     Pipeline.findOne({ tenantId: tenant._id }).lean(),
   ]);
 
-  const stages = pipeline?.stages || ["new", "contacted", "qualified", "won", "lost"];
+  const stages = pipeline?.stages?.length ? pipeline.stages : DEFAULT_PIPELINE_STAGES;
   const hasFilters = q.trim() || stage.trim() || from || to;
 
   return (
@@ -68,12 +72,12 @@ export default async function LeadsInboxPage({ params, searchParams }) {
           <input id="from" type="date" name="from" defaultValue={from} />
         </div>
         <div className={styles.detailField} style={{ marginBottom: 0 }}>
-          <label htmlFor="to">To</label>
+          <label htmlFor="to">{t("leads.to")}</label>
           <input id="to" type="date" name="to" defaultValue={to} />
         </div>
         <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`}>
           <IconFilter size={14} />
-          Filter
+          {t("leads.filter")}
         </button>
         {hasFilters && (
           <a className={`${styles.linkButton} ${styles.iconLabel}`} href={`/t/${tenantSlug}/leads`}>
@@ -85,9 +89,7 @@ export default async function LeadsInboxPage({ params, searchParams }) {
 
       {leads.length === 0 ? (
         <p className={styles.empty}>
-          {hasFilters
-            ? t("leads.noMatch")
-            : `No leads yet. Share your landing page (/pages/${tenantSlug}) to start collecting them.`}
+          {hasFilters ? t("leads.noMatch") : t("leads.noneYet", { slug: tenantSlug })}
         </p>
       ) : (
         <table className={styles.table}>
@@ -109,17 +111,68 @@ export default async function LeadsInboxPage({ params, searchParams }) {
                     <span className={styles.unreadDot} title={t("leads.unreadLead")} aria-label={t("leads.unread")} />
                   )}
                   {lead.name}
+                  {lead.dealStatus === "won" && (
+                    <span className={styles.wonBadge} title={t("leads.dealStatus.won")}>
+                      <IconCheck size={11} />
+                    </span>
+                  )}
+                  <span className={styles.leadBadges}>
+                    {/* Only for someone with a number worth saving, and only
+                        until they've been saved once. */}
+                    {lead.phone && !lead.contactSavedAt && (
+                      <span className={styles.unsavedBadge}>{t("leads.newContact")}</span>
+                    )}
+                    {lead.needsFollowUp && (
+                      <span className={styles.followUpBadge}>{t("leads.pendingFollowUp")}</span>
+                    )}
+                  </span>
                 </td>
                 <td>{lead.email}</td>
-                <td>{lead.phone || "—"}</td>
                 <td>
-                  <StageSelect leadId={lead._id.toString()} stage={lead.stage} stages={stages} />
+                  <span className={styles.phoneCell}>
+                    {lead.phone || "—"}
+                    <LeadWhatsAppLink
+                      lead={lead}
+                      template={tenant.outreach?.whatsappTemplate}
+                      companyName={tenant.name}
+                      label={t("leads.whatsapp", { name: lead.name })}
+                    />
+                  </span>
+                </td>
+                <td>
+                  <StageSelect
+                    leadId={lead._id.toString()}
+                    lead={{
+                      name: lead.name,
+                      dealValue: lead.dealValue,
+                      closure: lead.closure ? { closedAt: lead.closure.closedAt } : null,
+                    }}
+                    stage={lead.stage}
+                    stages={stages}
+                    currency={tenant.currency}
+                  />
                 </td>
                 <td>{new Date(lead.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <a className={styles.linkButton} href={`/t/${tenantSlug}/leads/${lead._id}`}>
-                    View
-                  </a>
+                  <span className={styles.rowActions}>
+                    <a className={styles.linkButton} href={`/t/${tenantSlug}/leads/${lead._id}`}>
+                      {t("leads.view")}
+                    </a>
+                    {lead.phone && !lead.contactSavedAt && (
+                      <AddToContactsButton
+                        lead={JSON.parse(JSON.stringify(lead))}
+                        businessName={tenant.name}
+                        compact
+                      />
+                    )}
+                    {lead.needsFollowUp && (
+                      <QuickFollowUpButton
+                        lead={{ _id: lead._id.toString(), name: lead.name, phone: lead.phone }}
+                        template={tenant.outreach?.followUpTemplate}
+                        compact
+                      />
+                    )}
+                  </span>
                 </td>
               </tr>
             ))}

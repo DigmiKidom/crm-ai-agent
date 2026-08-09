@@ -62,6 +62,16 @@
   color: #fff;
 }
 
+.rangeOptionLocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rangeOptionLockIcon {
+  opacity: 0.7;
+}
+
 /* ---------------------------------------------------------------- kpi grid */
 
 .kpiGrid {
@@ -231,6 +241,57 @@
 
 /* ---------------------------------------------------------------- insights */
 
+.activityFeed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.activityFeedItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-block-end: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+
+.activityFeedItem:last-child {
+  border-block-end: none;
+}
+
+.activityFeedDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+.activityFeedDot[data-kind="lead_reply"] {
+  background: var(--success);
+}
+
+.activityFeedDot[data-kind="resume"] {
+  background: var(--info);
+}
+
+.activityFeedText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityFeedTime {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
 .insightList {
   display: flex;
   flex-direction: column;
@@ -264,6 +325,22 @@
 }
 
 /* -------------------------------------------------------------- empty state */
+
+.upgradeBanner {
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+}
+
+.upgradeBanner a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
 
 .emptyState {
   border: 1px dashed var(--border);
