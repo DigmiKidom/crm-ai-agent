@@ -17,6 +17,7 @@ import {
   hashRecoveryCode,
 } from "../lib/twoFactor.js";
 import { normalizeReport, looksAutomated, REPORT_REASONS } from "../lib/moderation.js";
+import { isAppOwnHost, normalizeHost } from "../lib/appHost.js";
 
 let pass = 0;
 const failures = [];
@@ -245,6 +246,55 @@ check("a missing timer is not treated as a bot", () => {
   // abuse — the rate limit is what bounds that case.
   eq(looksAutomated({ honeypot: "", elapsedMs: undefined }), false);
   eq(looksAutomated({}), false);
+});
+
+
+console.log("\n— app host routing —");
+
+check("normalizes hosts, ports, casing and www", () => {
+  eq(normalizeHost("https://www.Ceramony.co/"), "ceramony.co");
+  eq(normalizeHost("ceramony.co:3000"), "ceramony.co");
+  eq(normalizeHost(""), "");
+  eq(normalizeHost("not a url"), "");
+});
+
+check("recognises the configured app domain", () => {
+  const env = { APP_URL: "https://ceramony.co" };
+  eq(isAppOwnHost("ceramony.co", env), true);
+  // www and bare are the same site to everyone except a string compare.
+  eq(isAppOwnHost("www.ceramony.co", env), true);
+  eq(isAppOwnHost("CERAMONY.CO", env), true);
+});
+
+check("an APP_URL on www still matches a bare visitor host", () => {
+  eq(isAppOwnHost("ceramony.co", { APP_URL: "https://www.ceramony.co" }), true);
+});
+
+check("localhost and vercel previews are always ours", () => {
+  eq(isAppOwnHost("localhost:3000", {}), true);
+  eq(isAppOwnHost("crm-ai-agent-abc123.vercel.app", {}), true);
+});
+
+check("Vercel's own production URL counts, even without APP_URL", () => {
+  eq(isAppOwnHost("ceramony.co", { VERCEL_PROJECT_PRODUCTION_URL: "ceramony.co" }), true);
+});
+
+check("a genuine tenant domain is NOT ours", () => {
+  const env = { APP_URL: "https://ceramony.co" };
+  eq(isAppOwnHost("dana-salon.com", env), false);
+  eq(isAppOwnHost("www.dana-salon.com", env), false);
+});
+
+check("fails OPEN when nothing is configured", () => {
+  // This is the regression that took ceramony.co down: with APP_URL unset,
+  // the old code called the app's own domain a tenant custom domain, routed
+  // it to the custom-domain lookup, found nothing, and 404'd the entire site
+  // — marketing pages, login and dashboard included. One missing env var
+  // must not be able to do that.
+  eq(isAppOwnHost("ceramony.co", {}), true);
+  eq(isAppOwnHost("anything.example", {}), true);
+  // A malformed APP_URL is the same situation.
+  eq(isAppOwnHost("ceramony.co", { APP_URL: "not a url" }), true);
 });
 
 console.log(`\n${pass} passed, ${failures.length} failed`);

@@ -4,6 +4,7 @@ import { checkRateLimit } from "@/lib/rateLimit";
 import { LOCALE_COOKIE, localeFromAcceptLanguage, normalizeLocale } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/translate";
 import { isSuperAdmin } from "@/lib/roles";
+import { isAppOwnHost } from "@/lib/appHost";
 
 // Which rate-limit bucket (see lib/rateLimit.js) applies to each public,
 // abuse-sensitive endpoint. Every route.js listed here has no auth guard of
@@ -31,25 +32,6 @@ function clientIp(request) {
   const forwardedFor = request.headers.get("x-forwarded-for");
   if (forwardedFor) return forwardedFor.split(",")[0].trim();
   return request.headers.get("x-real-ip") || "unknown";
-}
-
-// True for every hostname this app itself is reachable on — the primary
-// domain (APP_URL), any Vercel-assigned preview/production domain, and
-// localhost during dev. Anything else reaching the root path is, by
-// definition, a tenant's own custom domain (see app/custom-domain/page.js) —
-// there's no third case, since nothing else could resolve here.
-function isAppOwnHost(host) {
-  if (!host) return true;
-  const hostname = host.split(":")[0].toLowerCase();
-  if (hostname === "localhost" || hostname === "127.0.0.1") return true;
-  if (hostname.endsWith(".vercel.app")) return true;
-  try {
-    if (hostname === new URL(process.env.APP_URL || "").hostname) return true;
-  } catch {
-    // APP_URL unset/malformed — fall through to "not the app's own host"
-    // rather than throwing in the request path.
-  }
-  return false;
 }
 
 // Mirrors getServerLocale() in lib/i18n/server.js, but built on the
