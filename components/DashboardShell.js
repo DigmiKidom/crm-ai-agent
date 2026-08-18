@@ -9,6 +9,7 @@ import Header from "./chrome/Header";
 import { IconClose } from "./icons";
 import { useT } from "@/components/i18n/LocaleProvider";
 import styles from "./dashboard.module.css";
+import Link from "@/components/i18n/Link";
 
 // Wraps the sidebar + main content in a client component so the mobile
 // drawer (open/closed) can be stateful, while the layout itself
@@ -130,7 +131,7 @@ export default function DashboardShell({
               <IconClose size={18} />
             </button>
           </div>
-          <a
+          <Link
             href={`/t/${tenantSlug}/settings`}
             className={styles.brand}
             title={t("sidebar.companySettings")}
@@ -138,7 +139,7 @@ export default function DashboardShell({
           >
             {brandMark}
             <span className={styles.brandTenant}>{tenantName || tenantSlug}</span>
-          </a>
+          </Link>
           <DashboardNav
             tenantSlug={tenantSlug}
             unreadLeads={unreadLeads}

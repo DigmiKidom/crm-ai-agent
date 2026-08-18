@@ -1,37 +1,38 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useRoutePath } from "@/components/i18n/LocaleProvider";
 import Header from "./Header";
 import Footer from "./Footer";
 import styles from "./chrome.module.css";
 
-// Routes that must never receive the product chrome:
+// Routes inside the localised tree that must never receive the product
+// chrome: the dashboard renders its own slim header inside DashboardShell so
+// the header can drive the sidebar drawer.
 //
-//   /t/*      the dashboard, which renders its own slim header inside
-//             DashboardShell so the header can drive the sidebar drawer
-//   /pages/*  a tenant's public landing page — it carries that tenant's
-//   /l/*      branding, colours and font, so Ceramony's own header/footer
-//             would be actively wrong there
-const BARE_PREFIXES = ["/t/", "/pages/", "/l/"];
+// The tenant landing pages used to be listed here too. They now live under a
+// separate root layout (app/(public)) which never mounts SiteChrome at all —
+// a structural guarantee rather than a prefix someone has to keep in sync.
+const BARE_PREFIXES = ["/t/"];
 
-function isBareRoute(pathname) {
+function isBareRoute(routePath) {
   return BARE_PREFIXES.some(
-    (prefix) => pathname === prefix.slice(0, -1) || pathname.startsWith(prefix)
+    (prefix) => routePath === prefix.slice(0, -1) || routePath.startsWith(prefix)
   );
 }
 
 /**
  * Decides whether the current route gets the marketing Header/Footer.
  *
- * This lives in a client component reading `usePathname()` rather than in the
- * root layout reading `cookies()`/`headers()`, because any dynamic API used in
- * the root layout opts *every* route into dynamic rendering — including the
- * ISR-cached tenant landing pages (`revalidate = 60`).
+ * Still a client component reading the pathname rather than a server one
+ * reading headers(): a dynamic API in the root layout would opt every route
+ * under it into dynamic rendering.
  */
 export default function SiteChrome({ children }) {
-  const pathname = usePathname() || "/";
+  // The path with its locale segment removed, so /he/t/acme and /en/t/acme
+  // are the same route as far as this decision goes.
+  const routePath = useRoutePath();
 
-  if (isBareRoute(pathname)) {
+  if (isBareRoute(routePath)) {
     return children;
   }
 

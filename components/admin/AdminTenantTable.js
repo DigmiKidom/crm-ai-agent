@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useT } from "@/components/i18n/LocaleProvider";
 import { IconExternalLink } from "@/components/icons";
 import styles from "./admin.module.css";
+import Link from "@/components/i18n/Link";
 
 /**
  * The user/business management table.
@@ -146,9 +147,9 @@ export default function AdminTenantTable({ rows = [] }) {
               </td>
               <td>
                 <span className={styles.rowActions}>
-                  <a className={styles.button} href={`/admin/users/${row.id}`}>
+                  <Link className={styles.button} href={`/admin/users/${row.id}`}>
                     {t("admin.users.inspect")}
-                  </a>
+                  </Link>
                   <a
                     className={styles.button}
                     href={`/pages/${row.slug}`}

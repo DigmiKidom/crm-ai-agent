@@ -62,3 +62,6 @@ build.log
 # roadmap PDF.
 /*.mp4
 /*.pdf
+
+# Scratch: files this session could not unlink — safe to delete by hand.
+_to_delete/

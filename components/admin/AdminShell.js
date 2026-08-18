@@ -1,10 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import Logo from "@/components/Logo";
 import SignOutButton from "@/components/SignOutButton";
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useRoutePath, useT } from "@/components/i18n/LocaleProvider";
 import { IconChart, IconUsers, IconAlert, IconLock } from "@/components/icons";
 import styles from "./admin.module.css";
 
@@ -24,7 +23,7 @@ const NAV = [
 
 export default function AdminShell({ admin, openReports = 0, children }) {
   const t = useT();
-  const pathname = usePathname();
+  const pathname = useRoutePath();
 
   return (
     <div className={styles.shell}>

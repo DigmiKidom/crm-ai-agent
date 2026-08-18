@@ -1,6 +1,7 @@
 import Tooltip from "@/components/chrome/Tooltip";
 import { IconArrowRight } from "@/components/icons";
 import styles from "./hub.module.css";
+import Link from "@/components/i18n/Link";
 
 /**
  * One tile on the Services & Tools Hub. A plain Server Component — nothing
@@ -31,10 +32,10 @@ export default function HubCard({ Icon, title, description, tooltip, stat, href,
 
       <div className={styles.cardFooter}>
         <span className={styles.cardStat}>{stat}</span>
-        <a href={href} className={styles.cardCta}>
+        <Link href={href} className={styles.cardCta}>
           {ctaLabel}
           <IconArrowRight size={13} className="dirFlip" />
-        </a>
+        </Link>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { MEETING_TYPES, MEETING_STATUSES } from "@/lib/meetingConstants";
 import { IconClose, IconTrash, IconCheck, IconSearch } from "@/components/icons";
 import styles from "./calendar.module.css";
 import dash from "@/components/dashboard.module.css";
+import Link from "@/components/i18n/Link";
 
 // datetime-local inputs read/write local time with no timezone suffix —
 // toISOString() is UTC, so it can't be used directly here or every save
@@ -289,7 +290,7 @@ export default function EventForm({
         {form.status === "ai_followup" && related?.kind === "lead" && (
           <p className={styles.aiFollowupHint}>
             {t("calendar.aiFollowupHint")}{" "}
-            <a href={`/t/${tenantSlug}/leads/${related.id}`}>{t("calendar.aiFollowupLink")}</a>
+            <Link href={`/t/${tenantSlug}/leads/${related.id}`}>{t("calendar.aiFollowupLink")}</Link>
           </p>
         )}
 

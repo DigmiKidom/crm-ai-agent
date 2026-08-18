@@ -11,6 +11,7 @@ import {
 } from "@/components/icons";
 import styles from "./tutorial.module.css";
 import { useT } from "@/components/i18n/LocaleProvider";
+import Link from "@/components/i18n/Link";
 
 // Descriptors only — every string resolves through t() at render time, so the
 // tutorial follows the dashboard language like the rest of the app.
@@ -94,9 +95,9 @@ export default function FullTutorial({ tenantSlug }) {
               <IconArrowRight size={14} style={{ transform: "rotate(180deg)" }} /> Back
             </button>
             {isLast ? (
-              <a href={`/t/${tenantSlug}`} className={`${styles.navButton} ${styles.navButtonPrimary}`}>
+              <Link href={`/t/${tenantSlug}`} className={`${styles.navButton} ${styles.navButtonPrimary}`}>
                 Go to my dashboard <IconArrowRight size={14} />
-              </a>
+              </Link>
             ) : (
               <button
                 type="button"

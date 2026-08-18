@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import { IconCheck, IconTrash, IconMail, IconSparkles } from "./icons";
-import { useT, useLocale } from "@/components/i18n/LocaleProvider";
+import { useT, useLocale, useLocaleHref } from "@/components/i18n/LocaleProvider";
 import { classifyStages } from "@/lib/stageClassifier";
 
 const STATUS_TONE_CLASS = {
@@ -22,6 +22,7 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug, currency = 
   // a hydration mismatch on every render of this field.
   const { locale } = useLocale();
   const router = useRouter();
+  const localeHref = useLocaleHref();
   const [form, setForm] = useState({
     name: lead.name || "",
     email: lead.email || "",
@@ -145,7 +146,7 @@ export default function LeadDetailEditor({ lead, stages, tenantSlug, currency = 
       setError(t("leads.deleteFailed"));
       return;
     }
-    router.push(`/t/${tenantSlug}/leads`);
+    router.push(localeHref(`/t/${tenantSlug}/leads`));
   }
 
   return (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { IconArrowRight } from "@/components/icons";
 import styles from "./tutorial.module.css";
 import { useT } from "@/components/i18n/LocaleProvider";
+import Link from "@/components/i18n/Link";
 
 // The condensed "short book" version — same ground as the full guide, folded
 // into 3 pages for anyone who'd rather skim than step through 5 screens.
@@ -52,9 +53,9 @@ export default function QuickTutorial({ tenantSlug }) {
           <IconArrowRight size={14} style={{ transform: "rotate(180deg)" }} /> Back
         </button>
         {isLast ? (
-          <a href={`/t/${tenantSlug}`} className={`${styles.navButton} ${styles.navButtonPrimary}`}>
+          <Link href={`/t/${tenantSlug}`} className={`${styles.navButton} ${styles.navButtonPrimary}`}>
             Go to my dashboard <IconArrowRight size={14} />
-          </a>
+          </Link>
         ) : (
           <button
             type="button"

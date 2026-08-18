@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconTrash, IconCheck } from "@/components/icons";
 import styles from "./workspace.module.css";
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, useLocaleHref } from "@/components/i18n/LocaleProvider";
 
 /**
  * Shared header for both page types: an editable title, the save control, and
@@ -26,6 +26,7 @@ export default function PageHeader({
 }) {
   const t = useT();
   const router = useRouter();
+  const localeHref = useLocaleHref();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,7 +39,7 @@ export default function PageHeader({
       return;
     }
     router.refresh();
-    router.push(`/t/${tenantSlug}`);
+    router.push(localeHref(`/t/${tenantSlug}`));
   }
 
   return (

@@ -28,6 +28,7 @@ import {
 } from "@/lib/socialLinks";
 import { MAX_FAQ_ITEMS, MAX_FAQ_ANSWER, blankFaqItem } from "@/lib/faq";
 import { SocialIcon } from "./SocialIcons";
+import Link from "@/components/i18n/Link";
 
 const MAX_FEATURES = 3;
 const MAX_BACKGROUNDS = 3;
@@ -535,7 +536,7 @@ export default function LandingPageEditor({
         {!hasLogo && (
           <p className={styles.sectionHint}>
             {t("editor.uploadLogoHintBefore")}{" "}
-            <a href={`/t/${tenantSlug}/settings`}>{t("editor.settings")}</a>
+            <Link href={`/t/${tenantSlug}/settings`}>{t("editor.settings")}</Link>
             {t("editor.uploadLogoHintAfter")}
           </p>
         )}

@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Logo from "@/components/Logo";
 import LanguageToggle from "./LanguageToggle";
 import AvatarMenu from "./AvatarMenu";
-import { useLocale } from "@/components/i18n/LocaleProvider";
+import { useLocale, useRoutePath } from "@/components/i18n/LocaleProvider";
 import { IconClose, IconMenu } from "@/components/icons";
 import styles from "./chrome.module.css";
+import Link from "@/components/i18n/Link";
 
 /**
  * The one header component, in two shapes.
@@ -31,7 +31,7 @@ export default function Header({
   tenantSlug,
 }) {
   const { t } = useLocale();
-  const pathname = usePathname();
+  const pathname = useRoutePath();
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
 
@@ -110,28 +110,28 @@ export default function Header({
             </button>
           )}
 
-          <a
+          <Link
             href={isAuthed && activeTenantSlug ? `/t/${activeTenantSlug}` : "/"}
             className={styles.brand}
             aria-label={t("brand.name")}
           >
             <Logo href={null} markSize={26} />
             <span className={styles.brandTagline}>{t("brand.tagline")}</span>
-          </a>
+          </Link>
         </div>
 
         {/* ── Centre nav (public only) ── */}
         {!isApp && (
           <nav className={styles.nav} aria-label={t("nav.mainNavigation")}>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className={styles.navLink}
                 data-active={isActive(link.href) || undefined}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         )}
@@ -153,12 +153,12 @@ export default function Header({
             // (logged-out) case on marketing pages.
             !isApp && (
               <div className={styles.authLinks} data-pending={status === "loading" || undefined}>
-                <a href="/login" className={styles.ghostButton}>
+                <Link href="/login" className={styles.ghostButton}>
                   {t("nav.login")}
-                </a>
-                <a href="/signup" className={styles.accentButton}>
+                </Link>
+                <Link href="/signup" className={styles.accentButton}>
                   {t("nav.signup")}
-                </a>
+                </Link>
               </div>
             )
           )}
@@ -175,7 +175,7 @@ export default function Header({
           />
           <nav className={styles.mobileNav} aria-label={t("nav.mainNavigation")}>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className={styles.mobileNavLink}
@@ -188,17 +188,17 @@ export default function Header({
                 onClick={() => setNavOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
 
             {!isAuthed && (
               <div className={styles.mobileNavActions}>
-                <a href="/login" className={styles.ghostButton}>
+                <Link href="/login" className={styles.ghostButton}>
                   {t("nav.login")}
-                </a>
-                <a href="/signup" className={styles.accentButton}>
+                </Link>
+                <Link href="/signup" className={styles.accentButton}>
                   {t("nav.signup")}
-                </a>
+                </Link>
               </div>
             )}
           </nav>

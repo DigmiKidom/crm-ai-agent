@@ -13,6 +13,7 @@ import {
   IconUser,
 } from "@/components/icons";
 import styles from "./chrome.module.css";
+import Link from "@/components/i18n/Link";
 
 /**
  * Avatar button + account dropdown. Keyboard handling, dismissal, and focus
@@ -109,7 +110,7 @@ export default function AvatarMenu({
           {links.length > 0 && (
             <div className={styles.menuGroup}>
               {links.map((link) => (
-                <a
+                <Link
                   key={link.key}
                   role="menuitem"
                   href={link.href}
@@ -119,7 +120,7 @@ export default function AvatarMenu({
                 >
                   <link.Icon size={16} className={styles.menuItemIcon} />
                   <span>{link.label}</span>
-                </a>
+                </Link>
               ))}
             </div>
           )}

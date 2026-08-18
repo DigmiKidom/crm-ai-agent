@@ -3,6 +3,7 @@
 import Logo from "@/components/Logo";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import styles from "./chrome.module.css";
+import Link from "@/components/i18n/Link";
 
 /**
  * Marketing/auth footer: three link columns, the brand lockup with the
@@ -62,9 +63,9 @@ export default function Footer() {
               <ul className={styles.footerLinkList}>
                 {column.links.map((link) => (
                   <li key={link.href}>
-                    <a href={link.href} className={styles.footerLink}>
+                    <Link href={link.href} className={styles.footerLink}>
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -77,9 +78,9 @@ export default function Footer() {
         <p className={styles.footerCopyright}>
           © {year} Ceramony. {t("footer.rights")}
         </p>
-        <a href="/terms" className={styles.footerBarLink}>
+        <Link href="/terms" className={styles.footerBarLink}>
           {t("footer.terms")}
-        </a>
+        </Link>
       </div>
     </footer>
   );

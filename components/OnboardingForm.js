@@ -17,6 +17,7 @@ import {
   DEFAULT_AGENT_PREFERENCES,
 } from "@/lib/agentPreferences";
 import { useT } from "@/components/i18n/LocaleProvider";
+import Link from "@/components/i18n/Link";
 
 // "Auto" first and default: it matches what people actually do — they type
 // their answers in their own language and expect a page in that language.
@@ -135,14 +136,14 @@ export default function OnboardingForm({ tenantSlug, initial }) {
             <IconExternalLink size={14} />
             {t("onboarding.viewLandingPage")}
           </a>
-          <a
+          <Link
             className={`${styles.deleteButton} ${styles.iconLabel}`}
             style={{ color: "inherit", borderColor: "var(--border)" }}
             href={`/t/${tenantSlug}`}
           >
             <IconOverview size={14} />
             {t("onboarding.goToDashboard")}
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -296,10 +297,10 @@ export default function OnboardingForm({ tenantSlug, initial }) {
           <IconSparkles size={14} />
           {loading ? t("onboarding.generating") : t("onboarding.generate")}
         </button>
-        <a className={`${styles.linkButton} ${styles.iconLabel}`} href={`/t/${tenantSlug}`}>
+        <Link className={`${styles.linkButton} ${styles.iconLabel}`} href={`/t/${tenantSlug}`}>
           {t("onboarding.skipForNow")}
           <IconArrowRight size={13} />
-        </a>
+        </Link>
       </div>
     </form>
   );

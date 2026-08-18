@@ -8,6 +8,7 @@ import DealClosureModal from "@/components/DealClosureModal";
 import { classifyStages } from "@/lib/stageClassifier";
 import { shouldPromptForClosure } from "@/lib/dealClosure";
 import styles from "./dashboard.module.css";
+import Link from "@/components/i18n/Link";
 
 export default function PipelineBoard({
   initialLeads,
@@ -163,7 +164,7 @@ export default function PipelineBoard({
                       draggingId === lead._id ? styles.pipelineCardDragging : ""
                     }`}
                   >
-                    <a
+                    <Link
                       href={`/t/${tenantSlug}/leads/${lead._id}`}
                       className={styles.pipelineCardLink}
                     >
@@ -179,7 +180,7 @@ export default function PipelineBoard({
                       {lead.needsFollowUp && (
                         <span className={styles.followUpBadge}>{t("leads.pendingFollowUp")}</span>
                       )}
-                    </a>
+                    </Link>
                     <div className={styles.pipelineCardActions}>
                       {/* Keyboard/screen-reader path for what dragging does for a
                           mouse user — stages a <select> rather than requiring a

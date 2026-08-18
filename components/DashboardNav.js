@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useRouter } from "next/navigation";
+import { useLocaleHref, useRoutePath, useT } from "@/components/i18n/LocaleProvider";
 import {
   IconOverview,
   IconGrid,
@@ -25,6 +25,7 @@ import {
 } from "@/components/icons";
 import { hasRole } from "@/lib/roles";
 import styles from "./dashboard.module.css";
+import Link from "@/components/i18n/Link";
 
 export default function DashboardNav({
   tenantSlug,
@@ -34,8 +35,9 @@ export default function DashboardNav({
   onNavigate,
 }) {
   const t = useT();
-  const pathname = usePathname();
+  const pathname = useRoutePath();
   const router = useRouter();
+  const localeHref = useLocaleHref();
 
   const [creating, setCreating] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
@@ -103,13 +105,13 @@ export default function DashboardNav({
     // refresh() re-runs the layout so the new page shows up in this list;
     // push() then opens it.
     router.refresh();
-    router.push(`/t/${tenantSlug}/w/${data.item._id}`);
+    router.push(localeHref(`/t/${tenantSlug}/w/${data.item._id}`));
   }
 
   return (
     <nav className={styles.navTable}>
       {items.map((item) => (
-        <a
+        <Link
           key={item.href}
           href={item.href}
           className={`${styles.navRow} ${isActive(item) ? styles.navRowActive : ""}`}
@@ -129,7 +131,7 @@ export default function DashboardNav({
               {item.badge > 99 ? "99+" : item.badge}
             </span>
           )}
-        </a>
+        </Link>
       ))}
 
       <a
@@ -162,7 +164,7 @@ export default function DashboardNav({
         const href = `/t/${tenantSlug}/w/${item.id}`;
         const Icon = item.type === "table" ? IconTable : IconDocument;
         return (
-          <a
+          <Link
             key={item.id}
             href={href}
             className={`${styles.navRow} ${pathname === href ? styles.navRowActive : ""}`}
@@ -171,7 +173,7 @@ export default function DashboardNav({
           >
             <Icon size={18} className={styles.navRowIcon} />
             <span className={styles.navRowTruncate}>{item.title}</span>
-          </a>
+          </Link>
         );
       })}
 

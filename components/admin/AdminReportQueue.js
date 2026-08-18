@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useT } from "@/components/i18n/LocaleProvider";
 import { IconExternalLink } from "@/components/icons";
 import styles from "./admin.module.css";
+import Link from "@/components/i18n/Link";
 
 /**
  * The moderation queue.
@@ -114,9 +115,9 @@ export default function AdminReportQueue({ rows = [] }) {
               </td>
               <td>
                 <span className={styles.rowActions}>
-                  <a className={styles.button} href={`/admin/users/${row.tenantId}`}>
+                  <Link className={styles.button} href={`/admin/users/${row.tenantId}`}>
                     {t("admin.users.inspect")}
-                  </a>
+                  </Link>
                   {row.status === "open" ? (
                     <>
                       <button
