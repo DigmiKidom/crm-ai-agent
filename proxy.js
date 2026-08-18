@@ -30,6 +30,11 @@ const BUCKET_BY_PATH = {
 // /he/admin and /en/admin are the same subtree as far as this is concerned.
 const ADMIN_PATH = /^\/(admin|api\/admin)(\/|$)/;
 
+// Public survey submissions carry the survey id in the path, so they can't be
+// keyed by exact match in the table above. Same shape of problem as the admin
+// subtree, same solution.
+const SURVEY_RESPONSE_PATH = /^\/api\/survey-response\/[^/]+$/;
+
 // Next.js dropped `request.ip` — Vercel (and any standard reverse proxy)
 // still sets `x-forwarded-for`, with the connecting client first in the list.
 function clientIp(request) {
@@ -55,7 +60,11 @@ function preferredLocale(request) {
 
 async function rateLimitResponse(request, adminPath) {
   const path = request.nextUrl.pathname;
-  const bucket = adminPath ? "admin" : BUCKET_BY_PATH[path];
+  const bucket = adminPath
+    ? "admin"
+    : SURVEY_RESPONSE_PATH.test(path)
+      ? "surveyResponse"
+      : BUCKET_BY_PATH[path];
   if (!bucket) return null;
 
   const ip = clientIp(request);
@@ -193,7 +202,7 @@ export const config = {
     // Excluded: /api (listed individually below, so the auth() unwrap and the
     // Edge hop stay off endpoints that gain nothing from them), the
     // tenant-facing routes that own their own language, and static assets.
-    "/((?!api/|pages/|l/|cv/|custom-domain|suspended|_next/|favicon\\.ico|icon\\.svg|logo/|tutorial/|video/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm|txt|xml|json|webmanifest)$).*)",
+    "/((?!api/|pages/|l/|cv/|s/|custom-domain|suspended|_next/|favicon\\.ico|icon\\.svg|logo/|tutorial/|video/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm|txt|xml|json|webmanifest)$).*)",
     "/api/admin/:path*",
     "/api/signup",
     "/api/auth/callback/credentials",
@@ -202,5 +211,6 @@ export const config = {
     "/api/auth/reset-password",
     "/api/leads",
     "/api/report",
+    "/api/survey-response/:surveyId",
   ],
 };

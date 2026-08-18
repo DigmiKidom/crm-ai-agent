@@ -1,0 +1,177 @@
+/*
+ * The public feedback form.
+ *
+ * Standalone rather than sharing dashboard.module.css: this renders under
+ * app/(public)/layout.js, is seen by a customer who has never logged in, and
+ * has to carry the tenant's accent colour rather than the product's chrome.
+ * Direction comes from the tenant's content language via dir= on the wrapper,
+ * so everything here uses logical properties.
+ */
+
+.page {
+  --survey-accent: var(--primary);
+  display: grid;
+  place-items: start center;
+  min-block-size: 100dvh;
+  padding: 32px 20px 64px;
+  background: var(--surface-sunken, var(--background));
+}
+
+.card {
+  inline-size: 100%;
+  max-inline-size: 560px;
+  padding: 28px 24px;
+  background: var(--surface, var(--background));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.brand {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.intro {
+  margin: 0 0 20px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.closed {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border-radius: 10px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.question {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.questionLabel {
+  padding: 0;
+  margin-block-end: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ── Rating ─────────────────────────────────────────────────────────────── */
+
+.rating {
+  display: flex;
+  gap: 6px;
+}
+
+.ratingOption {
+  display: inline-grid;
+  place-items: center;
+  padding: 4px;
+  color: var(--border);
+  cursor: pointer;
+  transition: color 0.12s ease, transform 0.12s ease;
+}
+
+/*
+ * Every star up to and including the selected one fills, which is what people
+ * expect from a rating and what makes "4 out of 5" readable at a glance. Driven
+ * by a data attribute rather than a sibling selector because in RTL the visual
+ * order of the stars reverses and `~` would fill the wrong ones.
+ */
+.ratingOption[data-selected="true"] {
+  color: var(--survey-accent);
+}
+
+.ratingOption:hover {
+  transform: translateY(-1px);
+}
+
+.ratingInput {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ratingInput:focus-visible + svg {
+  outline: 2px solid var(--survey-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Free text ──────────────────────────────────────────────────────────── */
+
+.textInput,
+.nameInput {
+  inline-size: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.textInput {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.textInput:focus-visible,
+.nameInput:focus-visible {
+  outline: 2px solid var(--survey-accent);
+  outline-offset: 1px;
+}
+
+.submit {
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--survey-accent);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--danger-fg, var(--danger));
+  background: var(--danger-bg, transparent);
+  border: 1px solid var(--danger-border, var(--danger));
+  border-radius: 10px;
+}
+
+.thanks {
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.5;
+}

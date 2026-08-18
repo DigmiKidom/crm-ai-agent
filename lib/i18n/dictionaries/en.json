@@ -305,7 +305,10 @@
     "generate": "Generate my site",
     "generating": "Generating…",
     "serverError": "Unexpected server error. Please try again.",
-    "intro": "Answer a few questions about your business and the agent will write your landing page copy and set up a pipeline that fits how you actually sell."
+    "intro": "Answer a few questions about your business and the agent will write your landing page copy and set up a pipeline that fits how you actually sell.",
+    "generationsLeft": "{remaining}/{limit} designs left today",
+    "limitReached": "You've used all {limit} AI designs for today. The limit resets at midnight UTC — your current landing page is unaffected.",
+    "limitTooltip": "Daily limit reached — up to {limit} AI designs per day."
   },
   "settings": {
     "appearance": "Appearance",
@@ -1333,7 +1336,9 @@
     "agentGenerate": {
       "missingRequiredFields": "Industry and lead definition are required.",
       "notConfigured": "The AI agent isn't configured yet — add GOOGLE_API_KEY to your environment.",
-      "failed": "Could not generate your site right now. Please try again."
+      "failed": "Could not generate your site right now. Please try again.",
+      "dailyLimitReached": "Daily limit reached. You can generate up to {limit} AI designs per day.",
+      "usageFailed": "Couldn't check your remaining generations."
     },
     "workspace": {
       "loadFailed": "Could not load your pages.",
@@ -1377,6 +1382,57 @@
       "invalidEmail": "That email address doesn't look right.",
       "notesRequired": "Tell us briefly what's wrong with this page.",
       "failed": "We couldn't send that just now. Please try again shortly."
+    },
+    "plugins": {
+      "loadFailed": "Couldn't load your tools.",
+      "invalidSelection": "That selection wasn't understood.",
+      "unknownPlugin": "One of those tools doesn't exist.",
+      "saveFailed": "Couldn't save your tools."
+    },
+    "tasks": {
+      "loadFailed": "Couldn't load your tasks.",
+      "titleRequired": "A task needs a title.",
+      "invalidPriority": "That priority isn't valid.",
+      "notFound": "That task no longer exists.",
+      "saveFailed": "Couldn't save that task.",
+      "deleteFailed": "Couldn't delete that task."
+    },
+    "notes": {
+      "loadFailed": "Couldn't load your notes.",
+      "emptyNote": "A note needs a title or some text.",
+      "notFound": "That note no longer exists.",
+      "saveFailed": "Couldn't save that note.",
+      "deleteFailed": "Couldn't delete that note."
+    },
+    "ledger": {
+      "loadFailed": "Couldn't load your entries.",
+      "invalidMonth": "That month isn't valid.",
+      "invalidType": "Choose income or expense.",
+      "invalidAmount": "Enter a valid amount.",
+      "invalidDate": "That date isn't valid.",
+      "notFound": "That entry no longer exists.",
+      "saveFailed": "Couldn't save that entry.",
+      "deleteFailed": "Couldn't delete that entry."
+    },
+    "snippets": {
+      "loadFailed": "Couldn't load your templates.",
+      "titleRequired": "A template needs a title.",
+      "bodyRequired": "A template needs a message.",
+      "notFound": "That template no longer exists.",
+      "saveFailed": "Couldn't save that template.",
+      "deleteFailed": "Couldn't delete that template."
+    },
+    "surveys": {
+      "loadFailed": "Couldn't load your surveys.",
+      "titleRequired": "A survey needs a title.",
+      "questionsRequired": "A survey needs at least one question.",
+      "notFound": "That survey no longer exists.",
+      "closed": "This survey is closed.",
+      "answerRequired": "Please answer the required questions.",
+      "emptyResponse": "Please answer at least one question.",
+      "submitFailed": "Couldn't send your answers. Please try again.",
+      "saveFailed": "Couldn't save that survey.",
+      "deleteFailed": "Couldn't delete that survey."
     }
   },
   "notFound": {
@@ -1566,6 +1622,150 @@
       "email": "Email",
       "phone": "Phone",
       "stage": "Stage"
+    }
+  },
+  "plugins": {
+    "pageTitle": "Tools & plugins",
+    "pageIntro": "Switch on the extra tools you want in your sidebar. Turning one off only hides it — nothing you have saved is deleted.",
+    "sectionLabel": "Tools",
+    "manage": "Manage tools",
+    "emptyHint": "Add tools to your sidebar",
+    "on": "On",
+    "off": "Off",
+    "saveFailed": "Couldn't save that change.",
+    "coreTitle": "Always on",
+    "coreHint": "The core CRM. These can't be switched off.",
+    "core": {
+      "overview": "Overview",
+      "hub": "Hub",
+      "leads": "Leads",
+      "calendar": "Calendar",
+      "analytics": "Analytics",
+      "pipeline": "Pipeline",
+      "closedDeals": "Closed deals",
+      "contacts": "Contacts",
+      "site": "Landing page",
+      "cv": "CV",
+      "aiSetup": "AI setup",
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "tasks": {
+      "label": "Tasks",
+      "description": "A shared to-do list with priorities and due dates."
+    },
+    "notes": {
+      "label": "Notes",
+      "description": "An internal scratchpad for how your business works. Never leaves this app."
+    },
+    "finances": {
+      "label": "Income & expenses",
+      "description": "Log what comes in and goes out, and see the monthly net."
+    },
+    "snippets": {
+      "label": "Message templates",
+      "description": "Reusable replies to copy or send on WhatsApp in one click."
+    },
+    "surveys": {
+      "label": "Feedback & surveys",
+      "description": "A short form you can send customers to collect ratings and reviews."
+    }
+  },
+  "tasks": {
+    "newPlaceholder": "What needs doing?",
+    "priority": "Priority",
+    "dueDate": "Due date",
+    "add": "Add",
+    "empty": "Nothing on the list yet.",
+    "openOne": "1 task open",
+    "openMany": "{count} tasks open",
+    "saveFailed": "Couldn't save that task.",
+    "priorities": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High"
+    }
+  },
+  "notes": {
+    "new": "New note",
+    "untitled": "Untitled note",
+    "empty": "No notes yet.",
+    "selectPrompt": "Pick a note, or start a new one.",
+    "titlePlaceholder": "Title",
+    "bodyPlaceholder": "Write anything — markdown works.",
+    "preview": "Preview",
+    "edit": "Edit",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Couldn't save that note.",
+    "privacyNote": "Internal only. Notes stay inside this app — they are never emailed, shared, or synced anywhere else."
+  },
+  "finances": {
+    "income": "Income",
+    "expense": "Expenses",
+    "net": "Net",
+    "date": "Date",
+    "description": "Description",
+    "descriptionPlaceholder": "What was it for?",
+    "type": "Type",
+    "amount": "Amount",
+    "add": "Add",
+    "empty": "No entries yet.",
+    "invalidAmount": "Enter an amount greater than zero.",
+    "saveFailed": "Couldn't save that entry."
+  },
+  "snippets": {
+    "title": "Title",
+    "titlePlaceholder": "Template name",
+    "category": "Category",
+    "categoryPlaceholder": "Category (optional)",
+    "body": "Message",
+    "bodyPlaceholder": "The message you keep retyping…",
+    "add": "Save template",
+    "allCategories": "All",
+    "empty": "No templates yet.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Your browser wouldn't let us copy that.",
+    "sendWhatsApp": "Send on WhatsApp",
+    "saveFailed": "Couldn't save that template."
+  },
+  "surveys": {
+    "newTitle": "New survey",
+    "title": "Title",
+    "titlePlaceholder": "e.g. How did we do?",
+    "intro": "Intro",
+    "introPlaceholder": "One line under the title (optional)",
+    "questionPlaceholder": "Question {n}",
+    "questionType": "Answer type",
+    "typeRating": "Rating (1–5)",
+    "typeText": "Written answer",
+    "required": "Required",
+    "addQuestion": "Add question",
+    "create": "Create survey",
+    "empty": "No surveys yet.",
+    "open": "Open",
+    "closed": "Closed",
+    "close": "Close",
+    "reopen": "Reopen",
+    "responseCount": "{count} responses",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "copyFailed": "Your browser wouldn't let us copy that.",
+    "share": "Share on WhatsApp",
+    "viewResponses": "Responses",
+    "noResponses": "No responses yet.",
+    "anonymous": "Anonymous",
+    "saveFailed": "Couldn't save that survey.",
+    "public": {
+      "submit": "Send",
+      "sending": "Sending…",
+      "thanks": "Thank you — your feedback has been received.",
+      "closed": "This survey is closed.",
+      "namePlaceholder": "Your name (optional)",
+      "required": "Please answer the required questions.",
+      "failed": "Something went wrong. Please try again.",
+      "ratingLabel": "Rate {n} out of 5"
     }
   }
 }

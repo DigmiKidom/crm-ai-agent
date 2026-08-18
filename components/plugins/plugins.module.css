@@ -1,0 +1,741 @@
+/*
+ * Styles for the optional tools (lib/plugins.js) and the screen that switches
+ * them on.
+ *
+ * Logical properties throughout — `inline-start`/`inline-end`, never
+ * left/right — because these views render in Hebrew as often as in English and
+ * direction comes from <html dir> alone (see DESIGN_TOKENS.md). Colours are
+ * tokens from globals.css; nothing here defines its own dark-mode rule, since
+ * dark is one override block on .shell in dashboard.module.css.
+ */
+
+.toolPage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-block-start: 18px;
+}
+
+.toolMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Composer rows (add a task / a ledger line / a snippet) ─────────────── */
+
+.composer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.composerStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.composerStack .composer {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.composerInput,
+.composerSelect,
+.composerDate,
+.composerAmount,
+.snippetInput,
+.noteTitleInput,
+.noteEditor {
+  font: inherit;
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.composerInput {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.composerSelect {
+  flex: 0 1 160px;
+}
+
+.composerDate {
+  flex: 0 1 150px;
+}
+
+.composerAmount {
+  flex: 0 1 120px;
+  text-align: end;
+}
+
+.composerInput:focus-visible,
+.composerSelect:focus-visible,
+.composerDate:focus-visible,
+.composerAmount:focus-visible,
+.snippetInput:focus-visible,
+.noteEditor:focus-visible,
+.noteTitleInput:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+/* ── Tools & plugins screen ─────────────────────────────────────────────── */
+
+.toolsPage {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-block-start: 18px;
+}
+
+.toolGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.toolCard {
+  display: grid;
+  /* icon | text | switch — the switch column is fixed so every card's control
+     lines up regardless of how long its description wraps. */
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.toolCard[data-on="true"] {
+  border-color: var(--primary);
+  background: var(--surface-accent, var(--surface));
+}
+
+.toolIcon {
+  display: grid;
+  place-items: center;
+  inline-size: 38px;
+  block-size: 38px;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--primary);
+}
+
+.toolText {
+  min-inline-size: 0;
+}
+
+.toolTitle {
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.toolDescription {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* The switch: a real checkbox, visually hidden, driving a track and thumb. */
+.switch {
+  /* Containing block for the visually-hidden input below. Without it that
+     absolutely-positioned input resolves against some ancestor further up and
+     lands somewhere unrelated on the page — invisible, but it is what the
+     browser scrolls to when the control receives focus. */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switchLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.switchInput {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switchTrack {
+  position: relative;
+  display: inline-block;
+  inline-size: 40px;
+  block-size: 22px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.switchThumb {
+  position: absolute;
+  inset-block-start: 2px;
+  /* inset-inline-start, so the thumb starts on the reading-side edge and
+     travels toward the far edge in both directions. */
+  inset-inline-start: 2px;
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: 50%;
+  background: var(--background);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+  transition: inset-inline-start 0.16s ease;
+}
+
+.switchInput:checked + .switchTrack {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.switchInput:checked + .switchTrack .switchThumb {
+  inset-inline-start: 20px;
+}
+
+.switchInput:focus-visible + .switchTrack {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.switchInput:disabled + .switchTrack {
+  opacity: 0.6;
+}
+
+.coreSection {
+  padding-block-start: 6px;
+}
+
+.coreList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coreItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.coreCheck {
+  color: var(--success, var(--primary));
+}
+
+/* ── Tasks ──────────────────────────────────────────────────────────────── */
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.taskRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.taskRow[data-done="true"] .taskTitle {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.taskCheck {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-inline-size: 0;
+  cursor: pointer;
+}
+
+.taskTitle {
+  overflow-wrap: anywhere;
+}
+
+.taskTags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.priorityTag,
+.dueTag,
+.typeTag,
+.categoryTag,
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.priorityTag[data-priority="high"] {
+  color: var(--danger-fg, var(--danger));
+  border-color: var(--danger-border, var(--danger));
+  background: var(--danger-bg, transparent);
+}
+
+.dueTag[data-overdue="true"] {
+  color: var(--danger-fg, var(--danger));
+  border-color: var(--danger-border, var(--danger));
+  background: var(--danger-bg, transparent);
+}
+
+/* ── Notes ──────────────────────────────────────────────────────────────── */
+
+.splitPane {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .splitPane {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paneList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.noteList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.noteRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  inline-size: 100%;
+  /* text-align: start, not left — this is the one property that would silently
+     strand every note title on the wrong edge in Hebrew. */
+  text-align: start;
+  padding: 9px 11px;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.noteRow:hover {
+  background: var(--surface-hover);
+}
+
+.noteRow[data-active="true"] {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.noteRowTitle {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noteRowDate {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.paneEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-block-size: 320px;
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.noteTitleInput {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.editorActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.noteEditor {
+  inline-size: 100%;
+  resize: vertical;
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+.notePreview {
+  line-height: 1.65;
+}
+
+.notePreview :is(h1, h2, h3) {
+  margin-block: 1em 0.4em;
+}
+
+.notePreview ul,
+.notePreview ol {
+  padding-inline-start: 1.4em;
+}
+
+/* ── Finances ───────────────────────────────────────────────────────────── */
+
+.monthStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.monthCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-inline-size: 130px;
+}
+
+.monthLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.monthNet {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.monthNet[data-negative="true"] {
+  color: var(--danger-fg, var(--danger));
+}
+
+.typeTag[data-type="income"] {
+  color: var(--success-fg, var(--success));
+  border-color: var(--success-border, var(--success));
+  background: var(--success-bg, transparent);
+}
+
+.typeTag[data-type="expense"] {
+  color: var(--danger-fg, var(--danger));
+  border-color: var(--danger-border, var(--danger));
+  background: var(--danger-bg, transparent);
+}
+
+.amountCell {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.amountCell[data-type="expense"] {
+  color: var(--danger-fg, var(--danger));
+}
+
+.amountCell[data-type="income"] {
+  color: var(--success-fg, var(--success));
+}
+
+/* ── Snippets ───────────────────────────────────────────────────────────── */
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filterChip {
+  padding: 5px 11px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.filterChip[data-active="true"] {
+  color: var(--background);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.snippetInput {
+  inline-size: 100%;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.snippetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.snippetCard,
+.surveyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.snippetHeader,
+.surveyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.snippetTitle,
+.surveyTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.snippetBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.snippetActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: auto;
+}
+
+/* ── Surveys ────────────────────────────────────────────────────────────── */
+
+.surveyBuilder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/*
+ * .composerInput carries `flex: 1 1 220px` for the horizontal composer rows.
+ * Inside these column-direction containers that grow rule applies to the cross
+ * axis instead, and a one-line text field renders as a 200px-tall box. Reset it
+ * for direct children; the fields nested inside .questionRow are in a row again
+ * and keep the original behaviour.
+ */
+.surveyBuilder > .composerInput,
+.composerStack > .composerInput {
+  flex: 0 0 auto;
+}
+
+.questionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.inlineCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.builderActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.surveyList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statusChip[data-open="true"] {
+  color: var(--success-fg, var(--success));
+  border-color: var(--success-border, var(--success));
+  background: var(--success-bg, transparent);
+}
+
+.surveyStats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ratingSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.linkBox {
+  display: block;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.responseList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-block-start: 6px;
+  border-block-start: 1px solid var(--border);
+}
+
+.responseCard {
+  padding: 10px 12px;
+  background: var(--surface-sunken);
+  border-radius: 10px;
+}
+
+.responseHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-block-end: 6px;
+}
+
+.responseAnswer {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.responseQuestion {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── AI design generation counter ───────────────────────────────────────── */
+
+.usageBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.usageBadge[data-exhausted="true"] {
+  color: var(--danger-fg, var(--danger));
+  border-color: var(--danger-border, var(--danger));
+  background: var(--danger-bg, transparent);
+}
+
+.usageNotice {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}

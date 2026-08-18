@@ -7,7 +7,7 @@ import {
   useMemo,
   useSyncExternalStore,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
@@ -103,7 +103,6 @@ function serverLocaleSnapshot() {
  *    direction depends on the result.
  */
 export default function LocaleProvider({ children, locale: localeProp, syncFromCookie = false }) {
-  const router = useRouter();
   const pathname = usePathname();
 
   const urlDriven = Boolean(localeProp);
@@ -126,15 +125,25 @@ export default function LocaleProvider({ children, locale: localeProp, syncFromC
       }
       if (target === locale) return;
 
-      // Same page, other language. Reading location here rather than with
-      // useSearchParams keeps this provider out of the render path for search
-      // params, which would otherwise opt every route under it out of static
-      // rendering.
-      const search = typeof window === "undefined" ? "" : window.location.search;
-      const hash = typeof window === "undefined" ? "" : window.location.hash;
-      router.push(`${swapLocale(pathname || "/", target)}${search}${hash}`);
+      // Same page, other language — as a full document navigation rather than
+      // router.push().
+      //
+      // The locale is a segment of the URL, so switching it re-renders the root
+      // layout, and that layout contains the pre-paint theme <script>. React
+      // warns loudly about a <script> element re-rendered on the client (it
+      // would never execute), and there is no in-tree way to render one that
+      // doesn't. A hard navigation sidesteps that, and it is the honest
+      // behaviour anyway: changing language changes <html lang>, <html dir> and
+      // every server-rendered string on the page — that's a new document, not a
+      // patch of the current one.
+      //
+      // Reading location here rather than with useSearchParams keeps this
+      // provider out of the render path for search params, which would
+      // otherwise opt every route under it out of static rendering.
+      const { search, hash } = window.location;
+      window.location.assign(`${swapLocale(pathname || "/", target)}${search}${hash}`);
     },
-    [locale, pathname, router, urlDriven]
+    [locale, pathname, urlDriven]
   );
 
   const value = useMemo(() => {

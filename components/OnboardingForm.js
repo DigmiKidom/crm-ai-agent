@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./dashboard.module.css";
 import PillGroup from "./PillGroup";
 import CheckboxGroup from "./CheckboxGroup";
@@ -17,6 +17,7 @@ import {
   DEFAULT_AGENT_PREFERENCES,
 } from "@/lib/agentPreferences";
 import { useT } from "@/components/i18n/LocaleProvider";
+import plugin from "@/components/plugins/plugins.module.css";
 import Link from "@/components/i18n/Link";
 
 // "Auto" first and default: it matches what people actually do — they type
@@ -91,6 +92,29 @@ export default function OnboardingForm({ tenantSlug, initial }) {
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
 
+  // Remaining AI design generations for this business today. `null` while it is
+  // still being fetched, so the badge can stay out of the way rather than
+  // flashing a wrong number — and so a failed fetch never disables the button
+  // on a guess. The server is the only thing that actually enforces the limit
+  // (app/api/agent/generate/route.js); this is the courtesy of saying so before
+  // someone fills in a long form.
+  const [usage, setUsage] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/agent/usage")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.ok) setUsage(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const exhausted = usage ? usage.remaining <= 0 : false;
+
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
   }
@@ -117,9 +141,18 @@ export default function OnboardingForm({ tenantSlug, initial }) {
 
     if (!res.ok) {
       setError(data.error || t("common.error"));
+      // A 429 carries the current counter, so the badge and the button catch up
+      // even when the block came from another member of the team generating
+      // while this form was open.
+      if (typeof data.remaining === "number") {
+        setUsage({ used: data.used, remaining: data.remaining, limit: data.limit });
+      }
       return;
     }
 
+    if (typeof data.remaining === "number") {
+      setUsage({ used: data.used, remaining: data.remaining, limit: data.limit });
+    }
     setResult(data);
   }
 
@@ -293,15 +326,44 @@ export default function OnboardingForm({ tenantSlug, initial }) {
       </div>
 
       <div className={styles.actionsRow}>
-        <button type="submit" className={`${styles.saveButton} ${styles.iconLabel}`} disabled={loading}>
+        <button
+          type="submit"
+          className={`${styles.saveButton} ${styles.iconLabel}`}
+          disabled={loading || exhausted}
+          // A disabled button with no explanation reads as a broken page, so
+          // the reason travels with it — as a title for a mouse, and as the
+          // paragraph below for everyone else.
+          title={exhausted ? t("onboarding.limitTooltip", { limit: usage?.limit ?? 3 }) : undefined}
+        >
           <IconSparkles size={14} />
           {loading ? t("onboarding.generating") : t("onboarding.generate")}
         </button>
+
+        {usage && (
+          <span
+            className={plugin.usageBadge}
+            data-exhausted={exhausted}
+            // aria-live so the count is announced when it changes after a
+            // generation, rather than only being discoverable by re-reading.
+            aria-live="polite"
+          >
+            {t("onboarding.generationsLeft", {
+              remaining: usage.remaining,
+              limit: usage.limit,
+            })}
+          </span>
+        )}
         <Link className={`${styles.linkButton} ${styles.iconLabel}`} href={`/t/${tenantSlug}`}>
           {t("onboarding.skipForNow")}
           <IconArrowRight size={13} />
         </Link>
       </div>
+
+      {exhausted && (
+        <p className={plugin.usageNotice} role="status">
+          {t("onboarding.limitReached", { limit: usage?.limit ?? 3 })}
+        </p>
+      )}
     </form>
   );
 }

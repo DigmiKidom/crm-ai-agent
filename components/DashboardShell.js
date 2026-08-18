@@ -30,6 +30,7 @@ export default function DashboardShell({
   role,
   user,
   children,
+  enabledPlugins,
 }) {
   const t = useT();
   // Two intentionally separate booleans: this one drives the off-canvas nav
@@ -141,6 +142,7 @@ export default function DashboardShell({
             <span className={styles.brandTenant}>{tenantName || tenantSlug}</span>
           </Link>
           <DashboardNav
+              enabledPlugins={enabledPlugins}
             tenantSlug={tenantSlug}
             unreadLeads={unreadLeads}
             workspaceItems={workspaceItems}

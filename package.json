@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node test/boundaries.test.mjs && node --import ./test/register.mjs test/analytics.test.mjs && node --import ./test/register.mjs test/i18n.test.mjs && node --import ./test/register.mjs test/localeRouting.test.mjs && node --import ./test/register.mjs test/tenantScope.test.mjs && node --import ./test/register.mjs test/socialLinks.test.mjs && node --import ./test/register.mjs test/admin.test.mjs && node --import ./test/register.mjs test/crm.test.mjs"
+    "test": "node test/boundaries.test.mjs && node --import ./test/register.mjs test/analytics.test.mjs && node --import ./test/register.mjs test/i18n.test.mjs && node --import ./test/register.mjs test/localeRouting.test.mjs && node --import ./test/register.mjs test/tenantScope.test.mjs && node --import ./test/register.mjs test/socialLinks.test.mjs && node --import ./test/register.mjs test/admin.test.mjs && node --import ./test/register.mjs test/crm.test.mjs && node --import ./test/register.mjs test/aiUsage.test.mjs && node --import ./test/register.mjs test/plugins.test.mjs && node --import ./test/register.mjs test/ledger.test.mjs && node --import ./test/register.mjs test/surveys.test.mjs"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.3",

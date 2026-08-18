@@ -478,3 +478,82 @@ export function IconFileText(props) {
     </Base>
   );
 }
+
+// ── Plugin module icons ──────────────────────────────────────────────────
+// One per optional tool in lib/plugins.js, plus the puzzle mark for the
+// "Tools & plugins" screen itself. Deliberately distinct silhouettes: these
+// sit in the same sidebar column as the core nav, so a glance has to
+// separate "tasks" from "notes" without reading the label.
+
+export function IconCheckSquare(props) {
+  return (
+    <Base {...props}>
+      <path d="M20.5 11.5v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2h9" />
+      <path d="M8.5 11.5l3 3 9-9.5" />
+    </Base>
+  );
+}
+
+export function IconNote(props) {
+  return (
+    <Base {...props}>
+      <path d="M19.5 4.5v9.5l-5.5 5.5H6a1.5 1.5 0 0 1-1.5-1.5v-13A1.5 1.5 0 0 1 6 3.5h12a1.5 1.5 0 0 1 1.5 1Z" />
+      <path d="M19.5 14H15.5a1.5 1.5 0 0 0-1.5 1.5v4" />
+      <path d="M8 8.5h8" />
+      <path d="M8 12h5" />
+    </Base>
+  );
+}
+
+export function IconWallet(props) {
+  return (
+    <Base {...props}>
+      <path d="M3.5 7.5A2 2 0 0 1 5.5 5.5h11a2 2 0 0 1 2 2" />
+      <rect x="3.5" y="7.5" width="17" height="12" rx="2" />
+      <path d="M20.5 11.5h-4a2 2 0 0 0 0 4h4" />
+    </Base>
+  );
+}
+
+export function IconQuote(props) {
+  return (
+    <Base {...props}>
+      <path d="M9.5 6.5c-2.5 1-4 3.2-4 6v5h5.5v-5.5H7.5c0-1.8.8-3.2 2.5-4Z" />
+      <path d="M19 6.5c-2.5 1-4 3.2-4 6v5h5.5v-5.5H17c0-1.8.8-3.2 2.5-4Z" />
+    </Base>
+  );
+}
+
+export function IconStar(props) {
+  return (
+    <Base {...props}>
+      <path d="m12 4 2.4 5 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 9.8 9.6 9Z" />
+    </Base>
+  );
+}
+
+export function IconPuzzle(props) {
+  return (
+    <Base {...props}>
+      <path d="M10 3.5a2 2 0 0 1 4 0v1h3.5a1 1 0 0 1 1 1V9h1a2 2 0 0 1 0 4h-1v4.5a1 1 0 0 1-1 1H14v-1a2 2 0 0 0-4 0v1H6.5a1 1 0 0 1-1-1V13h-1a2 2 0 0 1 0-4h1V5.5a1 1 0 0 1 1-1H10Z" />
+    </Base>
+  );
+}
+
+export function IconCopy(props) {
+  return (
+    <Base {...props}>
+      <rect x="9" y="9" width="11.5" height="11.5" rx="2" />
+      <path d="M15 6.5V5.5a2 2 0 0 0-2-2H5.5a2 2 0 0 0-2 2V13a2 2 0 0 0 2 2h1" />
+    </Base>
+  );
+}
+
+export function IconWhatsApp(props) {
+  return (
+    <Base {...props}>
+      <path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.5-4.5a8.4 8.4 0 1 1 15.5-4.3Z" />
+      <path d="M9 9c0 3.3 2.7 6 6 6 .6 0 1-.5 1-1v-1l-2-1-1 1a5.6 5.6 0 0 1-2-2l1-1-1-2h-1c-.6 0-1 .4-1 1Z" />
+    </Base>
+  );
+}

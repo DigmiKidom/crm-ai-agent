@@ -1,4 +1,3 @@
-import Script from "next/script";
 import "../globals.css";
 
 /**
@@ -34,10 +33,12 @@ const THEME_BOOT = `
 export default function PublicLayout({ children }) {
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
+      <head>
+        {/* See the note in app/(site)/[locale]/layout.js — inline, in <head>,
+            so the saved theme is applied before the first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>
-        <Script id="ceramony-theme-boot" strategy="beforeInteractive">
-          {THEME_BOOT}
-        </Script>
         {children}
       </body>
     </html>

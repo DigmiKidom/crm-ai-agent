@@ -9,8 +9,86 @@ import { isValidIconKey } from "@/lib/landingIcons";
 import { AUTO_LANGUAGE, resolveContentLanguage } from "@/lib/i18n/languages";
 import { describeCompanySize, normalizeCompanySize } from "@/lib/companySize";
 import { normalizeAgentPreferences } from "@/lib/agentPreferences";
+import {
+  AI_DESIGN_DAILY_LIMIT,
+  readAiDesignUsage,
+  secondsUntilReset,
+  utcDayKey,
+} from "@/lib/aiUsage";
 import { requireTenantRole } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
+
+/**
+ * Claims one of the tenant's three daily generations, atomically.
+ *
+ * The check and the increment have to be a single operation. Two people in the
+ * same business pressing Generate at once would both pass a read-then-write
+ * check while the stored count was 2, and the tenant would spend four — this is
+ * a paid model call, so "usually right" is the wrong standard.
+ *
+ * The filter admits the request when either the stored counter belongs to an
+ * earlier day (so it is about to be reset) or it is still under the limit; the
+ * pipeline then resets-to-1 or increments accordingly. A day rollover and a
+ * normal increment are therefore the same round trip, and no separate reset
+ * write can be lost between them.
+ *
+ * Returns the updated tenant, or null when the tenant doesn't exist *or* the
+ * quota is gone — the caller tells those apart with a follow-up read, which is
+ * the uncommon path.
+ */
+async function claimDesignGeneration(tenantId, at = new Date()) {
+  const dayStart = new Date(`${utcDayKey(at)}T00:00:00.000Z`);
+
+  return Tenant.findOneAndUpdate(
+    {
+      _id: tenantId,
+      $or: [
+        { "aiDesignGenerations.lastResetDate": { $ne: dayStart } },
+        { "aiDesignGenerations.count": { $lt: AI_DESIGN_DAILY_LIMIT } },
+      ],
+    },
+    [
+      {
+        $set: {
+          "aiDesignGenerations.count": {
+            $cond: [
+              { $eq: ["$aiDesignGenerations.lastResetDate", dayStart] },
+              { $add: [{ $ifNull: ["$aiDesignGenerations.count", 0] }, 1] },
+              1,
+            ],
+          },
+          "aiDesignGenerations.lastResetDate": dayStart,
+        },
+      },
+    ],
+    { new: true }
+  );
+}
+
+/**
+ * Hands a claimed generation back when the model call fails.
+ *
+ * Charging someone for a design they never received is the kind of thing that
+ * turns one bad Gemini response into a support ticket. Guarded on the same day
+ * and a positive count so a refund arriving after midnight can't push the new
+ * day's counter negative, and best-effort: a failed refund must not replace the
+ * real error with a database one.
+ */
+async function refundDesignGeneration(tenantId, at = new Date()) {
+  const dayStart = new Date(`${utcDayKey(at)}T00:00:00.000Z`);
+  try {
+    await Tenant.updateOne(
+      {
+        _id: tenantId,
+        "aiDesignGenerations.lastResetDate": dayStart,
+        "aiDesignGenerations.count": { $gt: 0 },
+      },
+      { $inc: { "aiDesignGenerations.count": -1 } }
+    );
+  } catch (err) {
+    console.error("Refunding an AI design generation failed:", err);
+  }
+}
 
 export async function POST(request) {
   const ctx = await requireTenantRole("admin");
@@ -43,13 +121,36 @@ export async function POST(request) {
   // both the AI prompt and the persisted Tenant document end up built from.
   const preferences = normalizeAgentPreferences({ tone, personality, style, targetAudience, technology });
 
+  let claimed = false;
+
   try {
     await connectDB();
 
-    const tenant = await Tenant.findById(tenantId);
+    // Claimed before the model call, not after. A generation that takes twenty
+    // seconds must not leave a twenty-second window in which the quota reads as
+    // available; the refund below covers the case where the call then fails.
+    const tenant = await claimDesignGeneration(tenantId);
+
     if (!tenant) {
-      return NextResponse.json({ error: t("api.common.tenantNotFound") }, { status: 404 });
+      const existing = await Tenant.findById(tenantId).select("aiDesignGenerations").lean();
+      if (!existing) {
+        return NextResponse.json({ error: t("api.common.tenantNotFound") }, { status: 404 });
+      }
+
+      const usage = readAiDesignUsage(existing.aiDesignGenerations);
+      const retryAfter = secondsUntilReset();
+      return NextResponse.json(
+        {
+          error: t("api.agentGenerate.dailyLimitReached", { limit: usage.limit }),
+          used: usage.used,
+          remaining: 0,
+          limit: usage.limit,
+        },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } }
+      );
     }
+
+    claimed = true;
 
     const config = await generateSiteConfig({
       companyName: tenant.name,
@@ -128,15 +229,24 @@ export async function POST(request) {
       output: config,
     });
 
+    // Straight off the document the claim already returned, so the builder can
+    // update its counter without a second request that could read a different
+    // number than the one this generation just spent.
+    const usage = readAiDesignUsage(tenant.aiDesignGenerations);
+
     return NextResponse.json({
       ok: true,
       tenantSlug: updatedTenant.slug,
       templateId: config.templateId,
       templateName: getTemplate(config.templateId).name,
       language: update["landingPage.language"],
+      used: usage.used,
+      remaining: usage.remaining,
+      limit: usage.limit,
     });
   } catch (err) {
     console.error("AI agent generation failed:", err);
+    if (claimed) await refundDesignGeneration(tenantId);
     const message = /GOOGLE_API_KEY/.test(err.message || "")
       ? t("api.agentGenerate.notConfigured")
       : t("api.agentGenerate.failed");

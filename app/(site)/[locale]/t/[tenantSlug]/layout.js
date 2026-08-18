@@ -7,6 +7,7 @@ import Tenant from "@/lib/models/Tenant";
 import WorkspaceItem from "@/lib/models/WorkspaceItem";
 import User from "@/lib/models/User";
 import DashboardShell from "@/components/DashboardShell";
+import { normalizeEnabledPlugins } from "@/lib/plugins";
 
 export default async function TenantDashboardLayout({ children, params }) {
   const { locale, tenantSlug } = await params;
@@ -48,7 +49,7 @@ export default async function TenantDashboardLayout({ children, params }) {
       // Read per-request rather than carried on the JWT: a JWT is only reissued
       // at sign-in, so a freshly uploaded avatar wouldn't appear until the user
       // logged out and back in.
-      User.findById(session.user.id).select("name avatarMediaId").lean(),
+      User.findById(session.user.id).select("name avatarMediaId enabledPlugins").lean(),
     ]);
   } catch (err) {
     // Neither the badge nor the logo is worth taking the whole dashboard down
@@ -68,6 +69,9 @@ export default async function TenantDashboardLayout({ children, params }) {
         title: i.title,
       }))}
       emailVerified={Boolean(session.user.emailVerified)}
+      // Normalised on the server so the sidebar never has to reason about a
+      // stored id that no longer matches a tool in the registry.
+      enabledPlugins={normalizeEnabledPlugins(profile?.enabledPlugins)}
       role={session.user.role}
       // The header's avatar menu renders from this rather than useSession(),
       // so it has the user's details on the server render — no post-hydration

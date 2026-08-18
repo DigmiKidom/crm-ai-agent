@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { notFound } from "next/navigation";
 import "../../globals.css";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
@@ -82,13 +81,18 @@ export default async function LocaleLayout({ children, params }) {
 
   return (
     // `dir` is now server-rendered and correct on the very first byte, so
-    // suppressHydrationWarning covers only data-theme, which the script above
-    // sets before React sees the document.
+    // suppressHydrationWarning covers only the data-theme attribute, which the
+    // inline script below sets before React ever sees the document.
     <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
+      <head>
+        {/* A plain inline <script> rather than next/script: the
+            `beforeInteractive` strategy is documented for external scripts, and
+            React warns that a <script> element rendered inside a component never
+            executes on the client. This only has to run once, before the browser
+            paints — which is exactly what an inline script in <head> does. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>
-        <Script id="ceramony-theme-boot" strategy="beforeInteractive">
-          {THEME_BOOT}
-        </Script>
         <SessionProviderWrapper>
           <LocaleProvider locale={meta.code}>
             <SkipLink />

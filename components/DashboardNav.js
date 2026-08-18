@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocaleHref, useRoutePath, useT } from "@/components/i18n/LocaleProvider";
+import { enabledPluginList } from "@/lib/plugins";
+import { pluginIcon } from "@/components/plugins/pluginIcons";
 import {
   IconOverview,
   IconGrid,
@@ -33,6 +35,7 @@ export default function DashboardNav({
   workspaceItems = [],
   role,
   onNavigate,
+  enabledPlugins = [],
 }) {
   const t = useT();
   const pathname = useRoutePath();
@@ -66,6 +69,15 @@ export default function DashboardNav({
       ? [{ href: `/t/${tenantSlug}/settings`, label: t("sidebar.settings"), Icon: IconSettings }]
       : []),
   ];
+
+  // The optional tools, in registry order, filtered to the ones this person
+  // switched on in Settings → Tools. Derived from lib/plugins.js rather than
+  // listed here, so a new tool needs no edit to this file.
+  const pluginItems = enabledPluginList(enabledPlugins).map((plugin) => ({
+    href: `/t/${tenantSlug}${plugin.path}`,
+    label: t(plugin.labelKey),
+    Icon: pluginIcon(plugin.icon),
+  }));
 
   function isActive(item) {
     if (item.exact) return pathname === item.href;
@@ -144,6 +156,47 @@ export default function DashboardNav({
         <IconExternalLink size={18} className={styles.navRowIcon} />
         <span>{t("sidebar.viewLandingPage")}</span>
       </a>
+
+      {/*
+        Optional tools. Kept in their own labelled group rather than mixed into
+        the fixed nav above, so the sidebar reads as "the CRM" and then "what
+        you added" — and so an empty group is obviously a group with nothing in
+        it rather than a missing feature.
+      */}
+      <div className={styles.navSectionLabel}>
+        <span>{t("plugins.sectionLabel")}</span>
+        <Link
+          href={`/t/${tenantSlug}/settings/tools`}
+          className={styles.navSectionAdd}
+          title={t("plugins.manage")}
+          aria-label={t("plugins.manage")}
+          onClick={onNavigate}
+        >
+          <IconSettings size={14} />
+        </Link>
+      </div>
+
+      {pluginItems.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={`${styles.navRow} ${isActive(item) ? styles.navRowActive : ""}`}
+          onClick={onNavigate}
+        >
+          <item.Icon size={18} className={styles.navRowIcon} />
+          <span>{item.label}</span>
+        </Link>
+      ))}
+
+      {pluginItems.length === 0 && (
+        <Link
+          href={`/t/${tenantSlug}/settings/tools`}
+          className={styles.navEmptyHint}
+          onClick={onNavigate}
+        >
+          {t("plugins.emptyHint")}
+        </Link>
+      )}
 
       <div className={styles.navSectionLabel}>
         <span>{t("sidebar.workplace")}</span>
