@@ -10,7 +10,12 @@ import {
   splitLocale,
   swapLocale,
 } from "../lib/i18n/routing.js";
-import { localeFromAcceptLanguage, normalizeLocale } from "../lib/i18n/config.js";
+import {
+  countryFromHeaders,
+  localeFromAcceptLanguage,
+  localeFromCountry,
+  normalizeLocale,
+} from "../lib/i18n/config.js";
 
 let pass = 0, fail = 0;
 function check(name, fn) {
@@ -96,6 +101,57 @@ check("the redirect target for a bare URL follows Accept-Language", () => {
   assert.equal(localeFromAcceptLanguage("he-IL,he;q=0.9,en;q=0.8"), "he");
   assert.equal(localeFromAcceptLanguage("iw"), "he"); // legacy Hebrew tag
   assert.equal(localeFromAcceptLanguage("fr-FR,fr;q=0.9"), "en");
+  assert.equal(localeFromAcceptLanguage(null), "en");
+});
+
+
+console.log("\n— region → locale —");
+
+check("Israel gets Hebrew, and nowhere else does", () => {
+  assert.equal(localeFromCountry("IL"), "he");
+  assert.equal(localeFromCountry("il"), "he");
+  assert.equal(localeFromCountry(" il "), "he");
+  assert.equal(localeFromCountry("US"), null);
+  assert.equal(localeFromCountry("GB"), null);
+  assert.equal(localeFromCountry("PS"), null);
+});
+
+check("the Spanish-speaking countries get Spanish", () => {
+  assert.equal(localeFromCountry("ES"), "es");
+  assert.equal(localeFromCountry("MX"), "es");
+  assert.equal(localeFromCountry("AR"), "es");
+  // Brazil speaks Portuguese, which this product does not ship.
+  assert.equal(localeFromCountry("BR"), null);
+});
+
+check("a country we ship no language for reads as no answer, not as a guess", () => {
+  // null, not "en" — the caller decides what "we have nothing for you" means,
+  // and proxy.js turns it into DEFAULT_LOCALE. Returning "en" from here would
+  // make an unknown country indistinguishable from a country that genuinely
+  // maps to English.
+  assert.equal(localeFromCountry("DE"), null);
+  assert.equal(localeFromCountry(""), null);
+  assert.equal(localeFromCountry(null), null);
+  assert.equal(localeFromCountry(undefined), null);
+});
+
+check("reads whichever country header the edge actually set", () => {
+  const headers = (obj) => ({ get: (k) => obj[k] ?? null });
+
+  assert.equal(countryFromHeaders(headers({ "x-vercel-ip-country": "IL" })), "IL");
+  assert.equal(countryFromHeaders(headers({ "cf-ipcountry": "MX" })), "MX");
+  assert.equal(countryFromHeaders(headers({ "x-country-code": "ES" })), "ES");
+  // Vercel's "address we couldn't place" sentinel is not a country.
+  assert.equal(countryFromHeaders(headers({ "x-vercel-ip-country": "XX" })), null);
+  // No header at all (local dev, no CDN) — the caller falls back to
+  // Accept-Language, which is what makes `null` here meaningful.
+  assert.equal(countryFromHeaders(headers({})), null);
+  assert.equal(countryFromHeaders(undefined), null);
+});
+
+check("Accept-Language still works, for when there is no country header", () => {
+  assert.equal(localeFromAcceptLanguage("he-IL,he;q=0.9,en;q=0.8"), "he");
+  assert.equal(localeFromAcceptLanguage("es-ES,es;q=0.9"), "es");
   assert.equal(localeFromAcceptLanguage(null), "en");
 });
 

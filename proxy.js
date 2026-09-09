@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { checkRateLimit } from "@/lib/rateLimit";
-import { LOCALE_COOKIE, localeFromAcceptLanguage, normalizeLocale } from "@/lib/i18n/config";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE,
+  countryFromHeaders,
+  localeFromAcceptLanguage,
+  localeFromCountry,
+  normalizeLocale,
+} from "@/lib/i18n/config";
 import { isUnlocalizedPath, localePath, splitLocale } from "@/lib/i18n/routing";
 import { translate } from "@/lib/i18n/translate";
 import { isSuperAdmin } from "@/lib/roles";
@@ -51,10 +58,35 @@ function clientIp(request) {
  * this person picked last time, not an input to rendering. That split is what
  * removes the old failure mode, where a stale cookie and the URL could
  * describe two different languages and the layout had to guess between them.
+ *
+ * Three signals, most personal first:
+ *
+ *   1. the cookie — this visitor has already chosen, and a choice outranks
+ *      every guess we could make about them;
+ *   2. the country the request came from — Israel gets Hebrew, the
+ *      Spanish-speaking countries get Spanish, everywhere else English (see
+ *      COUNTRY_LOCALE);
+ *   3. Accept-Language — only when there is no country header at all, which
+ *      in practice means local development or a deployment behind no CDN.
+ *
+ * Region beats Accept-Language rather than the other way round because most
+ * Israeli users browse on devices whose system language is en-US: reading the
+ * header first sent nearly all of them to an English page they immediately
+ * had to switch away from.
  */
 function preferredLocale(request) {
   const fromCookie = request.cookies.get(LOCALE_COOKIE)?.value;
   if (fromCookie) return normalizeLocale(fromCookie);
+
+  const country = countryFromHeaders(request.headers);
+  if (country) {
+    // A country we ship a language for wins outright. One we don't gets
+    // DEFAULT_LOCALE — deliberately NOT a fall-through to Accept-Language,
+    // which would make "rest of the world" mean two different things
+    // depending on a header the visitor didn't set on purpose.
+    return localeFromCountry(country) ?? DEFAULT_LOCALE;
+  }
+
   return localeFromAcceptLanguage(request.headers.get("accept-language"));
 }
 
@@ -89,9 +121,10 @@ async function rateLimitResponse(request, adminPath) {
 //  2. Putting a locale on every UI URL that arrives without one, so the app
 //     never has to render a page before it knows what language it is in.
 //  3. Rate limiting a handful of public, abuse-sensitive endpoints.
-//  4. Protecting the CRM dashboard: requires a logged-in session, and blocks
-//     a user from one tenant loading another tenant's dashboard by editing
-//     the URL's tenantSlug segment.
+//  4. Protecting the CRM dashboard: requires a logged-in session, requires
+//     that session's email address to have been verified, and blocks a user
+//     from one tenant loading another tenant's dashboard by editing the
+//     URL's tenantSlug segment.
 export default auth(async (req) => {
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
@@ -169,16 +202,44 @@ export default auth(async (req) => {
     return proceed();
   }
 
-  // (4b)
+  const session = req.auth;
+  const locale = pathLocale || preferredLocale(req);
+
+  // (4b) The email-verification waiting room. Guarded here rather than inside
+  // the page so it can only ever be reached by the one person it's for: a
+  // signed-in account that hasn't confirmed its address yet. A verified user
+  // who follows an old link to it goes to their dashboard instead of reading
+  // instructions for a step they've already finished.
+  if (routePath === "/verify-email") {
+    if (!session?.user) {
+      return NextResponse.redirect(new URL(localePath(locale, "/login"), nextUrl.origin));
+    }
+    if (session.user.emailVerified) {
+      return NextResponse.redirect(
+        new URL(localePath(locale, `/t/${session.user.tenantSlug}`), nextUrl.origin)
+      );
+    }
+    return proceed();
+  }
+
+  // (4c)
   const match = routePath.match(/^\/t\/([^/]+)/);
   if (!match) return proceed();
 
-  const session = req.auth;
   const requestedSlug = match[1];
-  const locale = pathLocale || preferredLocale(req);
 
   if (!session?.user) {
     return NextResponse.redirect(new URL(localePath(locale, "/login"), nextUrl.origin));
+  }
+
+  // An unverified account has a session — it needs one, so it can ask for
+  // another verification email — but no CRM. The check sits here, alongside
+  // the tenant guard, because this is the one place every dashboard URL goes
+  // through; putting it in the layout would leave each new route under /t to
+  // remember it, and API routes are covered separately by
+  // requireTenantSession().
+  if (!session.user.emailVerified) {
+    return NextResponse.redirect(new URL(localePath(locale, "/verify-email"), nextUrl.origin));
   }
 
   if (session.user.tenantSlug !== requestedSlug) {

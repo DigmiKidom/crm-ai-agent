@@ -1,4 +1,6 @@
-/* Full-screen playback of the brand outro between login and dashboard. */
+/* Full-screen backdrop for the drawn intro between login and dashboard.
+   The lockup and its choreography live in brandIntro.module.css; this file
+   owns only the surface it sits on. */
 
 .overlay {
   position: fixed;
@@ -7,8 +9,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Matches the video's own backdrop, so there's no flash of a different
-     colour behind it while the first frame decodes. */
+  /* Deliberately not a theme token. This is the brand's own backdrop, the
+     same near-white the lockup was always composited on — following
+     --background would drop a bright white logo onto a dark page. */
   background: #f7f7f8;
   /* A CSS animation rather than a state-driven class: the fade needs no React
      state, and setState inside an effect is exactly what triggers cascading
@@ -25,22 +28,37 @@
   }
 }
 
-/* The component already skips the video for reduced-motion users; this stops
-   the fade itself from animating in the moment before it navigates. */
-@media (prefers-reduced-motion: reduce) {
-  .overlay {
-    animation: none;
+/* Once the destination is ready the whole overlay lifts away, so the
+   dashboard isn't revealed by a hard cut. Timed to finish inside
+   LoginTransition's EXIT_MS. */
+.overlay[data-state="ready"] {
+  animation: overlayOut 0.42s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes overlayOut {
+  0%,
+  55% {
     opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.03);
   }
 }
 
-.video {
-  width: min(720px, 88vw);
-  height: auto;
-  display: block;
+/* The component already skips the animation for reduced-motion users; this
+   stops the surface itself from moving in the moment before it navigates. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlay[data-state="ready"] {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* Announced to screen readers, which get nothing useful from the video. */
+/* Announced to screen readers, which get nothing useful from the animation. */
 .srOnly {
   position: absolute;
   width: 1px;

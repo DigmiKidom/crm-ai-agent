@@ -13,5 +13,9 @@ export async function GET() {
     tenantSlug: session.user.tenantSlug,
     role: session.user.role,
     email: session.user.email,
+    // The login page routes on this: an unverified account goes to the
+    // waiting room instead of the dashboard, so it never plays the intro
+    // animation only to be bounced by proxy.js at the end of it.
+    emailVerified: Boolean(session.user.emailVerified),
   });
 }

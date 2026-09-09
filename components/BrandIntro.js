@@ -1,0 +1,112 @@
+"use client";
+
+import styles from "./brandIntro.module.css";
+
+/**
+ * The Ceramony intro lockup, drawn live rather than played back.
+ *
+ * This is the same choreography the old /video/ceramony-outro.mp4 clip had —
+ * a warm glow blooms, the wordmark resolves out of it, two hairlines draw
+ * outwards, the tagline settles in underneath — except every frame of it is
+ * the real logo geometry (the paths below are lifted verbatim from
+ * /public/logo/ceramony-logo.svg) animated by CSS.
+ *
+ * Why that matters beyond file size: a video is a fixed 3.2 seconds no matter
+ * what the app is doing, so it either finished before the dashboard was ready
+ * (blank screen) or held a ready dashboard back (wasted wait). Drawn in the
+ * DOM, the same animation can hold, resolve early, and report progress —
+ * which is what `state` is for:
+ *
+ *   "loading"  the intro plays, then the progress bar sits at its holding
+ *              point while the destination is still being prepared;
+ *   "ready"    the bar completes and the lockup lifts away.
+ *
+ * Text is a prop, not a hardcoded string: the tagline renders in the viewer's
+ * own language (see brand.tagline in the dictionaries), and this component
+ * never reads context so it can be rendered from anywhere.
+ */
+export default function BrandIntro({ tagline = "", state = "loading", label = "" }) {
+  return (
+    <div className={styles.stage} data-state={state}>
+      {/* Purely decorative warm bloom behind the mark — the video's first
+          half-second is this and nothing else. */}
+      <div className={styles.glow} aria-hidden="true" />
+
+      <div className={styles.lockup}>
+        <span className={`${styles.rule} ${styles.ruleTop}`} aria-hidden="true" />
+
+        <svg
+          className={styles.wordmark}
+          viewBox="-20 80 1740 340"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Ceramony"
+        >
+          <g className={styles.letters}>
+            <g transform="translate(0,315) scale(0.3,-0.3)">
+              <path d="M386 710Q511 710 600.0 644.0Q689 578 719 464H531Q510 508 471.5 531.0Q433 554 384 554Q305 554 256.0 499.0Q207 444 207 352Q207 260 256.0 205.0Q305 150 384 150Q433 150 471.5 173.0Q510 196 531 240H719Q689 126 600.0 60.5Q511 -5 386 -5Q284 -5 203.5 40.5Q123 86 78.0 167.0Q33 248 33 352Q33 456 78.0 537.5Q123 619 203.5 664.5Q284 710 386 710Z" fill="#2563eb" />
+            </g>
+            <g transform="translate(228.6,315) scale(0.3,-0.3)">
+              <path d="M585 238H198Q202 186 231.5 158.5Q261 131 304 131Q368 131 393 185H575Q561 130 524.5 86.0Q488 42 433.0 17.0Q378 -8 310 -8Q228 -8 164.0 27.0Q100 62 64.0 127.0Q28 192 28 279Q28 366 63.5 431.0Q99 496 163.0 531.0Q227 566 310 566Q391 566 454.0 532.0Q517 498 552.5 435.0Q588 372 588 288Q588 264 585 238ZM413 333Q413 377 383.0 403.0Q353 429 308 429Q265 429 235.5 404.0Q206 379 199 333Z" fill="#2563eb" />
+            </g>
+            <g transform="translate(413.4,315) scale(0.3,-0.3)">
+              <path d="M408 564V383H361Q297 383 265.0 355.5Q233 328 233 259V0H62V558H233V465Q263 511 308.0 537.5Q353 564 408 564Z" fill="#2563eb" />
+            </g>
+            <g transform="translate(23,0)">
+              <g transform="translate(777,315) scale(0.3,-0.3)">
+                <path d="M1001 326V0H831V303Q831 357 802.5 386.5Q774 416 724 416Q674 416 645.5 386.5Q617 357 617 303V0H447V303Q447 357 418.5 386.5Q390 416 340 416Q290 416 261.5 386.5Q233 357 233 303V0H62V558H233V488Q259 523 301.0 543.5Q343 564 396 564Q459 564 508.5 537.0Q558 510 586 460Q615 506 665.0 535.0Q715 564 774 564Q878 564 939.5 501.0Q1001 438 1001 326Z" fill="#2563eb" />
+              </g>
+              <g transform="translate(1094.7,315) scale(0.3,-0.3)">
+                <path d="M28 279Q28 365 66.0 430.5Q104 496 170.0 531.0Q236 566 318 566Q400 566 466.0 531.0Q532 496 570.0 430.5Q608 365 608 279Q608 193 569.5 127.5Q531 62 464.5 27.0Q398 -8 316 -8Q234 -8 168.5 27.0Q103 62 65.5 127.0Q28 192 28 279ZM434 279Q434 346 400.5 382.0Q367 418 318 418Q268 418 235.0 382.5Q202 347 202 279Q202 212 234.5 176.0Q267 140 316 140Q365 140 399.5 176.0Q434 212 434 279Z" fill="#2563eb" />
+              </g>
+              <g transform="translate(1285.8,315) scale(0.3,-0.3)">
+                <path d="M617 326V0H447V303Q447 359 418.0 390.0Q389 421 340 421Q291 421 262.0 390.0Q233 359 233 303V0H62V558H233V484Q259 521 303.0 542.5Q347 564 402 564Q500 564 558.5 500.5Q617 437 617 326Z" fill="#2563eb" />
+              </g>
+              <g transform="translate(1488.0,315) scale(0.3,-0.3)">
+                <path d="M632 558 282 -265H98L226 19L-1 558H190L319 209L447 558Z" fill="#2563eb" />
+              </g>
+            </g>
+          </g>
+
+          {/* The "A" mark. Its three joints land one after another, then the
+              spark fires — the one beat the flat clip could only imply. */}
+          <g transform="matrix(10.75,0,0,10.75,487.5,51.625)">
+            <path
+              className={styles.markStroke}
+              d="M16 9.5L9 21.5M16 9.5L23 21.5M9 21.5H23"
+              stroke="#2563eb"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <circle className={`${styles.joint} ${styles.jointApex}`} cx="16" cy="9.5" r="3.5" fill="#2563eb" />
+            <circle className={`${styles.joint} ${styles.jointLeft}`} cx="9" cy="21.5" r="3" fill="#2563eb" fillOpacity="0.55" />
+            <circle className={`${styles.joint} ${styles.jointRight}`} cx="23" cy="21.5" r="3" fill="#2563eb" fillOpacity="0.55" />
+            <path
+              className={styles.spark}
+              d="M24.5 4.5L25.4 6.9L27.8 7.8L25.4 8.7L24.5 11.1L23.6 8.7L21.2 7.8L23.6 6.9L24.5 4.5Z"
+              fill="#f59e0b"
+            />
+          </g>
+        </svg>
+
+        <span className={`${styles.rule} ${styles.ruleBottom}`} aria-hidden="true" />
+
+        {tagline && <p className={styles.tagline}>{tagline}</p>}
+
+        {/* Indeterminate on purpose: it eases up to a holding point while the
+            destination is being prepared and only completes once it is, so it
+            never claims progress the app hasn't actually made. */}
+        <div
+          className={styles.progress}
+          role="progressbar"
+          aria-label={label || undefined}
+          aria-valuetext={label || undefined}
+        >
+          <span className={styles.progressFill} />
+        </div>
+      </div>
+    </div>
+  );
+}

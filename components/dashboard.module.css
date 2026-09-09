@@ -1992,3 +1992,162 @@
   font-size: 0.78rem;
   color: var(--muted);
 }
+
+/* ── Plan-gated sections ─────────────────────────────────────────────────
+   Used by the landing-page editor for the two Pro features (a longer photo
+   gallery, and the item list). The pattern deliberately matches RangePicker's
+   locked ranges: the feature stays visible and explains itself rather than
+   disappearing, because a section that isn't there can't tell anyone what
+   they'd get by upgrading. Enforcement is server-side either way — see
+   galleryLimit()/catalogLimit() in lib/plan.js. */
+
+.proPill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  vertical-align: middle;
+}
+
+/* The whole card when the tenant is on Free. Dimmed rather than hidden, and
+   still readable — this is a preview of the feature, not an error state. */
+.proLockedCard {
+  position: relative;
+}
+
+.proLockedBody {
+  opacity: 0.5;
+  /* Nothing inside is reachable by mouse, keyboard or screen reader: an
+     input someone can fill in but never save is worse than no input. The
+     `inert` attribute on the wrapper is what actually enforces it; this is
+     only the belt to that braces. */
+  pointer-events: none;
+  user-select: none;
+}
+
+.proNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface-hover);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.proNotice a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* One item in the landing page's item list. Same shape as .faqRow — both are
+   "a bordered block per entry with its own controls" — but with room for the
+   thumbnail alongside the fields. */
+.catalogRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.catalogRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.catalogRowNumber {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.catalogRowMain {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+/* The thumbnail column keeps its width whether or not a photo has been
+   chosen, so adding one doesn't reflow the fields beside it. */
+.catalogRowMedia {
+  flex: 0 0 116px;
+}
+
+.catalogRowFields {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Without this a flex child refuses to shrink below its content width and
+     the row overflows on narrow screens. */
+  min-width: 0;
+}
+
+.catalogRow input,
+.catalogRow textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: inherit;
+  font: inherit;
+}
+
+.catalogRow textarea {
+  resize: vertical;
+}
+
+/* Price sits next to the name on a wide row and stacks under it on a narrow
+   one; it is a short field and giving it a full line wastes the space. */
+.catalogRowLine {
+  display: flex;
+  gap: 8px;
+}
+
+.catalogRowLine input:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.catalogRowLine input:last-child {
+  flex: 0 0 128px;
+}
+
+.catalogThumb {
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+}
+
+@media (max-width: 640px) {
+  .catalogRowMain {
+    flex-direction: column;
+  }
+
+  .catalogRowMedia {
+    flex-basis: auto;
+    width: 116px;
+  }
+
+  .catalogRowLine {
+    flex-direction: column;
+  }
+
+  .catalogRowLine input:last-child {
+    flex-basis: auto;
+  }
+}

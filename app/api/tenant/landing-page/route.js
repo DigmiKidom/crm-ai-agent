@@ -8,6 +8,8 @@ import { templateIds } from "@/lib/templates";
 import { normalizeFormFields, MAX_FORM_FIELDS } from "@/lib/formFields";
 import { normalizeSocial, isValidPhone } from "@/lib/socialLinks";
 import { normalizeFaq, MAX_FAQ_ITEMS } from "@/lib/faq";
+import { catalogMediaIds, normalizeCatalog, MAX_CATALOG_NOTE } from "@/lib/catalog";
+import { catalogLimit, galleryLimit } from "@/lib/plan";
 import { resolveContentLanguage } from "@/lib/i18n/languages";
 import { requireTenantRole } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
@@ -34,6 +36,20 @@ function formFieldsErrorMessage(t, err) {
       return t("api.tenantLandingPage.formFieldsMissingOptions", { label: err.label });
     case "MISSING_NAME":
       return t("api.tenantLandingPage.formFieldsMissingName");
+    default:
+      return t("api.common.somethingWentWrong");
+  }
+}
+
+/** Same pattern as above, for lib/catalog.js's error codes. */
+function catalogErrorMessage(t, err) {
+  switch (err.code) {
+    case "MISSING_TITLE":
+      return t("api.tenantLandingPage.catalogNeedsTitle");
+    case "NOT_INCLUDED":
+      return t("api.tenantLandingPage.catalogNotIncluded");
+    case "TOO_MANY":
+      return t("api.tenantLandingPage.catalogTooMany", { n: err.n });
     default:
       return t("api.common.somethingWentWrong");
   }
@@ -77,6 +93,9 @@ export async function PATCH(request) {
     showSocialInHero = true,
     faq,
     faqHeading = "",
+    catalog,
+    catalogHeading = "",
+    catalogNote = "",
   } = body;
 
   if (!headline?.trim() || !subheadline?.trim() || !ctaLabel?.trim()) {
@@ -151,6 +170,8 @@ export async function PATCH(request) {
     return NextResponse.json({ error: t("api.tenantLandingPage.overlayRange") }, { status: 400 });
   }
 
+  // Only the shape is checked here. How many photos this tenant may actually
+  // keep depends on their plan, which needs a database read — see below.
   if (!Array.isArray(galleryMediaIds) || galleryMediaIds.length > MAX_GALLERY) {
     return NextResponse.json(
       { error: t("api.tenantLandingPage.tooManyGalleryPhotos", { n: MAX_GALLERY }) },
@@ -230,9 +251,47 @@ export async function PATCH(request) {
   try {
     await connectDB();
 
+    // The plan decides two of the limits below, so it has to be read before
+    // anything is validated against them. Read here rather than trusted from
+    // the session: `plan` is written by the Stripe webhook and a JWT issued
+    // before a subscription lapsed would still claim "pro".
+    const current = await Tenant.findById(tenantId).select("plan").lean();
+    if (!current) {
+      return NextResponse.json({ error: t("api.common.tenantNotFound") }, { status: 404 });
+    }
+    const maxGallery = galleryLimit(current.plan);
+    const maxCatalog = catalogLimit(current.plan);
+
+    if (cleanGalleryIds.length > maxGallery) {
+      return NextResponse.json(
+        { error: t("api.tenantLandingPage.tooManyGalleryPhotos", { n: maxGallery }) },
+        { status: 400 }
+      );
+    }
+
+    // Undefined means an older client that doesn't know about the item list —
+    // leave whatever is stored alone. An empty array is a real instruction:
+    // it's how a tenant removes the section.
+    let cleanCatalog;
+    if (catalog !== undefined) {
+      try {
+        cleanCatalog = normalizeCatalog(catalog, { limit: maxCatalog });
+      } catch (err) {
+        return NextResponse.json({ error: catalogErrorMessage(t, err) }, { status: 400 });
+      }
+    }
+
+    const cleanCatalogMediaIds = catalogMediaIds(cleanCatalog);
+    if (cleanCatalogMediaIds.some((id) => !mongoose.isValidObjectId(id))) {
+      return NextResponse.json(
+        { error: t("api.tenantLandingPage.invalidGalleryReference") },
+        { status: 400 }
+      );
+    }
+
     // Every referenced image must belong to this tenant — otherwise a crafted
     // request could hotlink another tenant's uploads onto this landing page.
-    const allMediaIds = [...cleanBackgroundIds, ...cleanGalleryIds];
+    const allMediaIds = [...cleanBackgroundIds, ...cleanGalleryIds, ...cleanCatalogMediaIds];
     if (allMediaIds.length) {
       const owned = await tenantScoped(Media, tenantId).countDocuments({
         _id: { $in: allMediaIds },
@@ -280,6 +339,13 @@ export async function PATCH(request) {
     // Unconditional when present, including an empty array: clearing every
     // entry is how a tenant removes the FAQ section from their page.
     if (cleanFaq) setFields["landingPage.faq"] = cleanFaq;
+    if (cleanCatalog) {
+      setFields["landingPage.catalog"] = cleanCatalog;
+      setFields["landingPage.catalogHeading"] = String(catalogHeading || "").trim().slice(0, 120);
+      setFields["landingPage.catalogNote"] = String(catalogNote || "")
+        .trim()
+        .slice(0, MAX_CATALOG_NOTE);
+    }
     if (templateId !== undefined) setFields.templateId = templateId;
     if (cleanFormFields) setFields["landingPage.formFields"] = cleanFormFields;
     if (cleanLanguage) setFields["landingPage.language"] = cleanLanguage;

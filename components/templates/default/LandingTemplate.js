@@ -11,6 +11,7 @@ import TeamSection from "../shared/TeamSection";
 import CtaLink from "../shared/CtaLink";
 import SocialBar from "../shared/SocialBar";
 import FaqSection from "../shared/FaqSection";
+import CatalogSection from "../shared/CatalogSection";
 
 export default function LandingTemplate({ tenant }) {
   const { slug, theme, landingPage } = tenant;
@@ -87,6 +88,18 @@ export default function LandingTemplate({ tenant }) {
           />
         </section>
       )}
+
+      {/* Between the gallery and the team: a visitor who has just looked at
+          the work is the one most likely to want the price list. Renders
+          nothing at all when the tenant hasn't added any items. */}
+      <CatalogSection
+        items={copy.catalogItems}
+        heading={copy.catalogHeading}
+        note={copy.catalogNote}
+        inquireLabel={copy.catalogInquireLabel}
+        photoAlt={copy.catalogPhotoAlt}
+        tenantSlug={slug}
+      />
 
       {landingPage?.showTeamSection && (
         <TeamSection

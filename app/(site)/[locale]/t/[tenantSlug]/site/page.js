@@ -43,6 +43,10 @@ export default async function SiteEditorPage({ params }) {
         templateId={tenant.templateId}
         variantCounts={variantCounts}
         social={JSON.parse(JSON.stringify(tenant.profile?.social || {}))}
+        // Decides which limits the editor offers (see lib/plan.js). A hint
+        // only — the PATCH route re-reads the tenant's live plan before it
+        // accepts anything, since this value reaches a browser.
+        plan={tenant.plan || "free"}
       />
     </div>
   );

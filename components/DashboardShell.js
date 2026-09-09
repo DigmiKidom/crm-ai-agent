@@ -153,6 +153,11 @@ export default function DashboardShell({
         </aside>
 
         <main id="main-content" className={styles.main}>
+          {/* Unreachable in normal operation — proxy.js redirects an
+              unverified session to /verify-email before any dashboard route
+              renders. Kept as a visible backstop: if that guard is ever
+              narrowed, this is what surfaces the problem to the user instead
+              of silently letting an unverified account in. */}
           {!emailVerified && <VerifyEmailBanner />}
           {children}
         </main>

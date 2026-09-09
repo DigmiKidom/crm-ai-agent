@@ -540,3 +540,158 @@
 .teamCvLink:hover {
   text-decoration: underline;
 }
+
+/* ── Item list ───────────────────────────────────────────────────────────
+   A menu, price list or product range (see CatalogSection.js). Neutral and
+   undecorated for the same reason as the team and FAQ sections: it is shared
+   chrome that has to sit convincingly inside all four templates, so the only
+   colour it introduces is the tenant's own.
+
+   Note what is NOT here: no basket, no quantity stepper, no per-card button.
+   The section has exactly one action, and it goes to the lead form. */
+
+.catalogSection {
+  padding: 64px 24px;
+}
+
+.catalogSection h2 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.catalogNote {
+  max-width: 620px;
+  margin: 0 auto 32px;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  opacity: 0.72;
+}
+
+/* Falls back to a 32px top margin when there's no note above it. */
+.catalogSection h2 + .catalogGrid {
+  margin-top: 32px;
+}
+
+.catalogGrid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 1080px;
+  display: grid;
+  /* Capped by the item count in CatalogSection.js, so three items don't get
+     stretched across a five-column row. */
+  grid-template-columns: repeat(var(--catalog-columns, 3), minmax(0, 1fr));
+  gap: 20px;
+}
+
+.catalogCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.75);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.catalogCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
+}
+
+.catalogMedia {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.catalogMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.catalogCard:hover .catalogMedia img {
+  transform: scale(1.04);
+}
+
+.catalogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px 18px;
+  /* Pushes the price to the bottom of the card so a row of cards with
+     different amounts of description still lines its prices up. */
+  flex: 1;
+}
+
+.catalogTitle {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.35;
+}
+
+.catalogDescription {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  opacity: 0.75;
+}
+
+.catalogPrice {
+  margin: auto 0 0;
+  padding-top: 10px;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--tenant-primary, #2563eb);
+  /* Aligned to the page's own reading edge. The number inside is isolated
+     left-to-right by a <bdi> in CatalogSection.js, which is what lets this
+     stay `start` instead of being dragged left by the price's direction. */
+  text-align: start;
+}
+
+.catalogAction {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.catalogCta {
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 999px;
+  background: var(--tenant-primary, #2563eb);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.catalogCta:hover {
+  opacity: 0.88;
+}
+
+@media (max-width: 860px) {
+  .catalogGrid {
+    grid-template-columns: repeat(min(2, var(--catalog-columns, 3)), minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .catalogGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalogCard,
+  .catalogMedia img,
+  .catalogCard:hover,
+  .catalogCard:hover .catalogMedia img {
+    transition: none;
+    transform: none;
+  }
+}

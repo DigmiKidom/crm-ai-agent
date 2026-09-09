@@ -117,7 +117,17 @@
     "twoFactorStep": "אימות דו-שלבי",
     "twoFactorStepHint": "הסיסמה התקבלה. הזינו את הקוד מאפליקציית האימות כדי לסיים.",
     "twoFactorBack": "כניסה עם חשבון אחר",
-    "invalidCode": "הקוד אינו נכון. בדקו את הקוד הנוכחי באפליקציה ונסו שוב."
+    "invalidCode": "הקוד אינו נכון. בדקו את הקוד הנוכחי באפליקציה ונסו שוב.",
+    "verifyPageTitle": "אישור כתובת האימייל",
+    "verifyPageIntro": "לפני הכניסה ל-CRM אנחנו צריכים לוודא שהכתובת הזו שלכם. שלחנו קישור אל",
+    "verifyStepOpen": "פתחו את תיבת הדואר (בדקו גם בספאם — הוא מתחבא שם לא מעט).",
+    "verifyStepClick": "לחצו על הקישור במייל מ-Ceramony.",
+    "verifyStepReturn": "זהו — הדף הזה יעביר אתכם הלאה מיד.",
+    "verifyWatching": "ממתינים שתפתחו את הקישור…",
+    "verifyNotYet": "עדיין לא אושר. פתחו את הקישור במייל ונסו שוב.",
+    "verifyChecking": "בודקים…",
+    "verifyCheckNow": "לחצתי על הקישור",
+    "verifyUseAnotherAccount": "כתובת שגויה? התנתקו"
   },
   "invite": {
     "title": "הוזמנתם להצטרף",
@@ -384,7 +394,7 @@
     },
     "billing": {
       "title": "חיוב",
-      "hint": "התוכנית החינמית מכסה את הבסיס. תוכנית Pro פותחת את חלונות האנליטיקה של שנה ו-3 שנים.",
+      "hint": "התוכנית החינמית מכסה את הבסיס. תוכנית Pro מרחיבה את גלריית דף הנחיתה ל-15 תמונות, מוסיפה את רשימת הפריטים, ופותחת את חלונות האנליטיקה של שנה ו-3 שנים.",
       "checkoutSuccess": "עברתם ל-Pro — תודה! ייתכן שייקח רגע עד שזה יופיע למטה.",
       "checkoutCancelled": "התשלום בוטל — אתם עדיין בתוכנית החינמית.",
       "failed": "משהו השתבש. נסו שוב.",
@@ -762,7 +772,27 @@
     "faqGenerate": "כתבו את זה בשבילי",
     "faqGenerating": "כותב…",
     "faqGenerateHint": "מנסח שאלות לפי מה שכבר מופיע בדף שלכם. שום דבר לא מתפרסם עד שתשמרו.",
-    "faqGenerateFailed": "לא הצלחנו לכתוב את השאלות כרגע. נסו שוב בעוד רגע."
+    "faqGenerateFailed": "לא הצלחנו לכתוב את השאלות כרגע. נסו שוב בעוד רגע.",
+    "proBadge": "Pro",
+    "seePlans": "לתוכניות",
+    "galleryProHint": "בתוכנית החינמית מוצגות עד {free} תמונות. תוכנית Pro מרחיבה את הגלריה ל-{pro}.",
+    "galleryOverLimit": "התוכנית שלכם מאפשרת {n} תמונות, ויש לכם {over} מעבר לזה. הסירו את העודפות לפני השמירה, או חזרו ל-Pro כדי לשמור על כולן.",
+    "catalogTitle": "רשימת פריטים",
+    "catalogHint": "עד {n} דברים שאתם מציעים — תפריט, מחירון או מגוון מוצרים — מוצגים ככרטיסים מעל טופס יצירת הקשר. לא נמכר כאן דבר: המבקרים קוראים את הרשימה ואז פונים אליכם.",
+    "catalogProHint": "רשימת הפריטים היא תכונה של Pro: עד {n} פריטים עם תמונה, תיאור ומחיר.",
+    "catalogHeading": "כותרת הקטע",
+    "catalogHeadingPlaceholder": "מה אנחנו מציעים",
+    "catalogNote": "הערה מתחת לכותרת",
+    "catalogNotePlaceholder": "המחירים כוללים מע\"מ",
+    "catalogNoteHint": "לא חובה — שורה אחת למה שנכון לכל הרשימה.",
+    "catalogPhoto": "תמונה",
+    "catalogItemPlaceholder": "שם הפריט",
+    "catalogPricePlaceholder": "מחיר",
+    "catalogDescriptionPlaceholder": "שורה על הפריט (לא חובה)",
+    "addCatalogItem": "הוספת פריט",
+    "removeCatalogItem": "הסרת פריט",
+    "moveCatalogUp": "העלאת פריט",
+    "moveCatalogDown": "הורדת פריט"
   },
   "workspace": {
     "deleteFailed": "לא הצלחנו למחוק את העמוד.",
@@ -806,7 +836,9 @@
     "chooseImageFile": "בחרו קובץ תמונה.",
     "uploadFailed": "ההעלאה נכשלה.",
     "optimizing": "מבצע אופטימיזציה ומעלה…",
-    "chooseImage": "בחרו תמונה"
+    "chooseImage": "בחרו תמונה",
+    "replace": "החלפה",
+    "remove": "הסרה"
   },
   "range": {
     "label": "טווח זמן"
@@ -1180,7 +1212,8 @@
       "tenantNotFound": "החברה לא נמצאה.",
       "somethingWentWrong": "משהו השתבש. נסו שוב.",
       "tooManyRequests": "יותר מדי בקשות. נסו שוב בעוד {seconds} שניות.",
-      "forbidden": "אין לכם הרשאה לבצע פעולה זו. פנו לבעלים או למנהל בצוות שלכם."
+      "forbidden": "אין לכם הרשאה לבצע פעולה זו. פנו לבעלים או למנהל בצוות שלכם.",
+      "emailNotVerified": "אשרו את כתובת האימייל לפני השימוש ב-CRM."
     },
     "signup": {
       "emailExists": "כבר קיים חשבון עם האימייל הזה.",
@@ -1331,7 +1364,10 @@
       "formFieldsMissingOptions": "ל\"{label}\" נדרשת לפחות אפשרות אחת.",
       "invalidWhatsappNumber": "מספר הוואטסאפ לא נראה שלם. כללו את קידומת המדינה.",
       "faqIncomplete": "לכל שאלה נדרשת תשובה, ולכל תשובה נדרשת שאלה.",
-      "faqTooMany": "ניתן להוסיף עד {n} שאלות."
+      "faqTooMany": "ניתן להוסיף עד {n} שאלות.",
+      "catalogNeedsTitle": "לכל פריט צריך שם.",
+      "catalogNotIncluded": "רשימת הפריטים היא תכונה של Pro.",
+      "catalogTooMany": "אפשר עד {n} פריטים."
     },
     "agentGenerate": {
       "missingRequiredFields": "תחום העיסוק והגדרת הליד הם שדות חובה.",

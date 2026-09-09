@@ -13,6 +13,10 @@ const PRESETS = {
   logo: { maxW: 512, maxH: 512, quality: 0.9 },
   background: { maxW: 1920, maxH: 1080, quality: 0.82 },
   gallery: { maxW: 1400, maxH: 1400, quality: 0.82 },
+  // Item-list photos render as small cards, never full-bleed, so they need
+  // far fewer pixels than a gallery shot — and a price list can carry fifteen
+  // of them on one page, where the saving actually adds up.
+  catalog: { maxW: 900, maxH: 900, quality: 0.82 },
   // Avatars never render above 96px, so 256 covers a 2x display with room to
   // spare and keeps the stored blob around 15-25KB.
   avatar: { maxW: 256, maxH: 256, quality: 0.88 },
@@ -140,7 +144,7 @@ export default function ImageUpload({
               onClick={() => inputRef.current?.click()}
               disabled={busy}
             >
-              Replace
+              {t("upload.replace")}
             </button>
             <button
               type="button"
@@ -150,7 +154,7 @@ export default function ImageUpload({
               disabled={busy}
             >
               <IconClose size={13} />
-              Remove
+              {t("upload.remove")}
             </button>
           </div>
         </div>

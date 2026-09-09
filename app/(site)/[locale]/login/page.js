@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Logo from "@/components/Logo";
 import { useLocaleHref, useT } from "@/components/i18n/LocaleProvider";
@@ -11,6 +12,7 @@ import Link from "@/components/i18n/Link";
 
 export default function LoginPage() {
   const t = useT();
+  const router = useRouter();
   const localeHref = useLocaleHref();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +33,17 @@ export default function LoginPage() {
   async function finishSignIn() {
     const res = await fetch("/api/me");
     const me = await res.json();
+
+    // An account that hasn't confirmed its address can't enter the CRM (see
+    // proxy.js), so it goes straight to the waiting room. Routed here rather
+    // than left to the redirect so the intro animation isn't played over a
+    // destination the user is about to be bounced out of — two seconds of
+    // brand, then a screen saying "check your inbox", reads as a bug.
+    if (!me.emailVerified) {
+      router.push(localeHref("/verify-email"));
+      return;
+    }
+
     // Deliberately leaves `loading` true: the button stays disabled behind the
     // overlay so a second submit can't fire mid-animation.
     setDestination(localeHref(`/t/${me.tenantSlug}`));

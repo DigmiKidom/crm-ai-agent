@@ -55,7 +55,12 @@ export default function SignupPage() {
       return;
     }
 
-    router.push(localeHref(`/t/${data.tenantSlug}/onboarding`));
+    // Signed in, but not yet into the product: the account still has to
+    // confirm the address the verification email just went to. The session is
+    // real and deliberately so — /verify-email needs it to resend the link —
+    // it simply can't reach anything under /t until proxy.js sees a verified
+    // token. Onboarding is one redirect away the moment that happens.
+    router.push(localeHref("/verify-email"));
   }
 
   return (

@@ -92,7 +92,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // `user` is only defined on initial sign-in; persist the fields we
       // need onto the token so every request has tenant/role without a DB hit.
       if (user) {
@@ -103,6 +103,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.platformRole = user.platformRole;
         token.emailVerified = user.emailVerified;
       }
+
+      // A JWT is only issued at sign-in, so the token of someone who signed
+      // up a minute ago still says "unverified" after they click the link in
+      // their inbox — and the dashboard gate (see proxy.js) reads the token.
+      // Without this they would have to sign out and back in to get past a
+      // step they had already completed.
+      //
+      // Narrow on purpose. It runs only when the client explicitly asks for
+      // a session update (the waiting page's useSession().update() once its
+      // poll sees the verification land), and only while the token still says
+      // unverified — so a verified user never pays for this query again, and
+      // ordinary requests never touch the database here at all.
+      if (trigger === "update" && token.userId && !token.emailVerified) {
+        try {
+          await connectDB();
+          const fresh = await User.findById(token.userId).select("emailVerified").lean();
+          token.emailVerified = Boolean(fresh?.emailVerified);
+        } catch (err) {
+          // A database blip must not invalidate a live session; the poll on
+          // the waiting page simply tries again.
+          console.error("Refreshing emailVerified failed:", err);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {

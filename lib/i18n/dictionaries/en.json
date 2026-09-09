@@ -117,7 +117,17 @@
     "twoFactorStep": "Two-step verification",
     "twoFactorStepHint": "Your password was accepted. Enter the code from your authenticator app to finish.",
     "twoFactorBack": "Use a different account",
-    "invalidCode": "That code isn't right. Check the current one in your app and try again."
+    "invalidCode": "That code isn't right. Check the current one in your app and try again.",
+    "verifyPageTitle": "Confirm your email",
+    "verifyPageIntro": "Before you can open your CRM, we need to know this address is yours. We've sent a link to",
+    "verifyStepOpen": "Open your inbox (check spam too — it hides there more often than you'd think).",
+    "verifyStepClick": "Click the link in the email from Ceramony.",
+    "verifyStepReturn": "That's it — this page will let you straight through.",
+    "verifyWatching": "Waiting for you to open the link…",
+    "verifyNotYet": "Not confirmed yet. Open the link in the email, then try again.",
+    "verifyChecking": "Checking…",
+    "verifyCheckNow": "I've clicked the link",
+    "verifyUseAnotherAccount": "Wrong address? Sign out"
   },
   "invite": {
     "title": "You're invited",
@@ -384,7 +394,7 @@
     },
     "billing": {
       "title": "Billing",
-      "hint": "Free covers the essentials. Pro unlocks the year and 3-year analytics windows.",
+      "hint": "Free covers the essentials. Pro raises the landing-page gallery to 15 photos, adds the item list, and unlocks the year and 3-year analytics windows.",
       "checkoutSuccess": "You're on Pro — thanks! It may take a moment to show up below.",
       "checkoutCancelled": "Checkout was cancelled — you're still on the Free plan.",
       "failed": "Something went wrong. Please try again.",
@@ -762,7 +772,27 @@
     "faqGenerate": "Write these for me",
     "faqGenerating": "Writing…",
     "faqGenerateHint": "Drafts questions from what's already on your page. Nothing is published until you save.",
-    "faqGenerateFailed": "Couldn't write the questions right now. Try again in a moment."
+    "faqGenerateFailed": "Couldn't write the questions right now. Try again in a moment.",
+    "proBadge": "Pro",
+    "seePlans": "See plans",
+    "galleryProHint": "Free shows up to {free} photos. Pro raises the gallery to {pro}.",
+    "galleryOverLimit": "Your plan allows {n} photos and you have {over} more than that. Remove the extras before saving, or move back to Pro to keep them all.",
+    "catalogTitle": "Item list",
+    "catalogHint": "Up to {n} things you offer — a menu, a price list, a product range — shown as cards above the contact form. Nothing is sold here: visitors read the list and then contact you.",
+    "catalogProHint": "The item list is a Pro feature: up to {n} items with a photo, a description and a price.",
+    "catalogHeading": "Section heading",
+    "catalogHeadingPlaceholder": "What we offer",
+    "catalogNote": "Note under the heading",
+    "catalogNotePlaceholder": "Prices include VAT",
+    "catalogNoteHint": "Optional — one line for anything that applies to the whole list.",
+    "catalogPhoto": "Photo",
+    "catalogItemPlaceholder": "Item name",
+    "catalogPricePlaceholder": "Price",
+    "catalogDescriptionPlaceholder": "A line about this item (optional)",
+    "addCatalogItem": "Add item",
+    "removeCatalogItem": "Remove item",
+    "moveCatalogUp": "Move item up",
+    "moveCatalogDown": "Move item down"
   },
   "workspace": {
     "deleteFailed": "Could not delete this page.",
@@ -806,7 +836,9 @@
     "chooseImageFile": "Please choose an image file.",
     "uploadFailed": "Upload failed.",
     "optimizing": "Optimizing and uploading…",
-    "chooseImage": "Choose an image"
+    "chooseImage": "Choose an image",
+    "replace": "Replace",
+    "remove": "Remove"
   },
   "range": {
     "label": "Time range"
@@ -1180,7 +1212,8 @@
       "tenantNotFound": "Tenant not found.",
       "somethingWentWrong": "Something went wrong. Please try again.",
       "tooManyRequests": "Too many requests. Please try again in {seconds} seconds.",
-      "forbidden": "You don't have permission to do that. Ask an owner or admin on your team."
+      "forbidden": "You don't have permission to do that. Ask an owner or admin on your team.",
+      "emailNotVerified": "Confirm your email address before using the CRM."
     },
     "signup": {
       "emailExists": "An account with that email already exists.",
@@ -1331,7 +1364,10 @@
       "formFieldsMissingOptions": "\"{label}\" needs at least one choice.",
       "invalidWhatsappNumber": "That WhatsApp number doesn't look complete. Include the country code.",
       "faqIncomplete": "Every question needs an answer, and every answer needs a question.",
-      "faqTooMany": "You can have at most {n} questions."
+      "faqTooMany": "You can have at most {n} questions.",
+      "catalogNeedsTitle": "Every item needs a name.",
+      "catalogNotIncluded": "The item list is a Pro feature.",
+      "catalogTooMany": "You can have at most {n} items."
     },
     "agentGenerate": {
       "missingRequiredFields": "Industry and lead definition are required.",

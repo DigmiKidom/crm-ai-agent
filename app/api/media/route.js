@@ -5,7 +5,7 @@ import { requireTenantSession } from "@/lib/tenantSession";
 import { tenantScoped } from "@/lib/tenantScope";
 
 const ALLOWED_TYPES = ["image/webp", "image/jpeg", "image/png"];
-const ALLOWED_KINDS = ["logo", "background", "gallery", "avatar"];
+const ALLOWED_KINDS = ["logo", "background", "gallery", "catalog", "avatar"];
 
 // Uploads arrive already resized + compressed by the browser. This route is
 // the trust boundary: it re-checks type, size, and tenant ownership before

@@ -28,6 +28,37 @@ function check(name, fn) {
   catch (e) { console.log("  FAIL " + name + "\n        " + e.message); fail++; }
 }
 
+// Ran once rather than per-locale: it is a statement about the three files
+// together, not about any one of them. Nothing else catches a key added to
+// en.json and forgotten in the others — the missing string doesn't throw, it
+// renders its own dotted key ("editor.catalogTitle") into the UI, which is
+// the kind of bug that ships.
+{
+  console.log("\n— dictionary parity —");
+  const walk = (o, p = "") =>
+    Object.entries(o).flatMap(([k, v]) =>
+      typeof v === "string" ? [p + k] : walk(v, p + k + "."));
+
+  const enKeys = new Set(walk(en));
+  for (const [lang, dict] of [["he", he], ["es", es]]) {
+    check(`${lang} has exactly the same keys as en`, () => {
+      const keys = new Set(walk(dict));
+      const missing = [...enKeys].filter((k) => !keys.has(k));
+      const extra = [...keys].filter((k) => !enKeys.has(k));
+      if (missing.length || extra.length) {
+        throw new Error(
+          [
+            missing.length ? `missing ${missing.length}: ${missing.slice(0, 5).join(", ")}` : "",
+            extra.length ? `extra ${extra.length}: ${extra.slice(0, 5).join(", ")}` : "",
+          ]
+            .filter(Boolean)
+            .join(" | ")
+        );
+      }
+    });
+  }
+}
+
 for (const [lang, dict] of [["en", en], ["he", he], ["es", es]]) {
   const t = makeT(dict);
   console.log(`\n— ${lang} —`);

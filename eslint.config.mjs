@@ -11,6 +11,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scratch the session bridge couldn't unlink (see the note in
+    // claude/deploy-state.md) — an old copy of app/ that is gitignored and
+    // not part of the build. Without this it is the only thing `npm run lint`
+    // reports, 50 errors deep, which is how a lint run stops being read.
+    "_to_delete/**",
   ]),
   {
     // `t` is the translator, bound once per component via useT() (or destructured

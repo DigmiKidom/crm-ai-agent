@@ -5,7 +5,7 @@ import ImageUpload from "./ImageUpload";
 import IconPicker from "./IconPicker";
 import TemplateThumbnail from "./TemplateThumbnail";
 import styles from "./dashboard.module.css";
-import { IconCheck, IconClose, IconPlus, IconExternalLink, IconChevronUp, IconChevronDown, IconGlobe, IconSparkles } from "./icons";
+import { IconCheck, IconClose, IconPlus, IconExternalLink, IconChevronUp, IconChevronDown, IconGlobe, IconSparkles, IconLock } from "./icons";
 import { useT } from "@/components/i18n/LocaleProvider";
 import { CONTENT_LANGUAGES } from "@/lib/i18n/languages";
 import {
@@ -27,12 +27,26 @@ import {
   whatsappUrl,
 } from "@/lib/socialLinks";
 import { MAX_FAQ_ITEMS, MAX_FAQ_ANSWER, blankFaqItem } from "@/lib/faq";
+import {
+  blankCatalogItem,
+  MAX_CATALOG_DESCRIPTION,
+  MAX_CATALOG_NOTE,
+  MAX_CATALOG_PRICE,
+  MAX_CATALOG_TITLE,
+} from "@/lib/catalog";
+import {
+  catalogLimit,
+  galleryLimit,
+  isProPlan,
+  FREE_GALLERY_PHOTOS,
+  PRO_CATALOG_ITEMS,
+  PRO_GALLERY_PHOTOS,
+} from "@/lib/plan";
 import { SocialIcon } from "./SocialIcons";
 import Link from "@/components/i18n/Link";
 
 const MAX_FEATURES = 3;
 const MAX_BACKGROUNDS = 3;
-const MAX_GALLERY = 6;
 const GALLERY_COLUMNS = [2, 3, 4];
 const MAX_DESCRIPTION = 300;
 
@@ -52,8 +66,15 @@ export default function LandingPageEditor({
   // page content), but is edited here because this is where an owner thinks
   // about what visitors see. Settings still edits the same four URL fields.
   social = null,
+  // "free" | "pro". Only ever a hint here — every limit it feeds is re-checked
+  // server-side against the tenant's live plan in the PATCH route, because a
+  // prop can be anything by the time it reaches a browser.
+  plan = "free",
 }) {
   const t = useT();
+  const isPro = isProPlan(plan);
+  const maxGallery = galleryLimit(plan);
+  const maxCatalog = catalogLimit(plan);
   const [form, setForm] = useState({
     headline: landingPage.headline || "",
     headlineVariantB: landingPage.headlineVariantB || "",
@@ -64,7 +85,11 @@ export default function LandingPageEditor({
     backgroundOverlay:
       typeof landingPage.backgroundOverlay === "number" ? landingPage.backgroundOverlay : 0.55,
     backgroundMediaIds: (landingPage.backgroundMediaIds || []).slice(0, MAX_BACKGROUNDS),
-    galleryMediaIds: (landingPage.galleryMediaIds || []).slice(0, MAX_GALLERY),
+    // Sliced to the schema ceiling, not to this plan's allowance: a tenant
+    // whose subscription lapsed still has their photos, and opening the editor
+    // must not be what silently deletes the ones over the free limit. The save
+    // path is where they find out — see the notice on the section below.
+    galleryMediaIds: (landingPage.galleryMediaIds || []).slice(0, PRO_GALLERY_PHOTOS),
     galleryColumns: GALLERY_COLUMNS.includes(landingPage.galleryColumns)
       ? landingPage.galleryColumns
       : 3,
@@ -106,6 +131,18 @@ export default function LandingPageEditor({
     faq: landingPage.faq?.length
       ? landingPage.faq.map((item) => ({ question: item.question || "", answer: item.answer || "" }))
       : [blankFaqItem()],
+    catalogHeading: landingPage.catalogHeading || "",
+    catalogNote: landingPage.catalogNote || "",
+    // Same as the FAQ: one empty row so there's somewhere to type, which
+    // normalizeCatalog() drops again on the server if it stays empty.
+    catalog: landingPage.catalog?.length
+      ? landingPage.catalog.map((item) => ({
+          title: item.title || "",
+          description: item.description || "",
+          price: item.price || "",
+          mediaId: item.mediaId ? String(item.mediaId) : null,
+        }))
+      : [blankCatalogItem()],
     formFields: landingPage.formFields?.length
       ? landingPage.formFields.map((f) => ({
           key: f.key,
@@ -176,7 +213,7 @@ export default function LandingPageEditor({
       const next = [...f.galleryMediaIds];
       if (mediaId === null) next.splice(slot, 1);
       else next[slot] = mediaId;
-      return { ...f, galleryMediaIds: next.filter(Boolean).slice(0, MAX_GALLERY) };
+      return { ...f, galleryMediaIds: next.filter(Boolean).slice(0, PRO_GALLERY_PHOTOS) };
     });
     setSaved(false);
   }
@@ -355,6 +392,43 @@ export default function LandingPageEditor({
     }
   }
 
+  // ── Item list ────────────────────────────────────────────────────────────
+  function updateCatalogItem(index, key, value) {
+    setForm((f) => ({
+      ...f,
+      catalog: f.catalog.map((item, i) => (i === index ? { ...item, [key]: value } : item)),
+    }));
+    setSaved(false);
+  }
+
+  function addCatalogItem() {
+    setForm((f) =>
+      f.catalog.length >= maxCatalog ? f : { ...f, catalog: [...f.catalog, blankCatalogItem()] }
+    );
+    setSaved(false);
+  }
+
+  function removeCatalogItem(index) {
+    setForm((f) => {
+      const next = f.catalog.filter((_, i) => i !== index);
+      // Never leave the list with nothing to type into — the empty row is
+      // dropped on save, so this can't resurrect a deleted item.
+      return { ...f, catalog: next.length ? next : [blankCatalogItem()] };
+    });
+    setSaved(false);
+  }
+
+  function moveCatalogItem(index, direction) {
+    setForm((f) => {
+      const next = [...f.catalog];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return f;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...f, catalog: next };
+    });
+    setSaved(false);
+  }
+
   function updateStatusMessage(key, value) {
     setForm((f) => ({ ...f, statusMessages: { ...f.statusMessages, [key]: value } }));
     setSaved(false);
@@ -365,10 +439,22 @@ export default function LandingPageEditor({
     setSaving(true);
     setError("");
 
+    // On Free the item list is inert, so `form.catalog` only ever holds the
+    // one empty placeholder row — and sending that would write an empty array
+    // over whatever a lapsed Pro tenant had saved. The PATCH route reads an
+    // absent field as "leave it alone", so omitting the three keys is what
+    // keeps their price list intact until they resubscribe.
+    const payload = { ...form };
+    if (!isPro) {
+      delete payload.catalog;
+      delete payload.catalogHeading;
+      delete payload.catalogNote;
+    }
+
     const res = await fetch("/api/tenant/landing-page", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
 
     let data;
@@ -388,7 +474,15 @@ export default function LandingPageEditor({
   }
 
   const backgroundSlots = Math.min(form.backgroundMediaIds.length + 1, MAX_BACKGROUNDS);
-  const gallerySlots = Math.min(form.galleryMediaIds.length + 1, MAX_GALLERY);
+  const gallerySlots = Math.min(form.galleryMediaIds.length + 1, maxGallery);
+  // Photos saved while the tenant was on Pro that a Free plan can no longer
+  // keep. Shown as a warning rather than trimmed on load, because deleting
+  // someone's uploads as a side effect of opening a page is never the right
+  // answer — they choose which ones to drop.
+  const galleryOverflow = Math.max(0, form.galleryMediaIds.length - maxGallery);
+  const catalogFilled = form.catalog.filter(
+    (item) => item.title.trim() || item.description.trim() || item.price.trim() || item.mediaId
+  ).length;
 
   return (
     <form className={styles.settingsForm} onSubmit={handleSave}>
@@ -696,12 +790,37 @@ export default function LandingPageEditor({
         <h2 className={styles.sectionTitle}>
           {t("editor.photoGallery")}{" "}
           <span className={styles.countPill}>
-            {form.galleryMediaIds.length}/{MAX_GALLERY}
+            {form.galleryMediaIds.length}/{maxGallery}
           </span>
         </h2>
-        <p className={styles.sectionHint}>
-          {t("editor.photoGalleryHint", { n: MAX_GALLERY })}
-        </p>
+        <p className={styles.sectionHint}>{t("editor.photoGalleryHint", { n: maxGallery })}</p>
+
+        {/* The upsell sits under the hint, phrased as what they'd gain rather
+            than what they're missing — and it names both numbers, since "more
+            photos" tells nobody whether it's worth paying for. */}
+        {!isPro && (
+          <p className={styles.proNotice}>
+            <IconLock size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+            <span>
+              {t("editor.galleryProHint", {
+                free: FREE_GALLERY_PHOTOS,
+                pro: PRO_GALLERY_PHOTOS,
+              })}{" "}
+              <Link href={`/t/${tenantSlug}/settings`}>{t("editor.seePlans")}</Link>
+            </span>
+          </p>
+        )}
+
+        {/* Only ever seen by a tenant whose subscription lapsed with more
+            photos saved than Free allows. Their page keeps rendering all of
+            them; the next save is what trims it, so this has to say so before
+            they press the button. */}
+        {galleryOverflow > 0 && (
+          <p className={styles.proNotice} role="alert">
+            <IconLock size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+            <span>{t("editor.galleryOverLimit", { n: maxGallery, over: galleryOverflow })}</span>
+          </p>
+        )}
 
         <div className={styles.backgroundGrid}>
           {Array.from({ length: gallerySlots }).map((_, slot) => (
@@ -995,6 +1114,153 @@ export default function LandingPageEditor({
             {t("editor.addFaq")}
           </button>
         )}
+      </section>
+
+      {/* ── Item list (Pro) ───────────────────────────────────────────────
+          A menu, price list or product range. Shown to everyone, dimmed and
+          inert on Free: a feature that vanishes on the cheaper plan can't
+          tell anyone what upgrading would buy them.
+
+          Nothing here sells anything. There is no price arithmetic, no
+          quantity, no checkout — `price` is a free-text label the business
+          types and the page prints, and the only action on the published
+          section is a link to the contact form. */}
+      <section className={`${styles.detailCard} ${!isPro ? styles.proLockedCard : ""}`}>
+        <h2 className={styles.sectionTitle}>
+          {t("editor.catalogTitle")} <span className={styles.proPill}>{t("editor.proBadge")}</span>{" "}
+          <span className={styles.countPill}>
+            {catalogFilled}/{isPro ? maxCatalog : PRO_CATALOG_ITEMS}
+          </span>
+        </h2>
+        <p className={styles.sectionHint}>{t("editor.catalogHint", { n: PRO_CATALOG_ITEMS })}</p>
+
+        {!isPro && (
+          <p className={styles.proNotice}>
+            <IconLock size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+            <span>
+              {t("editor.catalogProHint", { n: PRO_CATALOG_ITEMS })}{" "}
+              <Link href={`/t/${tenantSlug}/settings`}>{t("editor.seePlans")}</Link>
+            </span>
+          </p>
+        )}
+
+        {/* `inert` rather than `disabled` on each control: it takes the whole
+            subtree out of the tab order and out of the accessibility tree in
+            one attribute, so a keyboard or screen-reader user isn't walked
+            through fields that can't be saved. */}
+        <div className={!isPro ? styles.proLockedBody : undefined} inert={!isPro || undefined}>
+          <div className={styles.detailField}>
+            <label htmlFor="catalog-heading">{t("editor.catalogHeading")}</label>
+            <input
+              id="catalog-heading"
+              placeholder={t("editor.catalogHeadingPlaceholder")}
+              value={form.catalogHeading}
+              onChange={(e) => update("catalogHeading", e.target.value)}
+            />
+          </div>
+
+          <div className={styles.detailField}>
+            <label htmlFor="catalog-note">{t("editor.catalogNote")}</label>
+            <input
+              id="catalog-note"
+              maxLength={MAX_CATALOG_NOTE}
+              placeholder={t("editor.catalogNotePlaceholder")}
+              value={form.catalogNote}
+              onChange={(e) => update("catalogNote", e.target.value)}
+            />
+            <span className={styles.sectionHint}>{t("editor.catalogNoteHint")}</span>
+          </div>
+
+          {form.catalog.map((item, index) => (
+            <div key={index} className={styles.catalogRow}>
+              <div className={styles.catalogRowHeader}>
+                <span className={styles.catalogRowNumber}>{index + 1}</span>
+                <div className={styles.formFieldActions}>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => moveCatalogItem(index, -1)}
+                    disabled={index === 0}
+                    aria-label={t("editor.moveCatalogUp")}
+                  >
+                    <IconChevronUp size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => moveCatalogItem(index, 1)}
+                    disabled={index === form.catalog.length - 1}
+                    aria-label={t("editor.moveCatalogDown")}
+                  >
+                    <IconChevronDown size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => removeCatalogItem(index)}
+                    aria-label={t("editor.removeCatalogItem")}
+                  >
+                    <IconClose size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.catalogRowMain}>
+                <div className={styles.catalogRowMedia}>
+                  <ImageUpload
+                    kind="catalog"
+                    value={item.mediaId}
+                    onChange={(id) => updateCatalogItem(index, "mediaId", id)}
+                    label={t("editor.catalogPhoto")}
+                    previewClassName={styles.catalogThumb}
+                  />
+                </div>
+
+                <div className={styles.catalogRowFields}>
+                  <div className={styles.catalogRowLine}>
+                    <input
+                      maxLength={MAX_CATALOG_TITLE}
+                      placeholder={t("editor.catalogItemPlaceholder")}
+                      value={item.title}
+                      onChange={(e) => updateCatalogItem(index, "title", e.target.value)}
+                    />
+                    {/* Free text, and LTR even in Hebrew: a price is read
+                        left-to-right whatever language surrounds it, which is
+                        the same rule the CRM's money fields follow. */}
+                    <input
+                      dir="ltr"
+                      maxLength={MAX_CATALOG_PRICE}
+                      placeholder={t("editor.catalogPricePlaceholder")}
+                      value={item.price}
+                      onChange={(e) => updateCatalogItem(index, "price", e.target.value)}
+                    />
+                  </div>
+                  <textarea
+                    rows={2}
+                    maxLength={MAX_CATALOG_DESCRIPTION}
+                    placeholder={t("editor.catalogDescriptionPlaceholder")}
+                    value={item.description}
+                    onChange={(e) => updateCatalogItem(index, "description", e.target.value)}
+                  />
+                  <span className={styles.charCount}>
+                    {item.description.length}/{MAX_CATALOG_DESCRIPTION}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {form.catalog.length < (isPro ? maxCatalog : PRO_CATALOG_ITEMS) && (
+            <button
+              type="button"
+              className={`${styles.linkButton} ${styles.iconLabel}`}
+              onClick={addCatalogItem}
+            >
+              <IconPlus size={13} />
+              {t("editor.addCatalogItem")}
+            </button>
+          )}
+        </div>
       </section>
 
       <section className={styles.detailCard}>

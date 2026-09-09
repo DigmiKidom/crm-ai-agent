@@ -117,7 +117,17 @@
     "twoFactorStep": "Verificación en dos pasos",
     "twoFactorStepHint": "Tu contraseña se aceptó. Introduce el código de tu app de autenticación para terminar.",
     "twoFactorBack": "Usar otra cuenta",
-    "invalidCode": "Ese código no es correcto. Comprueba el actual en tu app e inténtalo de nuevo."
+    "invalidCode": "Ese código no es correcto. Comprueba el actual en tu app e inténtalo de nuevo.",
+    "verifyPageTitle": "Confirma tu correo",
+    "verifyPageIntro": "Antes de abrir tu CRM necesitamos saber que esta dirección es tuya. Hemos enviado un enlace a",
+    "verifyStepOpen": "Abre tu bandeja de entrada (revisa también el spam — se esconde ahí más de lo que parece).",
+    "verifyStepClick": "Haz clic en el enlace del correo de Ceramony.",
+    "verifyStepReturn": "Ya está — esta página te dejará pasar directamente.",
+    "verifyWatching": "Esperando a que abras el enlace…",
+    "verifyNotYet": "Todavía sin confirmar. Abre el enlace del correo y vuelve a intentarlo.",
+    "verifyChecking": "Comprobando…",
+    "verifyCheckNow": "Ya hice clic en el enlace",
+    "verifyUseAnotherAccount": "¿Dirección equivocada? Cerrar sesión"
   },
   "invite": {
     "title": "Tienes una invitación",
@@ -384,7 +394,7 @@
     },
     "billing": {
       "title": "Facturación",
-      "hint": "El plan gratuito cubre lo esencial. El plan Pro desbloquea las ventanas de analítica de 1 y 3 años.",
+      "hint": "El plan gratuito cubre lo esencial. Pro amplía la galería de la página de destino a 15 fotos, añade la lista de artículos y desbloquea las ventanas de analítica de 1 y 3 años.",
       "checkoutSuccess": "Ya tienes el plan Pro — ¡gracias! Puede tardar un momento en aparecer abajo.",
       "checkoutCancelled": "Se canceló el pago — sigues en el plan gratuito.",
       "failed": "Algo salió mal. Inténtalo de nuevo.",
@@ -762,7 +772,27 @@
     "faqGenerate": "Escríbelas por mí",
     "faqGenerating": "Escribiendo…",
     "faqGenerateHint": "Redacta preguntas a partir de lo que ya hay en tu página. Nada se publica hasta que guardes.",
-    "faqGenerateFailed": "No pudimos escribir las preguntas ahora. Inténtalo de nuevo en un momento."
+    "faqGenerateFailed": "No pudimos escribir las preguntas ahora. Inténtalo de nuevo en un momento.",
+    "proBadge": "Pro",
+    "seePlans": "Ver planes",
+    "galleryProHint": "El plan gratuito muestra hasta {free} fotos. Pro amplía la galería a {pro}.",
+    "galleryOverLimit": "Tu plan permite {n} fotos y tienes {over} de más. Quita las sobrantes antes de guardar, o vuelve a Pro para conservarlas todas.",
+    "catalogTitle": "Lista de artículos",
+    "catalogHint": "Hasta {n} cosas que ofreces — una carta, una lista de precios, una gama de productos — mostradas como tarjetas encima del formulario de contacto. Aquí no se vende nada: los visitantes leen la lista y luego te contactan.",
+    "catalogProHint": "La lista de artículos es una función Pro: hasta {n} artículos con foto, descripción y precio.",
+    "catalogHeading": "Título de la sección",
+    "catalogHeadingPlaceholder": "Lo que ofrecemos",
+    "catalogNote": "Nota bajo el título",
+    "catalogNotePlaceholder": "Precios con IVA incluido",
+    "catalogNoteHint": "Opcional — una línea para lo que se aplica a toda la lista.",
+    "catalogPhoto": "Foto",
+    "catalogItemPlaceholder": "Nombre del artículo",
+    "catalogPricePlaceholder": "Precio",
+    "catalogDescriptionPlaceholder": "Una línea sobre este artículo (opcional)",
+    "addCatalogItem": "Añadir artículo",
+    "removeCatalogItem": "Quitar artículo",
+    "moveCatalogUp": "Subir el artículo",
+    "moveCatalogDown": "Bajar el artículo"
   },
   "workspace": {
     "deleteFailed": "No se pudo eliminar esta página.",
@@ -806,7 +836,9 @@
     "chooseImageFile": "Elige un archivo de imagen.",
     "uploadFailed": "Error al subir el archivo.",
     "optimizing": "Optimizando y subiendo…",
-    "chooseImage": "Elegir una imagen"
+    "chooseImage": "Elegir una imagen",
+    "replace": "Reemplazar",
+    "remove": "Quitar"
   },
   "range": {
     "label": "Rango de tiempo"
@@ -1180,7 +1212,8 @@
       "tenantNotFound": "Empresa no encontrada.",
       "somethingWentWrong": "Algo salió mal. Inténtalo de nuevo.",
       "tooManyRequests": "Demasiadas solicitudes. Inténtalo de nuevo en {seconds} segundos.",
-      "forbidden": "No tienes permiso para hacer eso. Pídeselo a un propietario o administrador de tu equipo."
+      "forbidden": "No tienes permiso para hacer eso. Pídeselo a un propietario o administrador de tu equipo.",
+      "emailNotVerified": "Confirma tu dirección de correo antes de usar el CRM."
     },
     "signup": {
       "emailExists": "Ya existe una cuenta con ese correo electrónico.",
@@ -1331,7 +1364,10 @@
       "formFieldsMissingOptions": "\"{label}\" necesita al menos una opción.",
       "invalidWhatsappNumber": "Ese número de WhatsApp no parece completo. Incluye el código de país.",
       "faqIncomplete": "Cada pregunta necesita una respuesta, y cada respuesta una pregunta.",
-      "faqTooMany": "Puedes tener como máximo {n} preguntas."
+      "faqTooMany": "Puedes tener como máximo {n} preguntas.",
+      "catalogNeedsTitle": "Cada artículo necesita un nombre.",
+      "catalogNotIncluded": "La lista de artículos es una función Pro.",
+      "catalogTooMany": "Puedes tener como máximo {n} artículos."
     },
     "agentGenerate": {
       "missingRequiredFields": "El sector y la definición de lead son obligatorios.",
